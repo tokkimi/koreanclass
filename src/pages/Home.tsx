@@ -15,6 +15,7 @@ export default function Home() {
     ?? allLessons.find(({ lesson }) => !p.lessons[lesson.id]?.completed)
   return <div className="container page learning-home">
     <div className="home-greeting">
+      <img className="home-brand-logo" src="/talktome-club-logo.png" alt="TalkToMe Club" />
       <div><p className="eyebrow">TON PETIT RENDEZ-VOUS AVEC LE CORÉEN</p><h1>{user ? `Hello, ${user.displayName}.` : 'Un peu de coréen. Beaucoup de plaisir.'} <span className="greeting-wave">안녕!</span></h1><p className="muted">Des mots aux vraies conversations. À ton rythme.</p></div>
       <div className="home-counters"><span>🔥 {currentStreak(p)} <small>jours</small></span><span>✦ {p.xp} <small>XP</small></span></div>
     </div>
