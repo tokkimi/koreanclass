@@ -42,7 +42,7 @@ export default function Booking() {
   const user = useCurrentUser()
   const progress = useProgress()
   const [params] = useSearchParams()
-  const initial = (params.get('formule') as Choice) || (progress.packCredits > 0 ? 'credit' : 'single')
+  const initial = (params.get('formule') as Choice) || (user?.isDemo || progress.packCredits > 0 ? 'credit' : 'single')
   const [choice, setChoice] = useState<Choice>(initial)
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
@@ -53,7 +53,7 @@ export default function Booking() {
   const days = useMemo(() => nextDays(28), [])
   const taken = new Set(progress.bookings.filter((b) => b.status !== 'annulée').map((b) => `${b.date} ${b.time}`))
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault()
     setError('')
     if (!user) return setError('Connectez-vous pour réserver.')
@@ -61,8 +61,8 @@ export default function Booking() {
     try {
       const b =
         choice === 'credit'
-          ? bookWithCredit({ date, time, topic, message })
-          : addBooking({ formula: choice, date, time, topic, message })
+          ? await bookWithCredit({ date, time, topic, message })
+          : await addBooking({ formula: choice, date, time, topic, message })
       setConfirmed(b)
       window.scrollTo(0, 0)
     } catch (err) {
@@ -82,12 +82,12 @@ export default function Booking() {
           </p>
           <p className="muted small">
             {choice === 'pack10'
-              ? `Pack 10 h : cette séance est réservée et 9 heures ont été ajoutées à votre crédit.`
+              ? `Demande de pack enregistrée. Les crédits seront activés après confirmation du paiement.`
               : choice === 'credit'
-                ? `1 heure a été déduite de votre crédit (reste ${progress.packCredits} h).`
+                ? `1 heure a été déduite de votre crédit (reste ${user?.isDemo ? '∞' : progress.packCredits} h).`
                 : `Cours à l'unité : ${PRICING.single.price} €.`}
           </p>
-          {CONTACT_EMAIL && (
+          {CONTACT_EMAIL && !user.isDemo && (
             <>
               <p className="small">Dernière étape : envoyez la demande au professeur pour qu'il confirme le créneau et vous envoie le lien de visio.</p>
               <a className="btn big" href={bookingMailto(user, confirmed)}>
@@ -95,7 +95,7 @@ export default function Booking() {
               </a>
             </>
           )}
-          {payLink && (
+          {payLink && !user.isDemo && (
             <a className="btn big ghost" href={payLink} target="_blank" rel="noreferrer noopener">
               💳 Payer en ligne ({choice === 'pack10' ? PRICING.pack10.price : PRICING.single.price} €)
             </a>
@@ -137,12 +137,12 @@ export default function Booking() {
                 <span className="price-sm">{PRICING.pack10.price} €</span>
                 <small className="muted">10 €/h · 1re séance maintenant, 9 h en crédit</small>
               </label>
-              {progress.packCredits > 0 && (
+              {(user?.isDemo || progress.packCredits > 0) && (
                 <label className={`formula ${choice === 'credit' ? 'active' : ''}`}>
                   <input type="radio" name="f" checked={choice === 'credit'} onChange={() => setChoice('credit')} />
-                  <strong>Utiliser mon crédit</strong>
+                  <strong>Accès cours</strong>
                   <span className="price-sm">{progress.packCredits} h</span>
-                  <small className="muted">Heures restantes de votre pack</small>
+                  <small className="muted">Crédit disponible · illimité pour le profil test</small>
                 </label>
               )}
             </div>

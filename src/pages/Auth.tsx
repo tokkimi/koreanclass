@@ -5,7 +5,7 @@ import { login, register } from '../lib/store'
 function useNext() {
   const [params] = useSearchParams()
   const next = params.get('next')
-  return next && next.startsWith('/') ? next : '/tableau-de-bord'
+  return next && next.startsWith('/') && !next.startsWith('//') ? next : '/tableau-de-bord'
 }
 
 export function Login() {
@@ -110,8 +110,8 @@ export function Register() {
           <input className="input" type="email" value={form.email} onChange={set('email')} required autoComplete="email" />
         </label>
         <label>
-          Mot de passe (6 caractères min.)
-          <input className="input" type="password" value={form.password} onChange={set('password')} required minLength={6} autoComplete="new-password" />
+          Mot de passe (8 caractères min.)
+          <input className="input" type="password" value={form.password} onChange={set('password')} required minLength={8} autoComplete="new-password" />
         </label>
         <label>
           Confirmer le mot de passe
@@ -122,7 +122,7 @@ export function Register() {
           {loading ? 'Création…' : 'Créer mon compte'}
         </button>
         <p className="small muted center">
-          Vos données sont enregistrées sur cet appareil (voir <Link to="/confidentialite">confidentialité</Link>).
+          Vos données sont sauvegardées en ligne, sur tous vos appareils (voir <Link to="/confidentialite">confidentialité</Link>).
         </p>
         <p className="small center">
           Déjà inscrit(e) ? <Link to={`/connexion?next=${encodeURIComponent(next)}`}>Se connecter</Link>

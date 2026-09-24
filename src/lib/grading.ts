@@ -1,4 +1,4 @@
-import type { Exercise } from '../data/types'
+import type { Exercise } from '../data/types.js'
 
 /** Normalise une réponse libre : espaces, ponctuation finale, casse. */
 export function normalize(s: string): string {

@@ -8,6 +8,7 @@ export default function Tests() {
     <div className="container page">
       <div className="page-head">
         <h1>Tests & QCM</h1>
+        <Link className="btn ghost" to="/pratique">Essayer les jeux et le studio oral ↗</Link>
         <p className="muted">Évaluez-vous : test de positionnement pour trouver votre niveau, puis un test de fin de niveau pour valider chaque étape (70 % requis).</p>
       </div>
 

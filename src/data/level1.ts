@@ -1,5 +1,5 @@
-import type { Level } from './types'
-import { qcm, fill, match, order } from './helpers'
+import type { Level } from './types.js'
+import { qcm, fill, match, order } from './helpers.js'
 
 export const level1: Level = {
   id: 'debutant',
@@ -8,7 +8,7 @@ export const level1: Level = {
   korean: '초급 1',
   cefr: 'A1',
   topik: 'TOPIK I — niveau 1',
-  color: '#10b981',
+  color: '#358076',
   description:
     "Se présenter, saluer, compter, parler de ce qu'on a et de ce qu'on fait. Vous apprenez les bases de la phrase coréenne (sujet – objet – verbe) et le style poli 해요.",
   lessons: [

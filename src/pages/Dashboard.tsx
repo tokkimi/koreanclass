@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { allLessons, levels } from '../data'
-import { globalStats, levelStats, useCurrentUser, useProgress } from '../lib/store'
+import { currentStreak, globalStats, levelStats, useCurrentUser, useProgress } from '../lib/store'
 import { computeBadges } from '../lib/badges'
 import { ProgressBar } from '../components/ProgressBar'
 import { Avatar } from '../components/Avatar'
@@ -38,8 +38,8 @@ export default function Dashboard() {
         </div>
         <div className="card stat">
           <span className="stat-icon">🔥</span>
-          <strong>{p.streak.count}</strong>
-          <span className="muted small">jour{p.streak.count > 1 ? 's' : ''} d'affilée</span>
+          <strong>{currentStreak(p)}</strong>
+          <span className="muted small">jour{currentStreak(p) > 1 ? 's' : ''} d'affilée</span>
         </div>
         <div className="card stat">
           <span className="stat-icon">📘</span>
@@ -138,6 +138,7 @@ export default function Dashboard() {
 
           <div className="card">
             <h2>Mes résultats</h2>
+            <Link to="/pratique" className="link">Jeux et prises de parole : {p.practice?.length ?? 0} activités enregistrées →</Link>
             {p.history.length === 0 ? (
               <p className="muted">Aucun résultat pour l'instant. Terminez une leçon ou un test pour voir vos scores ici.</p>
             ) : (
@@ -190,7 +191,7 @@ export default function Dashboard() {
           <div className="card">
             <h2>Cours particuliers</h2>
             <p className="small">
-              Crédit restant : <strong>{p.packCredits} h</strong>
+              Crédit restant : <strong>{user.isDemo ? '∞' : p.packCredits} h</strong>
             </p>
             {upcoming.length ? (
               <ul className="booking-mini">

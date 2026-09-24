@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { logout, useCurrentUser } from '../lib/store'
+import { logout, useCurrentUser, useSyncStatus } from '../lib/store'
 import { Avatar } from './Avatar'
 import { SITE_NAME } from '../config'
+import { Icon } from './Icon'
 
 export function Layout() {
   const user = useCurrentUser()
+  const sync = useSyncStatus()
   const [open, setOpen] = useState(false)
   const [menu, setMenu] = useState(false)
   const location = useLocation()
@@ -25,13 +27,14 @@ export function Layout() {
             <span className="logo-mark">한</span>
             <span>{SITE_NAME}</span>
           </Link>
-          <button className="burger" aria-label="Menu" onClick={() => setOpen(!open)}>
+          <button className="burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}>
             ☰
           </button>
           <nav className={`nav ${open ? 'open' : ''}`}>
+            <NavLink to="/" end>Accueil</NavLink>
             <NavLink to="/cours">Cours</NavLink>
             <NavLink to="/tests">Tests & QCM</NavLink>
-            <NavLink to="/alphabet">Alphabet</NavLink>
+            <NavLink to="/pratique">En situation</NavLink>
             <NavLink to="/reserver" className="nav-cta">
               Cours privé
             </NavLink>
@@ -48,9 +51,8 @@ export function Layout() {
                     <Link to="/profil/modifier">✏️ Modifier le profil</Link>
                     <Link to="/reservations">📅 Mes réservations</Link>
                     <button
-                      onClick={() => {
-                        logout()
-                        navigate('/')
+                      onClick={async () => {
+                        try { await logout(); navigate('/') } catch { /* error displayed globally */ }
                       }}
                     >
                       🚪 Déconnexion
@@ -70,8 +72,16 @@ export function Layout() {
         </div>
       </header>
       <main>
+        {sync && <div className="container sync-status" role="status">{sync}</div>}
         <Outlet />
       </main>
+      <nav className="mobile-dock" aria-label="Navigation principale">
+        <NavLink to="/" end><Icon name="home" /><span>Accueil</span></NavLink>
+        <NavLink to="/cours"><Icon name="book" /><span>Apprendre</span></NavLink>
+        <NavLink to="/pratique"><Icon name="quiz" /><span>Jouer</span></NavLink>
+        <NavLink to="/tableau-de-bord"><Icon name="chart" /><span>Progrès</span></NavLink>
+        <NavLink to={user ? '/profil' : '/connexion'}><Icon name="user" /><span>{user ? 'Profil' : 'Connexion'}</span></NavLink>
+      </nav>
       <footer className="footer">
         <div className="container footer-grid">
           <div>
@@ -85,6 +95,7 @@ export function Layout() {
             <h4>Apprendre</h4>
             <Link to="/cours">Tous les cours</Link>
             <Link to="/alphabet">Alphabet coréen</Link>
+            <Link to="/pratique">Jeux & studio oral</Link>
             <Link to="/test-de-niveau">Test de positionnement</Link>
           </div>
           <div>

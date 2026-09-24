@@ -1,5 +1,5 @@
-import type { Level } from './types'
-import { qcm, fill, match, order } from './helpers'
+import type { Level } from './types.js'
+import { qcm, fill, match, order } from './helpers.js'
 
 export const level3: Level = {
   id: 'intermediaire',
@@ -8,7 +8,7 @@ export const level3: Level = {
   korean: '중급 1',
   cefr: 'B1',
   topik: 'TOPIK II — niveau 3',
-  color: '#6366f1',
+  color: '#397953',
   description:
     "Parler avec respect (honorifiques), construire des propositions relatives, exprimer conditions, obligations, capacités et intentions, et découvrir le style écrit et le 반말. Entrée dans le TOPIK II.",
   lessons: [

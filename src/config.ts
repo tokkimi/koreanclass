@@ -4,7 +4,7 @@
  */
 const env = import.meta.env
 
-export const SITE_NAME = 'Hangeul Club'
+export const SITE_NAME = 'KoreanClass'
 
 /** E-mail qui reçoit les demandes de réservation (VITE_CONTACT_EMAIL). */
 export const CONTACT_EMAIL: string = env.VITE_CONTACT_EMAIL ?? ''

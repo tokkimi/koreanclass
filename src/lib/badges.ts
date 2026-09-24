@@ -1,5 +1,5 @@
-import { levels } from '../data'
-import type { Progress } from './store'
+import { levels } from '../data/index.js'
+import type { Progress } from './store.js'
 
 export interface Badge {
   id: string

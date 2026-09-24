@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef } from 'react'
 import type { Exercise } from '../data/types'
 import { checkFill, checkMatch, checkOrder, scoreLabel, seededShuffle, shuffleDifferent } from '../lib/grading'
 import { SpeakButton } from './Speak'
@@ -6,7 +6,7 @@ import { SpeakButton } from './Speak'
 interface Props {
   exercises: Exercise[]
   seed?: number
-  onFinish: (score: number, total: number, results: boolean[]) => void
+  onFinish: (score: number, total: number, results: boolean[], answers: string[], operationId: string) => void | Promise<void>
   onRestart?: () => void
   finishLabel?: string
   passMark?: number
@@ -25,6 +25,10 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
   const [answers, setAnswers] = useState<Answer[]>([])
   const [checked, setChecked] = useState<Answer | null>(null)
   const [done, setDone] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const busy = useRef(false)
+  const attempt = useRef(crypto.randomUUID())
 
   const ex = exercises[index]
   const score = answers.filter((a) => a.correct).length
@@ -33,20 +37,22 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
     setChecked(a)
   }
 
-  function next() {
-    if (!checked) return
+  async function next() {
+    if (!checked || busy.current) return
     const all = [...answers, checked]
-    setAnswers(all)
-    setChecked(null)
     if (index + 1 >= exercises.length) {
-      setDone(true)
-      onFinish(all.filter((a) => a.correct).length, exercises.length, all.map((a) => a.correct))
-    } else {
-      setIndex(index + 1)
-    }
+      busy.current = true; setSaving(true); setError('')
+      try {
+        await onFinish(all.filter(a=>a.correct).length, exercises.length, all.map(a=>a.correct), all.map(a=>a.given), attempt.current)
+        setAnswers(all); setChecked(null); setDone(true)
+      } catch(e) { setError((e as Error).message) }
+      finally { busy.current = false; setSaving(false) }
+    } else { setAnswers(all); setChecked(null); setIndex(index + 1) }
   }
 
   function restart() {
+    attempt.current = crypto.randomUUID()
+    setError('')
     setIndex(0)
     setAnswers([])
     setChecked(null)
@@ -54,6 +60,7 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
     onRestart?.()
   }
 
+  if (!exercises.length) return <p>Aucun exercice disponible.</p>
   if (done) {
     const pct = Math.round((score / exercises.length) * 100)
     const passed = passMark === undefined || pct >= passMark
@@ -102,12 +109,13 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
       </div>
       <ExerciseView key={`${seed}-${index}`} ex={ex} seed={seed * 100 + index} disabled={!!checked} onSubmit={submit} />
       {checked && (
-        <div className={`feedback ${checked.correct ? 'ok' : 'ko'}`}>
+        <div role="status" aria-live="polite" className={`feedback ${checked.correct ? 'ok' : 'ko'}`}>
           <strong>{checked.correct ? 'Bonne réponse ! 👏' : 'Pas tout à fait…'}</strong>
           {!checked.correct && <div>Réponse attendue : <span className="ko-text">{correctAnswer(ex)}</span></div>}
           {'explain' in ex && ex.explain && <div className="small">{ex.explain}</div>}
-          <button className="btn" onClick={next} autoFocus>
-            {index + 1 >= exercises.length ? 'Voir mon résultat' : 'Question suivante →'}
+          {error && <p role="alert" className="error">{error}</p>}
+          <button className="btn" onClick={next} disabled={saving} autoFocus>
+            {saving ? 'Sauvegarde…' : error ? 'Réessayer la sauvegarde' : index + 1 >= exercises.length ? 'Voir mon résultat' : 'Question suivante →'}
           </button>
         </div>
       )}
@@ -161,7 +169,7 @@ function Qcm({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'qcm' }
           if (disabled && i === ex.answer) cls += ' correct'
           if (disabled && sel === i && i !== ex.answer) cls += ' wrong'
           return (
-            <button key={i} className={cls} disabled={disabled} onClick={() => setSel(i)}>
+            <button key={i} className={cls} aria-pressed={sel === i} disabled={disabled} onClick={() => setSel(i)}>
               <span className="opt-letter">{String.fromCharCode(65 + i)}</span> <span className={hasHangul(o) ? 'ko-text' : ''}>{o}</span>
             </button>
           )

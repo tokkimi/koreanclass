@@ -1,8 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { Layout } from './components/Layout'
-import { useCurrentUser } from './lib/store'
+import { useCurrentUser, useReady } from './lib/store'
 import Home from './pages/Home'
+import Practice from './pages/Practice'
 import Courses from './pages/Courses'
 import LevelPage from './pages/LevelPage'
 import LessonPage from './pages/LessonPage'
@@ -26,6 +27,8 @@ function RequireAuth({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
+  const ready = useReady()
+  if (!ready) return <div className="container page"><p role="status">On retrouve ton parcours…</p></div>
   return (
     <Routes>
       <Route element={<Layout />}>
@@ -36,6 +39,7 @@ export default function App() {
         <Route path="tests" element={<Tests />} />
         <Route path="tests/:levelId" element={<LevelTest />} />
         <Route path="test-de-niveau" element={<Placement />} />
+        <Route path="pratique" element={<Practice />} />
         <Route path="alphabet" element={<Alphabet />} />
         <Route path="reserver" element={<Booking />} />
         <Route path="reservations" element={<RequireAuth><Bookings /></RequireAuth>} />

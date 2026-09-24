@@ -55,9 +55,9 @@ function LevelTest() {
           seed={runKey + 50}
           exercises={level.test}
           passMark={PASS_MARK}
-          onFinish={(score, total) => {
+          onFinish={async (score, total, _results, answers, operationId) => {
+            if (user) await recordTest(level.id, `Test ${level.name}`, score, total, PASS_MARK, answers, operationId)
             setResult({ score, total })
-            if (user) recordTest(level.id, `Test ${level.name}`, score, total, PASS_MARK)
           }}
           onRestart={() => {
             setResult(null)

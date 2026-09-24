@@ -33,10 +33,10 @@ export default function EditProfile() {
     }
   }
 
-  function save(e: FormEvent) {
+  async function save(e: FormEvent) {
     e.preventDefault()
     try {
-      updateProfile({ ...form, avatar })
+      await updateProfile({ ...form, avatar })
       setMsg({ ok: true, text: 'Profil enregistré ✓' })
       if (welcome) navigate('/tableau-de-bord')
     } catch (err) {
@@ -135,37 +135,17 @@ export default function EditProfile() {
           </label>
           <label>
             Nouveau mot de passe
-            <input className="input" type="password" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} required minLength={6} autoComplete="new-password" />
+            <input className="input" type="password" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} required minLength={8} autoComplete="new-password" />
           </label>
         </div>
         {pwMsg && <p className={pwMsg.ok ? 'success' : 'error'}>{pwMsg.text}</p>}
         <button className="btn ghost">Changer le mot de passe</button>
       </form>
 
-      <div className="card mt danger-zone">
-        <h2>Zone sensible</h2>
-        <div className="row">
-          <button
-            className="btn ghost"
-            onClick={() => {
-              if (confirm('Remettre à zéro toute votre progression (leçons, tests, XP) ?')) resetProgress()
-            }}
-          >
-            Réinitialiser ma progression
-          </button>
-          <button
-            className="btn danger"
-            onClick={() => {
-              if (confirm('Supprimer définitivement votre compte et toutes vos données ?')) {
-                deleteAccount()
-                navigate('/')
-              }
-            }}
-          >
-            Supprimer mon compte
-          </button>
-        </div>
-      </div>
+      <div className="card mt danger-zone"><h2>Gérer mes données</h2><div className="row">
+        <button className="btn ghost" onClick={async()=>{ if(confirm('Réinitialiser ta progression ?')) { try { await resetProgress(); setMsg({ok:true,text:'Progression réinitialisée.'}) } catch(e) { setMsg({ok:false,text:(e as Error).message}) } } }}>Réinitialiser ma progression</button>
+        <button className="btn danger" onClick={async()=>{ if(confirm('Supprimer définitivement ton compte ?')) { try { await deleteAccount(); navigate('/') } catch(e) { setMsg({ok:false,text:(e as Error).message}) } } }}>Supprimer mon compte</button>
+      </div></div>
     </div>
   )
 }

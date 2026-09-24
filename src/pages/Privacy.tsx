@@ -1,22 +1,3 @@
-import { SITE_NAME } from '../config'
-
 export default function Privacy() {
-  return (
-    <div className="container page narrow">
-      <div className="card prose">
-        <h1>Confidentialité</h1>
-        <p>
-          {SITE_NAME} enregistre votre compte (nom, e-mail, photo de profil, bio), votre progression et vos réservations <strong>dans le stockage local de
-          votre navigateur</strong> (localStorage). Ces données ne sont envoyées à aucun serveur.
-        </p>
-        <ul>
-          <li>Votre mot de passe n'est jamais stocké en clair (empreinte SHA-256 salée).</li>
-          <li>Vos données restent sur l'appareil et le navigateur utilisés : pensez à utiliser le même navigateur pour retrouver votre progression.</li>
-          <li>Lorsque vous envoyez une demande de réservation, votre logiciel de messagerie transmet au professeur les informations affichées dans l'e-mail.</li>
-          <li>Vous pouvez réinitialiser votre progression ou supprimer votre compte à tout moment depuis « Modifier le profil ».</li>
-        </ul>
-        <p>La prononciation audio utilise la synthèse vocale intégrée à votre appareil.</p>
-      </div>
-    </div>
-  )
+  return <div className="container page narrow"><div className="card prose"><h1>Confidentialité</h1><p>Ton compte, ton profil et ta progression sont sauvegardés en ligne dans un stockage privé hébergé par Vercel. Ils te suivent sur tes appareils après connexion.</p><ul><li>Les mots de passe sont hachés avec scrypt et un sel unique. Ils ne sont pas renvoyés au navigateur.</li><li>La connexion utilise un cookie sécurisé. La déconnexion ferme la session sur cet appareil sans effacer tes progrès.</li><li>Le studio oral utilise le service de reconnaissance du navigateur, après ton accord et l’autorisation du micro. La voix peut être traitée par le fournisseur du navigateur. Le site ne stocke pas l’enregistrement audio ; seule une transcription volontairement sauvegardée est liée à ton compte.</li><li>Ton profil est privé. Seul ton compte peut lire et modifier sa progression.</li><li>Tu peux effacer ta progression ou supprimer ton compte depuis les réglages du profil.</li><li>Les demandes de cours ne sont pas des paiements. Un envoi au professeur nécessite ton action explicite.</li></ul><p>Les anciens profils enregistrés uniquement dans un navigateur ne sont pas automatiquement transférés. Crée un compte en ligne pour commencer la synchronisation.</p><p>La prononciation utilise la synthèse vocale de ton appareil.</p></div></div>
 }

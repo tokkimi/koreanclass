@@ -1,5 +1,5 @@
-import type { Level } from './types'
-import { qcm, fill, match, order } from './helpers'
+import type { Level } from './types.js'
+import { qcm, fill, match, order } from './helpers.js'
 
 export const level5: Level = {
   id: 'avance',
@@ -8,7 +8,7 @@ export const level5: Level = {
   korean: '고급',
   cefr: 'C1 – C2',
   topik: 'TOPIK II — niveaux 5 et 6',
-  color: '#e11d48',
+  color: '#7860bd',
   description:
     "Structures avancées, vocabulaire sino-coréen, proverbes, registre journalistique et académique, méthode pour l'expression écrite du TOPIK II, et langue parlée authentique. Objectif : parler couramment.",
   lessons: [

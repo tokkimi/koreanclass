@@ -1,5 +1,5 @@
-import type { Level } from './types'
-import { qcm, fill, match, order } from './helpers'
+import type { Level } from './types.js'
+import { qcm, fill, match, order } from './helpers.js'
 
 export const level2: Level = {
   id: 'elementaire',
@@ -8,7 +8,7 @@ export const level2: Level = {
   korean: '초급 2',
   cefr: 'A2',
   topik: 'TOPIK I — niveau 2',
-  color: '#06b6d4',
+  color: '#698326',
   description:
     "Raconter au passé, parler de ses projets, exprimer ses envies, relier des phrases, demander poliment et maîtriser les verbes irréguliers. Objectif : réussir le TOPIK I.",
   lessons: [

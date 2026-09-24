@@ -6,6 +6,7 @@ import { ExerciseRunner } from '../components/ExerciseRunner'
 import { RichText } from '../components/RichText'
 import { SpeakButton } from '../components/Speak'
 import NotFound from './NotFound'
+import { VoiceSettings } from '../components/VoiceSettings'
 
 const isKo = (s: string) => /[가-힣ㄱ-ㆎ]/.test(s)
 
@@ -43,6 +44,7 @@ function LessonPage() {
         </div>
         <h1>{lesson.title}</h1>
         <p className="ko-text subtitle">{lesson.subtitle}</p>
+        <VoiceSettings />
         <div className="objectives">
           <strong>🎯 Objectifs</strong>
           <ul>
@@ -136,16 +138,17 @@ function LessonPage() {
               key={runKey}
               seed={runKey}
               exercises={lesson.exercises}
-              onFinish={(score, total) => {
+              passMark={70}
+              onFinish={async (score, total, _results, answers, operationId) => {
+                if (user) await recordLesson(lesson.id, `${level.name.split(' —')[0]} · ${lesson.title}`, score, total, answers, operationId)
                 setFinished({ score, total })
-                if (user) recordLesson(lesson.id, `${level.name.split(' —')[0]} · ${lesson.title}`, score, total)
               }}
               onRestart={() => {
                 setFinished(null)
                 setRunKey(runKey + 1)
               }}
             />
-            {finished && (
+            {finished && finished.score / finished.total >= .7 && (
               <div className="row center gap">
                 {next ? (
                   <Link to={`/cours/${level.id}/${next.id}`} className="btn">

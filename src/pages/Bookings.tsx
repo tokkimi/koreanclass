@@ -30,8 +30,8 @@ export default function Bookings() {
           )}
           <button
             className="btn small danger"
-            onClick={() => {
-              if (confirm('Annuler cette réservation ?')) cancelBooking(b.id)
+            onClick={async () => {
+              if (confirm('Annuler cette réservation ?')) { try { await cancelBooking(b.id) } catch { /* Global status shows the error */ } }
             }}
           >
             Annuler
@@ -46,7 +46,7 @@ export default function Bookings() {
       <div className="page-head">
         <h1>Mes réservations</h1>
         <p className="muted">
-          Crédit d'heures disponible : <strong>{p.packCredits} h</strong>
+          Crédit d'heures disponible : <strong>{user.isDemo ? '∞' : p.packCredits} h</strong>
         </p>
         <Link to="/reserver" className="btn">
           + Nouvelle réservation

@@ -1,5 +1,5 @@
-import type { Level } from './types'
-import { qcm, fill, match, order } from './helpers'
+import type { Level } from './types.js'
+import { qcm, fill, match, order } from './helpers.js'
 
 export const level4: Level = {
   id: 'intermediaire-avance',
@@ -8,7 +8,7 @@ export const level4: Level = {
   korean: '중급 2',
   cefr: 'B2',
   topik: 'TOPIK II — niveau 4',
-  color: '#a855f7',
+  color: '#4869bd',
   description:
     "Rapporter des paroles, faire des suppositions, raconter ce qu'on a observé, nuancer ses propos (거든요, 잖아요), maîtriser le passif et le causatif. Vous devenez autonome dans la plupart des situations.",
   lessons: [

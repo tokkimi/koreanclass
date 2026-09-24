@@ -38,12 +38,12 @@ export default function Placement() {
           key={runKey}
           seed={runKey + 99}
           exercises={exercises}
-          onFinish={(score, total, results) => {
+          onFinish={async (score, total, results, answers, operationId) => {
             const per = levels.map((l) => placementTest.filter((p) => p.levelIndex === l.index).length)
             const correct = levels.map((l) => placementTest.reduce((acc, p, i) => acc + (p.levelIndex === l.index && results[i] ? 1 : 0), 0))
             const levelIndex = recommendLevel(correct, per)
+            if (user) await recordPlacement(levelIndex, score, total, answers, operationId)
             setResult({ levelIndex, score, total })
-            if (user) recordPlacement(levelIndex, score, total)
           }}
         />
       )}

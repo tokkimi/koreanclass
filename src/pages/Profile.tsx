@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { levels } from '../data'
-import { globalStats, levelStats, useCurrentUser, useProgressOf, useUserByUsername } from '../lib/store'
+import { currentStreak, globalStats, levelStats, useCurrentUser, useProgressOf, useUserByUsername } from '../lib/store'
 import { computeBadges } from '../lib/badges'
 import { Avatar } from '../components/Avatar'
 import { ProgressBar } from '../components/ProgressBar'
@@ -16,7 +16,7 @@ export default function Profile() {
   const user = username ? other : me
   const p = useProgressOf(user?.id)
   const [tab, setTab] = useState<Tab>('progression')
-  const [copied, setCopied] = useState(false)
+
 
   if (!user) return <NotFound />
   const isMe = me?.id === user.id
@@ -37,16 +37,7 @@ export default function Profile() {
                 <Link to="/profil/modifier" className="btn small ghost">
                   Modifier le profil
                 </Link>
-                <button
-                  className="btn small ghost"
-                  onClick={() => {
-                    navigator.clipboard?.writeText(`${location.origin}/u/${user.username}`)
-                    setCopied(true)
-                    setTimeout(() => setCopied(false), 1500)
-                  }}
-                >
-                  {copied ? 'Lien copié ✓' : 'Partager'}
-                </button>
+
               </>
             ) : null}
           </div>
@@ -61,11 +52,12 @@ export default function Profile() {
               <strong>{g.passedLevels}</strong> niveaux validés
             </li>
             <li>
-              <strong>{p.streak.count}</strong> 🔥
+              <strong>{currentStreak(p)}</strong> 🔥
             </li>
           </ul>
           <div className="profile-bio">
             <strong>{user.displayName}</strong>
+            {user.isDemo && <span className="demo-badge">Profil test · Accès illimité</span>}
             <span className="pill small-pill" style={{ ['--accent' as string]: g.currentLevel.color }}>
               {g.currentLevel.cefr} · <span className="ko-text">{g.rank.name}</span>
             </span>
@@ -77,7 +69,7 @@ export default function Profile() {
                 🔗 {user.website.replace(/^https?:\/\//, '')}
               </a>
             )}
-            <p className="small muted">Membre depuis {new Date(user.createdAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</p>
+            <p className="small muted">Profil privé · Membre depuis {new Date(user.createdAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</p>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
-import type { Level } from './types'
-import { qcm, fill, match } from './helpers'
+import type { Level } from './types.js'
+import { qcm, fill, match } from './helpers.js'
 
 export const level0: Level = {
   id: 'hangeul',
@@ -8,7 +8,7 @@ export const level0: Level = {
   korean: '한글',
   cefr: 'Pré-A1',
   topik: 'Avant TOPIK I',
-  color: '#f59e0b',
+  color: '#2858ec',
   description:
     "Lire et écrire l'alphabet coréen : voyelles, consonnes, syllabes, consonnes finales (batchim) et règles de prononciation. En quelques heures, vous pourrez lire n'importe quel mot coréen.",
   lessons: [

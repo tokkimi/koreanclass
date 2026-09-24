@@ -1,4 +1,4 @@
-import type { Exercise } from './types'
+import type { Exercise } from './types.js'
 
 /** QCM : la bonne réponse est toujours passée en premier, puis mélangée de façon déterministe. */
 export function qcm(q: string, correct: string, wrong: string[], explain?: string): Exercise {
