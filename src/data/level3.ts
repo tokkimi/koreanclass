@@ -1,0 +1,492 @@
+import type { Level } from './types'
+import { qcm, fill, match, order } from './helpers'
+
+export const level3: Level = {
+  id: 'intermediaire',
+  index: 3,
+  name: 'Niveau 3 — Intermédiaire',
+  korean: '중급 1',
+  cefr: 'B1',
+  topik: 'TOPIK II — niveau 3',
+  color: '#6366f1',
+  description:
+    "Parler avec respect (honorifiques), construire des propositions relatives, exprimer conditions, obligations, capacités et intentions, et découvrir le style écrit et le 반말. Entrée dans le TOPIK II.",
+  lessons: [
+    {
+      id: 'i1',
+      title: 'Les honorifiques',
+      subtitle: '-(으)시- · 께서 · verbes spéciaux',
+      duration: 40,
+      objectives: ['Montrer du respect envers le sujet de la phrase', 'Connaître les verbes et noms honorifiques', "Ne jamais s'honorer soi-même"],
+      sections: [
+        {
+          title: 'L’infixe -(으)시-',
+          body: "Quand le **sujet** est une personne respectée (parent âgé, professeur, client), on ajoute **-(으)시-** au radical.\nPrésent : **-(으)세요** · Passé : **-(으)셨어요** · Futur : **-(으)실 거예요**.",
+          examples: [
+            { ko: '선생님이 가세요.', fr: 'Le professeur y va.' },
+            { ko: '아버지가 신문을 읽으셨어요.', fr: 'Mon père a lu le journal.' },
+          ],
+        },
+        {
+          title: 'Verbes et noms spéciaux',
+          table: {
+            head: ['Normal', 'Honorifique', 'Sens'],
+            rows: [
+              ['먹다 / 마시다', '드시다 (잡수시다)', 'manger / boire'],
+              ['자다', '주무시다', 'dormir'],
+              ['있다 (être qqpart)', '계시다', 'être, se trouver'],
+              ['있다 (avoir)', '있으시다', 'avoir'],
+              ['죽다', '돌아가시다', 'mourir / décéder'],
+              ['말하다', '말씀하시다', 'parler'],
+              ['주다', '드리다 (humble)', 'donner'],
+              ['이름', '성함', 'nom'],
+              ['나이', '연세', 'âge'],
+              ['집', '댁', 'maison'],
+              ['밥', '진지', 'repas'],
+              ['이/가', '께서', 'particule de sujet'],
+              ['은/는', '께서는', 'particule de thème'],
+            ],
+          },
+        },
+        {
+          title: 'L’humilité : parler de soi',
+          body: "On **s'abaisse** au lieu de s'élever : 저 (moi), 저희 (nous), 드리다 (donner à qqn respecté), 뵙다 (voir qqn respecté), 여쭤보다 (demander à qqn respecté).",
+          examples: [
+            { ko: '할머니께서 주무세요.', fr: 'Grand-mère dort.' },
+            { ko: '부모님께 선물을 드렸어요.', fr: 'J’ai offert un cadeau à mes parents.' },
+            { ko: '처음 뵙겠습니다.', fr: 'Enchanté(e) de faire votre connaissance (très poli).' },
+            { ko: '사장님 계세요?', fr: 'Le directeur est-il là ?' },
+          ],
+          tip: "Erreur fréquente : ne dites jamais 제가 드세요 ou 저는 주무세요 — on n'honore pas sa propre personne.",
+        },
+      ],
+      vocab: [
+        { ko: '드시다', rom: 'deusida', fr: 'manger/boire (hon.)' },
+        { ko: '주무시다', rom: 'jumusida', fr: 'dormir (hon.)' },
+        { ko: '계시다', rom: 'gyesida', fr: 'être (hon.)' },
+        { ko: '말씀', rom: 'malsseum', fr: 'parole (hon./humble)' },
+        { ko: '드리다', rom: 'deurida', fr: 'donner (humble)' },
+        { ko: '뵙다', rom: 'boepda', fr: 'voir (humble)' },
+        { ko: '성함', rom: 'seongham', fr: 'nom (hon.)' },
+        { ko: '연세', rom: 'yeonse', fr: 'âge (hon.)' },
+        { ko: '댁', rom: 'daek', fr: 'maison (hon.)' },
+        { ko: '부모님', rom: 'bumonim', fr: 'parents' },
+        { ko: '사장님', rom: 'sajangnim', fr: 'directeur, patron' },
+      ],
+      exercises: [
+        qcm('« Grand-père dort » :', '할아버지께서 주무세요.', ['할아버지가 자요.', '할아버지께서 자세요.', '할아버지께서 잠자세요.']),
+        qcm('Honorifique de 먹다 :', '드시다', ['먹으시다', '잡다', '먹드리다']),
+        qcm('Honorifique de 나이 :', '연세', ['성함', '말씀', '댁']),
+        qcm('Quelle phrase est incorrecte ?', '제가 드세요.', ['어머니께서 드세요.', '선생님이 가세요.', '제가 드릴게요.']),
+        qcm('« Quel est votre nom ? » (très poli) :', '성함이 어떻게 되세요?', ['이름이 뭐야?', '성함이 뭐예요 저?', '이름이 어디세요?']),
+        fill('Passé honorifique de 가다 :', '가셨어요'),
+        fill('Présent honorifique de 읽다 :', '읽으세요'),
+        match('Associez', [
+          ['있다 (lieu)', '계시다'],
+          ['말하다', '말씀하시다'],
+          ['집', '댁'],
+          ['주다 (humble)', '드리다'],
+        ]),
+      ],
+    },
+    {
+      id: 'i2',
+      title: 'Les propositions relatives',
+      subtitle: '-는 / -(으)ㄴ / -(으)ㄹ + nom',
+      duration: 45,
+      objectives: ['Décrire un nom avec un verbe ou un adjectif', 'Utiliser le passé, le présent et le futur relatifs', 'Utiliser -는 것 (le fait de)'],
+      sections: [
+        {
+          title: 'Le principe',
+          body: "En coréen, tout ce qui décrit un nom se place **avant** lui : « le livre que je lis » → 내가 읽는 책 (moi / lis / livre).",
+        },
+        {
+          title: 'Verbes d’action',
+          table: {
+            head: ['Temps', 'Forme', 'Exemple'],
+            rows: [
+              ['Présent', 'radical + 는', '먹는 음식 (la nourriture que je mange)'],
+              ['Passé', 'radical + (으)ㄴ', '먹은 음식 (la nourriture que j’ai mangée)'],
+              ['Futur', 'radical + (으)ㄹ', '먹을 음식 (la nourriture que je mangerai)'],
+            ],
+          },
+          examples: [
+            { ko: '어제 본 영화가 재미있었어요.', fr: 'Le film que j’ai vu hier était bien.' },
+            { ko: '한국어를 가르치는 선생님', fr: 'le professeur qui enseigne le coréen' },
+            { ko: '내일 할 일이 많아요.', fr: 'J’ai beaucoup de choses à faire demain.' },
+          ],
+        },
+        {
+          title: 'Adjectifs (verbes d’état)',
+          body: "Présent : **-(으)ㄴ** → 큰 집 (une grande maison), 좋은 사람 (une bonne personne), 예쁜 옷.\n**있다/없다** et adjectifs en 있다/없다 : **-는** → 재미있는 책, 맛없는 음식.",
+          tip: "Irréguliers : 춥다 → 추운, 맵다 → 매운, 살다 → 사는, 만들다 → 만드는, 길다 → 긴.",
+        },
+        {
+          title: '-는 것 : nominaliser',
+          body: "Verbe + **는 것** = « le fait de ... » (souvent contracté en **-는 거**).",
+          examples: [
+            { ko: '제 취미는 요리하는 것이에요.', fr: 'Mon passe-temps, c’est cuisiner.' },
+            { ko: '한국어로 말하는 게 어려워요.', fr: 'Parler en coréen, c’est difficile.' },
+          ],
+        },
+      ],
+      vocab: [
+        { ko: '가르치다', rom: 'gareuchida', fr: 'enseigner' },
+        { ko: '일', rom: 'il', fr: 'travail, chose à faire' },
+        { ko: '크다', rom: 'keuda', fr: 'être grand' },
+        { ko: '작다', rom: 'jakda', fr: 'être petit' },
+        { ko: '예쁘다', rom: 'yeppeuda', fr: 'être joli' },
+        { ko: '취미', rom: 'chwimi', fr: 'loisir, hobby' },
+        { ko: '길다', rom: 'gilda', fr: 'être long' },
+        { ko: '유명하다', rom: 'yumyeonghada', fr: 'être célèbre' },
+      ],
+      exercises: [
+        qcm('« Le livre que je lis (en ce moment) » :', '제가 읽는 책', ['제가 읽은 책', '제가 읽을 책', '책 제가 읽는']),
+        qcm('« Le film que j’ai vu » :', '제가 본 영화', ['제가 보는 영화', '제가 볼 영화', '제가 봤는 영화']),
+        qcm('« Un plat épicé » :', '매운 음식', ['맵은 음식', '맵는 음식', '매울 음식']),
+        qcm('« Un livre intéressant » :', '재미있는 책', ['재미있은 책', '재미있을 책', '재미있 책']),
+        qcm('« La ville où j’habite » :', '제가 사는 도시', ['제가 살는 도시', '제가 산 도시', '제가 살은 도시']),
+        qcm('« Des choses à faire » :', '할 일', ['하는 일', '한 일', '했던 일']),
+        fill('« Une grande maison » :', '큰 집'),
+        order('Remettez dans l’ordre', '제 취미는 요리하는 것이에요.', 'Mon hobby, c’est cuisiner.'),
+      ],
+    },
+    {
+      id: 'i3',
+      title: 'Conditions et concessions',
+      subtitle: '-(으)면 · -아/어도 · -(으)려면',
+      duration: 35,
+      objectives: ['Exprimer une condition (si)', 'Exprimer une concession (même si)', 'Dire « pour ... il faut »'],
+      sections: [
+        {
+          title: '-(으)면 : si, quand',
+          examples: [
+            { ko: '시간이 있으면 같이 가요.', fr: 'Si tu as le temps, allons-y ensemble.' },
+            { ko: '봄이 되면 꽃이 펴요.', fr: 'Quand le printemps arrive, les fleurs éclosent.' },
+            { ko: '돈이 많으면 여행하고 싶어요.', fr: 'Si j’avais beaucoup d’argent, j’aimerais voyager.' },
+          ],
+        },
+        {
+          title: '-아/어도 : même si',
+          examples: [
+            { ko: '비가 와도 갈 거예요.', fr: 'Même s’il pleut, j’irai.' },
+            { ko: '아무리 바빠도 아침은 먹어요.', fr: 'Aussi occupé que je sois, je prends mon petit-déjeuner.' },
+          ],
+        },
+        {
+          title: '-(으)려면 : si on veut / pour',
+          examples: [
+            { ko: '명동에 가려면 4호선을 타세요.', fr: 'Pour aller à Myeongdong, prenez la ligne 4.' },
+            { ko: '한국어를 잘하려면 매일 연습해야 돼요.', fr: 'Pour bien parler coréen, il faut pratiquer tous les jours.' },
+          ],
+        },
+      ],
+      vocab: [
+        { ko: '봄', rom: 'bom', fr: 'printemps' },
+        { ko: '여름', rom: 'yeoreum', fr: 'été' },
+        { ko: '가을', rom: 'gaeul', fr: 'automne' },
+        { ko: '겨울', rom: 'gyeoul', fr: 'hiver' },
+        { ko: '돈', rom: 'don', fr: 'argent' },
+        { ko: '아무리', rom: 'amuri', fr: 'aussi ... que' },
+        { ko: '연습하다', rom: 'yeonseuphada', fr: 's’entraîner' },
+        { ko: '타다', rom: 'tada', fr: 'prendre (un transport), monter' },
+        { ko: '매일', rom: 'maeil', fr: 'tous les jours' },
+      ],
+      exercises: [
+        qcm('« S’il fait beau, je sors » :', '날씨가 좋으면 나가요.', ['날씨가 좋아도 나가요.', '날씨가 좋려면 나가요.', '날씨가 좋고 나가요.']),
+        qcm('« Même si c’est cher, je l’achète » :', '비싸도 살 거예요.', ['비싸면 살 거예요.', '비싸려면 살 거예요.', '비싸서 살 거예요.']),
+        qcm('Complétez : 서울역에 ___ 어떻게 해야 돼요?', '가려면', ['가면서', '가도', '가니까']),
+        qcm('Forme -(으)면 de 살다 :', '살면', ['살으면', '사면', '사으면']),
+        fill('Forme -(으)면 de 먹다 :', '먹으면'),
+        fill('Forme -아/어도 de 피곤하다 :', '피곤해도'),
+        order('Remettez dans l’ordre', '비가 와도 갈 거예요.', 'Même s’il pleut, j’irai.'),
+      ],
+    },
+    {
+      id: 'i4',
+      title: 'Pouvoir, devoir, permission',
+      subtitle: '-(으)ㄹ 수 있다 · -아/어야 하다 · -아/어도 되다 · -(으)면 안 되다',
+      duration: 40,
+      objectives: ['Exprimer la capacité', "Exprimer l'obligation", 'Demander ou refuser une permission'],
+      sections: [
+        {
+          title: '-(으)ㄹ 수 있다/없다 : pouvoir / ne pas pouvoir',
+          examples: [
+            { ko: '한국어를 읽을 수 있어요.', fr: 'Je sais lire le coréen.' },
+            { ko: '내일은 올 수 없어요.', fr: 'Demain, je ne pourrai pas venir.' },
+          ],
+        },
+        {
+          title: '-(으)ㄹ 줄 알다/모르다 : savoir faire',
+          examples: [{ ko: '운전할 줄 알아요?', fr: 'Tu sais conduire ?' }],
+        },
+        {
+          title: '-아/어야 하다 (되다) : devoir',
+          examples: [
+            { ko: '내일 일찍 일어나야 돼요.', fr: 'Je dois me lever tôt demain.' },
+            { ko: '여권을 가져가야 해요.', fr: 'Il faut emporter son passeport.' },
+          ],
+        },
+        {
+          title: '-아/어도 되다 : avoir le droit',
+          examples: [
+            { ko: '여기 앉아도 돼요?', fr: 'Je peux m’asseoir ici ?' },
+            { ko: '사진 찍어도 괜찮아요?', fr: 'Ça va si je prends une photo ?' },
+          ],
+        },
+        {
+          title: '-(으)면 안 되다 : ne pas avoir le droit',
+          examples: [
+            { ko: '여기에서 담배를 피우면 안 돼요.', fr: 'Il est interdit de fumer ici.' },
+            { ko: '늦으면 안 돼요.', fr: 'Il ne faut pas être en retard.' },
+          ],
+          tip: "« Pas besoin de » : -지 않아도 되다 → 안 와도 돼요 (tu n'es pas obligé de venir).",
+        },
+      ],
+      vocab: [
+        { ko: '운전하다', rom: 'unjeonhada', fr: 'conduire' },
+        { ko: '일찍', rom: 'iljjik', fr: 'tôt' },
+        { ko: '일어나다', rom: 'ireonada', fr: 'se lever' },
+        { ko: '여권', rom: 'yeogwon', fr: 'passeport' },
+        { ko: '담배', rom: 'dambae', fr: 'cigarette' },
+        { ko: '피우다', rom: 'piuda', fr: 'fumer' },
+        { ko: '규칙', rom: 'gyuchik', fr: 'règle' },
+        { ko: '허락', rom: 'heorak', fr: 'permission' },
+      ],
+      exercises: [
+        qcm('« Je peux m’asseoir ici ? » :', '여기 앉아도 돼요?', ['여기 앉으면 안 돼요?', '여기 앉아야 돼요?', '여기 앉을 수 없어요?']),
+        qcm('« Je dois travailler » :', '일해야 돼요.', ['일해도 돼요.', '일하면 안 돼요.', '일할 줄 알아요.']),
+        qcm('« Interdit de toucher » :', '만지면 안 돼요.', ['만져도 돼요.', '만져야 돼요.', '만질 수 있어요.']),
+        qcm('« Tu n’es pas obligé de venir » :', '안 와도 돼요.', ['오면 안 돼요.', '와야 돼요.', '올 수 없어요.']),
+        qcm('« Je sais nager » :', '수영할 수 있어요.', ['수영해야 돼요.', '수영해도 돼요.', '수영하면 안 돼요.']),
+        fill('« Je dois me lever tôt » :', ['일찍 일어나야 돼요', '일찍 일어나야 돼요.', '일찍 일어나야 해요', '일찍 일어나야 해요.']),
+        order('Remettez dans l’ordre', '여기에서 담배를 피우면 안 돼요.', 'Il est interdit de fumer ici.'),
+      ],
+    },
+    {
+      id: 'i5',
+      title: 'Poser le contexte',
+      subtitle: '-는데 / -(으)ㄴ데 · -는데요',
+      duration: 35,
+      objectives: ['Donner un arrière-plan avant une demande', 'Exprimer un contraste doux', 'Terminer une phrase en attendant une réaction'],
+      sections: [
+        {
+          title: 'Former -는데',
+          body: "Verbes d'action et 있다/없다 : **-는데**. Adjectifs : **-(으)ㄴ데**. Nom : **인데**. Passé : **-았/었는데**.",
+        },
+        {
+          title: 'Usage 1 : contexte avant une question/demande',
+          examples: [
+            { ko: '배가 고픈데 밥 먹으러 갈까요?', fr: 'J’ai faim, on va manger ?' },
+            { ko: '지금 명동에 가는데 같이 갈래요?', fr: 'Je vais à Myeongdong, tu viens ?' },
+          ],
+        },
+        {
+          title: 'Usage 2 : contraste (mais)',
+          examples: [
+            { ko: '이 옷은 예쁜데 너무 비싸요.', fr: 'Ce vêtement est joli, mais trop cher.' },
+            { ko: '열심히 공부했는데 시험을 못 봤어요.', fr: 'J’ai beaucoup étudié mais j’ai raté l’examen.' },
+          ],
+        },
+        {
+          title: 'Usage 3 : fin de phrase -는데요',
+          body: "Adoucit une réponse, laisse la place à une réaction, exprime une surprise ou une légère contestation.",
+          examples: [
+            { ko: '저는 괜찮은데요.', fr: 'Moi, ça me va (pourtant)...' },
+            { ko: '여보세요? 김민수인데요.', fr: 'Allô ? C’est Kim Minsu (à l’appareil).' },
+          ],
+        },
+      ],
+      vocab: [
+        { ko: '열심히', rom: 'yeolsimhi', fr: 'avec ardeur, sérieusement' },
+        { ko: '시험', rom: 'siheom', fr: 'examen' },
+        { ko: '너무', rom: 'neomu', fr: 'trop, très' },
+        { ko: '여보세요', rom: 'yeoboseyo', fr: 'allô' },
+        { ko: '-(으)러 가다', rom: '-(eu)reo gada', fr: 'aller (faire qqch)' },
+        { ko: '-(으)ㄹ래요?', rom: '-(eu)llaeyo', fr: 'tu veux ... ?' },
+      ],
+      exercises: [
+        qcm('Forme -는데 de 예쁘다 :', '예쁜데', ['예쁘는데', '예뻤데', '예쁜는데']),
+        qcm('Forme -는데 de 가다 :', '가는데', ['간데', '가은데', '갈데']),
+        qcm('Forme -는데 de 학생이다 :', '학생인데', ['학생이는데', '학생은데', '학생는데']),
+        qcm('Complétez : 날씨가 ___ 산책할까요? (Il fait beau...)', '좋은데', ['좋는데', '좋아서는데', '좋고데']),
+        qcm('Forme -는데 de 맛있다 :', '맛있는데', ['맛있은데', '맛인데', '맛있데']),
+        fill('Passé + -는데 de 공부하다 :', '공부했는데'),
+        order('Remettez dans l’ordre', '이 옷은 예쁜데 너무 비싸요.', 'Ce vêtement est joli mais trop cher.'),
+      ],
+    },
+    {
+      id: 'i6',
+      title: 'Progression, état et expérience',
+      subtitle: '-고 있다 · -아/어 있다 · -아/어 본 적이 있다',
+      duration: 35,
+      objectives: ['Dire ce qu’on est en train de faire', "Décrire un état résultant", 'Parler de ses expériences'],
+      sections: [
+        {
+          title: '-고 있다 : être en train de',
+          examples: [
+            { ko: '지금 숙제를 하고 있어요.', fr: 'Je suis en train de faire mes devoirs.' },
+            { ko: '요즘 한국어를 배우고 있어요.', fr: 'En ce moment, j’apprends le coréen.' },
+          ],
+        },
+        {
+          title: '-아/어 있다 : état résultant',
+          body: "Avec des verbes intransitifs (앉다, 서다, 열리다, 켜지다...) : l'action est finie, l'état **dure**.",
+          examples: [
+            { ko: '문이 열려 있어요.', fr: 'La porte est ouverte.' },
+            { ko: '의자에 앉아 있어요.', fr: 'Il est assis sur la chaise.' },
+          ],
+          tip: '입고 있어요 = il porte (un vêtement) — on utilise -고 있다 pour les vêtements, pas -아/어 있다.',
+        },
+        {
+          title: '-아/어 본 적이 있다/없다 : expérience',
+          examples: [
+            { ko: '김치를 먹어 본 적이 있어요?', fr: 'Tu as déjà goûté le kimchi ?' },
+            { ko: '한국에 가 본 적이 없어요.', fr: 'Je ne suis jamais allé en Corée.' },
+          ],
+        },
+        {
+          title: '-아/어 보다 : essayer',
+          examples: [
+            { ko: '이 옷 입어 보세요.', fr: 'Essayez ce vêtement.' },
+            { ko: '한번 먹어 볼게요.', fr: 'Je vais goûter une fois.' },
+          ],
+        },
+      ],
+      vocab: [
+        { ko: '숙제', rom: 'sukje', fr: 'devoirs' },
+        { ko: '요즘', rom: 'yojeum', fr: 'ces temps-ci' },
+        { ko: '문', rom: 'mun', fr: 'porte' },
+        { ko: '열리다', rom: 'yeollida', fr: 's’ouvrir' },
+        { ko: '서다', rom: 'seoda', fr: 'être debout' },
+        { ko: '입다', rom: 'ipda', fr: 'porter (vêtement)' },
+        { ko: '한번', rom: 'hanbeon', fr: 'une fois' },
+        { ko: '경험', rom: 'gyeongheom', fr: 'expérience' },
+      ],
+      exercises: [
+        qcm('« Je suis en train de manger » :', '먹고 있어요.', ['먹어 있어요.', '먹어 봤어요.', '먹은 적이 있어요.']),
+        qcm('« La fenêtre est ouverte » :', '창문이 열려 있어요.', ['창문이 열고 있어요.', '창문을 열어 봤어요.', '창문이 열 거예요.']),
+        qcm('« Tu es déjà allé en Corée ? » :', '한국에 가 본 적이 있어요?', ['한국에 가고 있어요?', '한국에 가 있어요?', '한국에 갈 수 있어요?']),
+        qcm('« Il porte un manteau » :', '코트를 입고 있어요.', ['코트를 입어 있어요.', '코트가 입혀 있어요.', '코트를 입어 봤어요.']),
+        fill('« Essayez (de le goûter) » :', ['먹어 보세요', '먹어 보세요.', '드셔 보세요', '드셔 보세요.']),
+        order('Remettez dans l’ordre', '요즘 한국어를 배우고 있어요.', 'En ce moment, j’apprends le coréen.'),
+      ],
+    },
+    {
+      id: 'i7',
+      title: 'Intentions et décisions',
+      subtitle: '-(으)려고 하다 · -기로 하다 · -게 되다',
+      duration: 35,
+      objectives: ['Exprimer une intention', 'Annoncer une décision prise', 'Dire que quelque chose « a fini par arriver »'],
+      sections: [
+        {
+          title: '-(으)려고 (하다) : avoir l’intention de, afin de',
+          examples: [
+            { ko: '주말에 쉬려고 해요.', fr: 'Ce week-end, je compte me reposer.' },
+            { ko: '한국 드라마를 보려고 한국어를 배워요.', fr: 'J’apprends le coréen pour regarder des dramas.' },
+          ],
+        },
+        {
+          title: '-기로 하다 : décider de',
+          examples: [
+            { ko: '내년에 한국에 유학 가기로 했어요.', fr: 'J’ai décidé de partir étudier en Corée l’an prochain.' },
+            { ko: '친구하고 여섯 시에 만나기로 했어요.', fr: 'Avec mon ami, on a convenu de se voir à 18 h.' },
+          ],
+        },
+        {
+          title: '-게 되다 : finir par, se retrouver à',
+          body: 'Changement de situation indépendant de sa volonté, ou résultat d’un processus.',
+          examples: [
+            { ko: '회사 때문에 서울에서 살게 됐어요.', fr: 'À cause du travail, je me suis retrouvé à vivre à Séoul.' },
+            { ko: 'K-pop을 듣고 한국어를 좋아하게 됐어요.', fr: 'En écoutant de la K-pop, j’ai fini par aimer le coréen.' },
+          ],
+        },
+      ],
+      vocab: [
+        { ko: '유학', rom: 'yuhak', fr: 'études à l’étranger' },
+        { ko: '결정하다', rom: 'gyeoljeonghada', fr: 'décider' },
+        { ko: '약속', rom: 'yaksok', fr: 'rendez-vous, promesse' },
+        { ko: '이사하다', rom: 'isahada', fr: 'déménager' },
+        { ko: '취직하다', rom: 'chwijikhada', fr: 'trouver un emploi' },
+        { ko: '때문에', rom: 'ttaemune', fr: 'à cause de' },
+      ],
+      exercises: [
+        qcm('« J’ai décidé d’arrêter de fumer » :', '담배를 끊기로 했어요.', ['담배를 끊게 됐어요.', '담배를 끊으려고 됐어요.', '담배를 끊어 봤어요.']),
+        qcm('« Je compte déménager » :', '이사하려고 해요.', ['이사하기로 돼요.', '이사하게 해요.', '이사해 있어요.']),
+        qcm('« J’ai fini par aimer le kimchi » :', '김치를 좋아하게 됐어요.', ['김치를 좋아하기로 했어요.', '김치를 좋아하려고 해요.', '김치를 좋아해 있어요.']),
+        qcm('Forme -(으)려고 de 먹다 :', '먹으려고', ['먹려고', '먹어려고', '먹기려고']),
+        fill('Forme -(으)려고 de 가다 :', '가려고'),
+        order('Remettez dans l’ordre', '친구하고 여섯 시에 만나기로 했어요.', 'On a convenu de se voir à 18 h.'),
+      ],
+    },
+    {
+      id: 'i8',
+      title: 'Style écrit et langage familier',
+      subtitle: '-다 / -는다 / -ㄴ다 · 반말',
+      duration: 45,
+      objectives: ['Lire et écrire le style neutre des textes (-다)', 'Parler en 반말 avec des amis', 'Savoir quand passer au 반말'],
+      sections: [
+        {
+          title: 'Le style écrit (한다체)',
+          body: "Utilisé dans les journaux intimes, livres, articles, examens (TOPIK 쓰기) :\n• Verbe d'action : voyelle + **ㄴ다** (간다), consonne + **는다** (먹는다)\n• Adjectif : **-다** (좋다, 예쁘다)\n• Nom : **-(이)다** (학생이다)\n• Passé : **-았/었다** (갔다) · Futur : **-(으)ㄹ 것이다**",
+          examples: [
+            { ko: '나는 매일 아침 커피를 마신다.', fr: 'Je bois du café chaque matin.' },
+            { ko: '오늘은 날씨가 춥다.', fr: 'Aujourd’hui, il fait froid.' },
+            { ko: '어제 친구를 만났다.', fr: 'Hier, j’ai vu un ami.' },
+          ],
+        },
+        {
+          title: 'Le 반말 (langage familier)',
+          body: "Le plus simple : **retirer 요** du style poli. 가요 → 가, 먹어요 → 먹어. Exceptions : 이에요/예요 → **이야/야** ; 네 → **응/어** ; 아니요 → **아니** ; 저 → **나** ; 제 → **내**.",
+          examples: [
+            { ko: '뭐 해? — 그냥 쉬고 있어.', fr: 'Tu fais quoi ? — Je me repose.' },
+            { ko: '이거 내 거야.', fr: 'C’est à moi.' },
+            { ko: '밥 먹었어?', fr: 'T’as mangé ?' },
+            { ko: '같이 가자!', fr: 'Allons-y ensemble ! (-자 = proposition)' },
+          ],
+          tip: "Ne passez au 반말 que si l'autre vous le propose (말 놓으세요 / 말 편하게 해) ou avec des plus jeunes que vous qui sont proches.",
+        },
+      ],
+      vocab: [
+        { ko: '나', rom: 'na', fr: 'je, moi (familier)' },
+        { ko: '너', rom: 'neo', fr: 'tu, toi' },
+        { ko: '응', rom: 'eung', fr: 'ouais' },
+        { ko: '그냥', rom: 'geunyang', fr: 'juste, comme ça' },
+        { ko: '일기', rom: 'ilgi', fr: 'journal intime' },
+        { ko: '말을 놓다', rom: 'mareul nota', fr: 'passer au tutoiement' },
+      ],
+      exercises: [
+        qcm('Style écrit de 먹다 (présent) :', '먹는다', ['먹다', '먹ㄴ다', '먹는다요']),
+        qcm('Style écrit de 가다 (présent) :', '간다', ['가는다', '가다', '갑다']),
+        qcm('Style écrit de 예쁘다 (présent) :', '예쁘다', ['예쁜다', '예쁘는다', '예뻐다']),
+        qcm('반말 de « 학생이에요 » :', '학생이야', ['학생이에', '학생이어', '학생야']),
+        qcm('반말 de « 친구예요 » :', '친구야', ['친구이야', '친구예', '친구여']),
+        qcm('반말 : « On y va ! » :', '가자!', ['갑시다!', '가요!', '가세요!']),
+        fill('반말 de « 뭐 해요? » :', ['뭐 해?', '뭐 해', '뭐해?', '뭐해']),
+        fill('Style écrit de « 마셨어요 » :', ['마셨다']),
+      ],
+    },
+  ],
+  test: [
+    qcm('« Ma mère lit un livre » (hon.) :', '어머니께서 책을 읽으세요.', ['어머니가 책을 읽어요.', '어머니께서 책을 읽어요세요.', '어머니께 책을 읽으세요.']),
+    qcm('Honorifique de 자다 :', '주무시다', ['자시다', '계시다', '드시다']),
+    qcm('« La personne que j’ai rencontrée hier » :', '어제 만난 사람', ['어제 만나는 사람', '어제 만날 사람', '어제 만났는 사람']),
+    qcm('« Un temps froid » :', '추운 날씨', ['춥은 날씨', '춥는 날씨', '추울 날씨']),
+    qcm('« Si tu es fatigué, repose-toi » :', '피곤하면 쉬세요.', ['피곤해도 쉬세요.', '피곤해서 쉬세요.', '피곤하려면 쉬세요.']),
+    qcm('« Je peux essayer ? » (vêtement) :', '입어 봐도 돼요?', ['입어야 돼요?', '입으면 안 돼요?', '입고 있어요?']),
+    qcm('« Il est interdit de courir » :', '뛰면 안 돼요.', ['뛰어도 돼요.', '뛰어야 돼요.', '뛸 줄 알아요.']),
+    qcm('Complétez : 비가 ___ 우산 있어요? (Il pleut, tu as un parapluie ?)', '오는데', ['온데', '와서', '오면서']),
+    qcm('« Je n’ai jamais vu la mer » :', '바다를 본 적이 없어요.', ['바다를 보고 없어요.', '바다를 봐 있어요.', '바다를 볼 수 없어요.']),
+    qcm('« On a décidé de se marier » :', '결혼하기로 했어요.', ['결혼하게 했어요.', '결혼하려고 됐어요.', '결혼해 봤어요.']),
+    qcm('Style écrit de 읽다 :', '읽는다', ['읽다', '읽ㄴ다', '읽은다']),
+    qcm('반말 de « 네 » :', '응', ['예', '아니', '네요']),
+    match('Associez', [
+      ['연세', 'âge (hon.)'],
+      ['성함', 'nom (hon.)'],
+      ['댁', 'maison (hon.)'],
+      ['말씀', 'parole (hon.)'],
+    ]),
+    fill('« Je suis en train d’étudier » (공부하다) :', ['공부하고 있어요', '공부하고 있어요.']),
+    order('Remettez dans l’ordre', '한국어를 잘하려면 매일 연습해야 돼요.', 'Pour bien parler coréen, il faut pratiquer tous les jours.'),
+  ],
+}
