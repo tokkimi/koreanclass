@@ -1,0 +1,30 @@
+{
+  "name": "TalkToMe Club — KoreanClass",
+  "short_name": "TalkToMe Club",
+  "description": "Apprendre et pratiquer le coréen en français.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#2858ec",
+  "icons": [{
+    "src": "/talktome-club-icon.png",
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "any maskable"
+  }],
+  "shortcuts": [
+    {
+      "name": "Jouer une mise en situation",
+      "short_name": "Jouer",
+      "url": "/pratique",
+      "icons": [{ "src": "/talktome-club-icon.png", "sizes": "512x512" }]
+    },
+    {
+      "name": "Reprendre mon parcours",
+      "short_name": "Mon parcours",
+      "url": "/tableau-de-bord",
+      "icons": [{ "src": "/talktome-club-icon.png", "sizes": "512x512" }]
+    }
+  ]
+}

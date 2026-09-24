@@ -24,8 +24,7 @@ export function Layout() {
       <header className="header">
         <div className="container header-inner">
           <Link to="/" className="logo">
-            <span className="logo-mark">한</span>
-            <span>{SITE_NAME}</span>
+            <img className="logo-mark" src="/talktome-club-icon.png" alt="TalkToMe Club" />
           </Link>
           <button className="burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}>
             ☰
@@ -86,8 +85,7 @@ export function Layout() {
         <div className="container footer-grid">
           <div>
             <div className="logo">
-              <span className="logo-mark">한</span>
-              <span>{SITE_NAME}</span>
+              <img className="logo-mark" src="/talktome-club-icon.png" alt="TalkToMe Club" />
             </div>
             <p className="muted small">Le coréen expliqué en français, du hangeul au niveau courant. 화이팅!</p>
           </div>
