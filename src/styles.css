@@ -1919,3 +1919,11 @@ body { background: radial-gradient(ellipse at 0% 10%,#b4d8ff66,transparent 50%),
   .header .nav.open { max-height: calc(100dvh - 64px); overflow-y: auto; }
   .header .nav > a:not(.btn) { padding-block: 10px; }
 }
+/* One consistent, compact menu on desktop and mobile. */
+.header .burger { display:block; font-size:1rem; padding:12px 16px; border:1px solid var(--border); border-radius:14px; }
+.header .nav { display:none; position:absolute; top:100%; left:0; right:0; background:var(--card); padding:24px; border-bottom:1px solid var(--border); max-height:calc(100dvh - 90px); overflow-y:auto; box-shadow:0 20px 40px #17203318; }
+.header .nav.open { display:flex; flex-direction:column; align-items:stretch; gap:8px; top:100%; }
+.header .nav > a:not(.btn) { padding:10px 16px; border-radius:10px; }
+.header .nav > a.active { background:color-mix(in srgb,var(--primary) 10%,transparent); }
+.header .nav .dropdown { position:static; box-shadow:none; }
+@media(min-width:761px) { .header .nav { left:auto; right:24px; width:360px; border:1px solid var(--border); border-radius:20px; } }

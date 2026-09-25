@@ -1,0 +1,6 @@
+import { words } from './vocabulary.js'
+import { colors } from './colors.js'
+import { qcm } from './helpers.js'
+import type { Lesson } from './types.js'
+export const photoQuiz:Lesson={id:'v-photos',title:'Reconnaître les photos',subtitle:'Observe et choisis le mot coréen',duration:15,objectives:['Associer une photo à un mot'],sections:[{title:'Observer',body:'Regarde la photo, puis choisis le nom coréen du sujet principal.'}],vocab:words.filter(w=>w[6]).map(w=>({ko:w[1],rom:w[2],fr:w[3]})),exercises:words.filter(w=>w[6]).map((w,i)=>({...qcm('Quel mot correspond à cette photo ?',w[1],words.filter(x=>x[1]!==w[1]).slice(i,i+3).map(x=>x[1]),w[1]+' : '+w[3]+'.'),image:`https://images.unsplash.com/${w[6]}?auto=format&fit=crop&w=640&q=80`}))}
+export const colorQuiz:Lesson={id:'v-color-images',title:'Reconnaître les couleurs',subtitle:'Observe la teinte et choisis',duration:10,objectives:['Reconnaître une couleur sans sa traduction'],sections:[{title:'Observer',body:'Choisis le nom coréen de la teinte affichée. Le rendu peut varier légèrement selon ton écran.'}],vocab:colors.slice(0,14).map(([ko,fr])=>({ko,rom:'',fr})),exercises:colors.slice(0,14).map(([ko,fr,hex],i)=>({...qcm('Quelle est cette couleur ?',ko,[1,3,5].map(n=>colors[(i+n)%14][0]),ko+' : '+fr+'.'),swatch:hex}))}

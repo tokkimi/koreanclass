@@ -162,6 +162,8 @@ function Qcm({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'qcm' }
   return (
     <div>
       <Question text={ex.q} />
+      {ex.image && <img src={ex.image} alt="Photo à reconnaître" style={{display:'block',width:'100%',maxHeight:320,objectFit:'contain',borderRadius:18,marginBottom:20}} />}
+      {ex.swatch && <div role="img" aria-label="Couleur à reconnaître" style={{height:180,background:ex.swatch,border:'1px solid #9998',borderRadius:18,marginBottom:20}} />}
       <div className="options">
         {ex.options.map((o, i) => {
           let cls = 'option'

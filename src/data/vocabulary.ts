@@ -1,4 +1,8 @@
 export const vocabularyThemes = [
+ {name:'Cuisine & ustensiles',photo:'photo-1509440159596-0249088772ff',items:'접시|assiette;그릇|bol, récipient;컵|tasse, gobelet;숟가락|cuillère;젓가락|baguettes;포크|fourchette;칼|couteau;냄비|casserole;프라이팬|poêle;주전자|bouilloire;도마|planche à découper;전자레인지|micro-ondes'},
+ {name:'Voyage & sorties',photo:'photo-1485965120184-e220f721d03e',items:'여권|passeport;표|billet;지도|carte géographique;호텔|hôtel;여행|voyage;짐|bagages;입구|entrée;출구|sortie;화장실|toilettes;식당|restaurant;카페|café (lieu);영화관|cinéma'},
+ {name:'Loisirs & musique',photo:'photo-1495446815901-a7297e633e8d',items:'음악|musique;노래|chanson;영화|film;사진|photo;그림|dessin, tableau;게임|jeu;운동|activité sportive;수영|natation;축구|football;농구|basket-ball;피아노|piano;기타|guitare'},
+ {name:'Temps & saisons',photo:'photo-1441974231531-c6227db76b6e',items:'봄|printemps;여름|été;가을|automne;겨울|hiver;아침|matin;점심|midi, déjeuner;저녁|soir, dîner;밤|nuit;오늘|aujourd’hui;내일|demain;어제|hier;주말|week-end'},
  {name:'Fruits & légumes',photo:'photo-1560806887-1e4cd0b6cbd6',items:'포도|raisin;수박|pastèque;오렌지|orange;레몬|citron;복숭아|pêche;배|poire;토마토|tomate;감자|pomme de terre;당근|carotte;양파|oignon;오이|concombre;배추|chou chinois'},
  {name:'À table',photo:'photo-1509440159596-0249088772ff',items:'밥|riz cuit, repas;쌀|riz cru;김치|kimchi;고기|viande;생선|poisson (aliment);달걀|œuf;우유|lait;치즈|fromage;국|soupe;소금|sel;설탕|sucre;주스|jus'},
  {name:'Animaux',photo:'photo-1514888286974-6c03e2ca1dba',items:'새|oiseau;물고기|poisson (animal);말|cheval;소|vache;돼지|cochon;양|mouton;토끼|lapin;곰|ours;호랑이|tigre;사자|lion;코끼리|éléphant;원숭이|singe'},

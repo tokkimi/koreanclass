@@ -26,10 +26,10 @@ export function Layout() {
           <Link to="/" className="logo">
             <img className="logo-full" src="/talktome-club-logo.png" alt="TalkToMe Club" />
           </Link>
-          <button className="burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}>
-            ☰
+          <button className="burger" aria-label={open ? "Fermer le menu" : "Ouvrir le menu"} aria-controls="main-menu" aria-expanded={open} onClick={() => setOpen(!open)}>
+            {open ? "✕ Fermer" : "☰ Menu"}
           </button>
-          <nav className={`nav ${open ? 'open' : ''}`} aria-label="Menu principal">
+          <nav id="main-menu" className={`nav ${open ? 'open' : ''}`} aria-label="Menu principal" onKeyDown={e=>{if(e.key==='Escape'){setOpen(false);document.querySelector<HTMLButtonElement>('.burger')?.focus()}}}>
             <NavLink to="/" end>Accueil</NavLink>
             <NavLink to="/cours">Cours</NavLink>
             <NavLink to="/alphabet">Hangeul</NavLink>

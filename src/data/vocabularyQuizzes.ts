@@ -1,7 +1,9 @@
 import { words } from './vocabulary.js'
 import { qcm } from './helpers.js'
 import type { Lesson } from './types.js'
-export const vocabularyLessons: Lesson[] = [...new Set(words.map(w=>w[0]))].map((theme,index)=>{
+export const vocabularyLessons: Lesson[] = [...new Set(words.map(w=>w[0]))].map((theme)=>{
+ const legacy=['Fruits & légumes','À table','Animaux','Nature & météo','À la maison','École & objets','Ville & transports','Vêtements','Corps','Famille & personnes','Manger & boire','Animaux & nature','Au quotidien']
+ const index=legacy.includes(theme)?legacy.indexOf(theme):['Cuisine & ustensiles','Voyage & sorties','Loisirs & musique','Temps & saisons'].indexOf(theme)+13
  const items=words.filter(w=>w[0]===theme)
  const exercises=items.flatMap(w=>{
  const alternatives=words.filter(x=>x[1]!==w[1]&&x[3]!==w[3])

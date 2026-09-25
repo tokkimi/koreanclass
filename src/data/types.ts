@@ -26,7 +26,7 @@ export interface Section {
 }
 
 export type Exercise =
-  | { type: 'qcm'; q: string; options: string[]; answer: number; explain?: string }
+  | { type: 'qcm'; image?: string; swatch?: string; q: string; options: string[]; answer: number; explain?: string }
   | { type: 'fill'; q: string; answers: string[]; hint?: string; explain?: string }
   | { type: 'match'; q: string; pairs: [string, string][] }
   | { type: 'order'; q: string; words: string[]; fr?: string; explain?: string }
