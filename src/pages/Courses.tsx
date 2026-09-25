@@ -25,7 +25,7 @@ export default function Courses() {
         <Link to="/test-de-niveau" className="btn ghost">🎯 Je ne sais pas par où commencer</Link>
       </div>
 
-      <div className="level-grid">
+      <div className="level-grid"><Link to="/vocabulaire" className="card"><h2>Vocabulaire en photos</h2><p>Des images, des mots à écouter et des phrases du quotidien. Masque les traductions pour réviser.</p><span className="link">Découvrir les mots →</span></Link>
         <Link to="/nombres" className="card"><h2>Chiffres & nombres</h2><p>De zéro aux grands nombres : deux systèmes, des explications audio, l’âge, l’heure, les dates, les prix et des exercices corrigés.</p><span className="link">Apprendre à compter →</span></Link>
         <Link to="/structures" className="card"><h2>Phrases & grammaire en contexte</h2><p>Comprendre le hangeul, conjuguer, relier les idées et adapter son ton : {structureUnits.length} ateliers avec phrases décomposées et exercices corrigés.</p><span className="link">Explorer les structures →</span></Link>
         {stats.map(({ level, done, total, pct, test }) => (

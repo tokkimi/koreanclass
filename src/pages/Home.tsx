@@ -18,7 +18,7 @@ export default function Home() {
       <div><h1>{user ? `Hello, ${user.displayName}.` : 'Un peu de coréen. Beaucoup de plaisir.'} <span className="greeting-wave">안녕!</span></h1><p className="muted">Des mots aux vraies conversations. À ton rythme.</p></div>
       <div className="home-counters"><span>🔥 {currentStreak(p)} <small>jours</small></span><span>✦ {p.xp} <small>XP</small></span></div>
     </div>
-    <div className="row" style={{marginBottom:24,flexWrap:'wrap'}}><Link to="/structures" className="btn">Phrases & grammaire</Link><Link to="/alphabet" className="btn ghost">Comprendre le hangeul</Link><Link to="/nombres" className="btn ghost">Chiffres & nombres</Link><Link to="/pratique" className="btn ghost">Mises en situation</Link></div>
+    <div className="row" style={{marginBottom:24,flexWrap:'wrap'}}><Link to="/structures" className="btn">Phrases & grammaire</Link><Link to="/alphabet" className="btn ghost">Comprendre le hangeul</Link><Link to="/vocabulaire" className="btn ghost">Vocabulaire en photos</Link><Link to="/nombres" className="btn ghost">Chiffres & nombres</Link><Link to="/pratique" className="btn ghost">Mises en situation</Link></div>
     <div className="home-top-grid">
       <section className="study-hero photo-hero">
         <div className="row between"><span className="hero-label">{g.completed ? 'ON GARDE LE RYTHME' : 'TA PROCHAINE AVENTURE'}</span><span className="hero-number">{String((next?.level.index ?? 0) + 1).padStart(2, '0')} / 06</span></div>

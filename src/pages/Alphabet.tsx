@@ -1,3 +1,6 @@
+import { recognition } from '../data/recognition'
+import { ExerciseRunner } from '../components/ExerciseRunner'
+import { recordLesson, useCurrentUser } from '../lib/store'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { compose, FINALS, INITIALS, MEDIALS } from '../lib/hangul'
@@ -16,6 +19,7 @@ const VOWELS: [string, string][] = [
 ]
 
 export default function Alphabet() {
+  const user = useCurrentUser()
   const [ini, setIni] = useState('ㅎ')
   const [med, setMed] = useState('ㅏ')
   const [fin, setFin] = useState('ㄴ')
@@ -31,7 +35,7 @@ export default function Alphabet() {
         </p>
       </div>
 
-      <section className="card"><h2>Commencer de zéro : lire le cours</h2><p>Tu n’as besoin de connaître aucune lettre. Lis les explications dans l’ordre, écoute les exemples et essaie de les recopier. Aucun quiz ni compte n’est nécessaire pour cette partie.</p><nav className="row" style={{flexWrap:'wrap'}} aria-label="Sommaire du cours de hangeul"><a className="btn ghost" href="#lettres">1. Lettres et syllabes</a><a className="btn ghost" href="#voyelles-base">2. Voyelles</a><a className="btn ghost" href="#consonnes-base">3. Consonnes</a><a className="btn ghost" href="#assembler">4. Assembler</a><a className="btn ghost" href="#premiers-mots">5. Lire ses premiers mots</a></nav></section>
+      <section className="card"><h2>Commencer de zéro : lire le cours</h2><p>Tu n’as besoin de connaître aucune lettre. Lis les explications dans l’ordre, écoute les exemples et essaie de les recopier. Aucun quiz ni compte n’est nécessaire pour cette partie.</p><nav className="row" style={{flexWrap:'wrap'}} aria-label="Sommaire du cours de hangeul"><a className="btn" href="#quiz-lettres">QCM lettres & syllabes</a><a className="btn ghost" href="#lettres">1. Lettres et syllabes</a><a className="btn ghost" href="#voyelles-base">2. Voyelles</a><a className="btn ghost" href="#consonnes-base">3. Consonnes</a><a className="btn ghost" href="#assembler">4. Assembler</a><a className="btn ghost" href="#premiers-mots">5. Lire ses premiers mots</a></nav></section>
       <section className="card mt" id="lettres"><h2>1. Le hangeul, c’est quoi ?</h2><p>Le <strong>hangeul (한글)</strong> est l’alphabet utilisé pour écrire le coréen. Ses lettres représentent des sons. Elles sont regroupées en petits blocs : chaque bloc correspond à une syllabe.</p><p><strong>Une lettre :</strong> ㄴ. <strong>Une syllabe :</strong> 나, formée de ㄴ + ㅏ. <strong>Un mot :</strong> 나무, formé de deux syllabes 나 + 무, signifie « arbre ».</p><p>Une consonne est un son pour lequel la bouche freine ou bloque l’air, comme n ou m. Une voyelle est un son que l’on peut faire résonner sans ce blocage, comme a ou i. Une syllabe contient une voyelle, avec éventuellement des consonnes autour.</p><p>On apprend d’abord <strong>14 consonnes de base et 10 voyelles de base</strong>. Avec les consonnes doubles et les autres voyelles, les tableaux de cette page présentent 19 consonnes initiales et 21 voyelles.</p><p>Les lettres ne sont pas des mots à traduire : ㄴ ne veut pas dire « arbre ». C’est leur assemblage dans 나무 qui forme ce mot.</p></section>
       <section className="card mt" id="voyelles-base"><h2>2. Les voyelles : le cœur du son</h2><p>Commence par ces six voyelles. Les repères français et la romanisation sont approximatifs : écoute surtout les exemples.</p><div className="table-wrap"><table><thead><tr><th>Lettre</th><th>Comment l’aborder</th><th>Écouter</th></tr></thead><tbody>{[
        ['ㅏ','a : ouvre la bouche, sans arrondir les lèvres.','아'],['ㅓ','eo : une seule voyelle, plus ouverte que ㅗ ; ne lis pas « é-o ».','어'],['ㅗ','o : arrondis les lèvres.','오'],['ㅜ','u dans la romanisation : proche du « ou » français, pas du « u » de lune.','우'],['ㅡ','eu : une seule voyelle, langue en arrière et lèvres non arrondies ; ce n’est pas le « eu » français.','으'],['ㅣ','i : proche du i français.','이']
@@ -41,6 +45,7 @@ export default function Alphabet() {
       <section className="card mt" id="premiers-mots"><h2>5. Lire ses premiers mots, pas à pas</h2>{[
        ['나무','나 = ㄴ + ㅏ ; 무 = ㅁ + ㅜ. Deux blocs : na-mu.','arbre'],['우유','우 = ㅇ + ㅜ ; 유 = ㅇ + ㅠ. Les deux ㅇ initiaux sont muets.','lait'],['아이','아 = ㅇ + ㅏ ; 이 = ㅇ + ㅣ. Deux voyelles, deux blocs.','enfant'],['한국','한 = ㅎ + ㅏ + ㄴ ; 국 = ㄱ + ㅜ + ㄱ. Deux blocs avec finales.','Corée']
       ].map(([word,parts,meaning])=><div className="mt" key={word}><h3><span lang="ko">{word}</span> <SpeakButton text={word}/> — {meaning}</h3><p>{parts}</p></div>)}<h3>Une première phrase : 우유예요.</h3><p><strong>우유</strong> = lait ; <strong>예요</strong> = « c’est », après un nom terminé par une voyelle. L’ensemble signifie « C’est du lait ». On écrit les blocs ensemble : 우·유·예·요, puis on lit la phrase d’un seul mouvement.</p><SpeakButton text="우유예요."/><p>Entraînement libre : cache les explications, lis les quatre mots, puis retrouve chaque consonne et chaque voyelle. Si tu hésites, retourne au tableau : aucun score n’est nécessaire pour apprendre.</p></section>
+      <section className="mt" id="quiz-lettres"><h2>À toi : reconnaître les lettres et les syllabes</h2><p>16 questions avec une correction expliquée après chaque réponse. {user ? 'Ton résultat sera enregistré dans ton parcours.' : 'Connecte-toi pour enregistrer ton résultat sur tous tes appareils.'}</p><ExerciseRunner key={user?.id ?? 'guest'} exercises={recognition.exercises} passMark={70} onFinish={async (score,total,_results,answers,operationId)=>{if(user) await recordLesson(recognition.id,recognition.title,score,total,answers,operationId)}} /></section>
       <section className="card mt"><h2>Continuer le cours guidé</h2><p>Ces ateliers développent les règles avec d’autres exemples. Le cours se lit avant les exercices, qui restent en bas de chaque leçon.</p><div className="row" style={{flexWrap:'wrap'}}><Link className="btn" to="/cours/hangeul/s-blocks">Lettres et blocs</Link><Link className="btn ghost" to="/cours/hangeul/s-sounds">Sons et finales</Link><Link className="btn ghost" to="/cours/hangeul/s-linking">Liaisons</Link></div></section>
       <section className="card mt">
         <h2>Consonnes (자음)</h2>

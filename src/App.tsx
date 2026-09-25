@@ -1,3 +1,4 @@
+import Vocabulary from './pages/Vocabulary'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { Layout } from './components/Layout'
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="admin" element={<RequireAuth><Admin /></RequireAuth>} />
         <Route path="structures" element={<Structures />} />
         <Route path="alphabet" element={<Alphabet />} />
+        <Route path="vocabulaire" element={<Vocabulary />} />
         <Route path="nombres" element={<Numbers />} />
         <Route path="reserver" element={<Booking />} />
         <Route path="reservations" element={<RequireAuth><Bookings /></RequireAuth>} />
