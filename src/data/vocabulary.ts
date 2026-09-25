@@ -15,3 +15,18 @@ export const extraWords = vocabularyThemes.flatMap(theme=>theme.items.split(';')
  const final = (ko.charCodeAt(ko.length-1)-0xac00)%28
  return [theme.name,ko,'',fr,ko+(final?'이에요.':'예요.'),'C’est : '+fr+'.','']
 }))
+
+export const words = [...extraWords,
+ ['Manger & boire','사과','sagwa','pomme','사과를 먹어요.','Je mange une pomme.','photo-1560806887-1e4cd0b6cbd6'],
+ ['Manger & boire','바나나','banana','banane','바나나가 있어요.','Il y a une banane.','photo-1571771894821-ce9b6c11b08e'],
+ ['Manger & boire','딸기','ttalgi','fraise','딸기를 좋아해요.','J’aime les fraises.','photo-1464965911861-746a04b4bca6'],
+ ['Manger & boire','커피','keopi','café','커피 한 잔 주세요.','Un café, s’il vous plaît.','photo-1509042239860-f550ce710b93'],
+ ['Manger & boire','빵','ppang','pain','빵을 먹어요.','Je mange du pain.','photo-1509440159596-0249088772ff'],
+ ['Manger & boire','물','mul','eau','물을 마셔요.','Je bois de l’eau.','photo-1548839140-29a749e1cf4d'],
+ ['Animaux & nature','고양이','goyangi','chat','고양이가 귀여워요.','Le chat est mignon.','photo-1514888286974-6c03e2ca1dba'],
+ ['Animaux & nature','개','gae','chien','개가 있어요.','Il y a un chien.','photo-1552053831-71594a27632d'],
+ ['Animaux & nature','나무','namu','arbre','나무가 커요.','L’arbre est grand.','photo-1441974231531-c6227db76b6e'],
+ ['Animaux & nature','바다','bada','mer','바다가 예뻐요.','La mer est belle.','photo-1507525428034-b723cf961d3e'],
+ ['Au quotidien','책','chaek','livre','책을 읽어요.','Je lis un livre.','photo-1495446815901-a7297e633e8d'],
+ ['Au quotidien','자전거','jajeongeo','vélo','자전거를 타요.','Je fais du vélo.','photo-1485965120184-e220f721d03e'],
+]
