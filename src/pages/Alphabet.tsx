@@ -24,14 +24,15 @@ export default function Alphabet() {
   return (
     <div className="container page">
       <div className="page-head">
-        <h1>L'alphabet coréen <span className="ko-text">한글</span></h1>
+        <h1>Comprendre le hangeul <span className="ko-text">한글</span></h1>
         <p className="muted">
           Cliquez sur une lettre pour l'entendre (avec la voyelle ㅏ pour les consonnes). Pour apprendre pas à pas, suivez le{' '}
           <Link to="/cours/hangeul" className="link">Niveau 0 — Hangeul</Link>.
         </p>
       </div>
 
-      <section className="card">
+      <section className="card"><h2>Lire, assembler, puis enchaîner les sons</h2><p>Commence par les trois ateliers guidés. Les tableaux et le constructeur ci-dessous te permettront ensuite de pratiquer.</p><div className="row"><Link className="btn" to="/cours/hangeul/s-blocks">1. Lettres et blocs</Link><Link className="btn ghost" to="/cours/hangeul/s-sounds">2. Sons et finales</Link><Link className="btn ghost" to="/cours/hangeul/s-linking">3. Liaisons</Link></div></section>
+      <section className="card mt">
         <h2>Consonnes (자음)</h2>
         <div className="jamo-grid">
           {CONSONANTS.map(([c, r, name]) => (

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { levels } from '../data'
+import { structureUnits } from '../data/structures'
 import { levelStats, useCurrentUser, useProgress } from '../lib/store'
 import { ProgressBar } from '../components/ProgressBar'
 
@@ -11,7 +12,7 @@ export default function Courses() {
   return (
     <div className="container page">
       <div className="page-head">
-        <h1>Le programme complet</h1>
+        <h1>Le parcours de coréen</h1>
         <p className="muted">
           {levels.length} niveaux, du hangeul au coréen courant. Chaque leçon comprend un cours, du vocabulaire, des exemples audio et des exercices.
           {!user && (
@@ -25,6 +26,7 @@ export default function Courses() {
       </div>
 
       <div className="level-grid">
+        <Link to="/structures" className="card"><h2>Phrases & grammaire en contexte</h2><p>Comprendre le hangeul, conjuguer, relier les idées et adapter son ton : {structureUnits.length} ateliers avec phrases décomposées et exercices corrigés.</p><span className="link">Explorer les structures →</span></Link>
         {stats.map(({ level, done, total, pct, test }) => (
           <Link key={level.id} to={`/cours/${level.id}`} className="card level-card" style={{ ['--accent' as string]: level.color }}>
             <div className="row between">

@@ -32,6 +32,7 @@ export function Layout() {
           <nav className={`nav ${open ? 'open' : ''}`}>
             <NavLink to="/" end>Accueil</NavLink>
             <NavLink to="/cours">Cours</NavLink>
+            <NavLink to="/structures">Phrases & grammaire</NavLink>
             <NavLink to="/tests">Tests & QCM</NavLink>
             <NavLink to="/pratique">En situation</NavLink>
             <NavLink to="/reserver" className="nav-cta">

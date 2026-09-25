@@ -1,4 +1,5 @@
 import { workshops, workshopLesson } from './workshops.js'
+import { structureLessons } from './structures.js'
 import { qcm, fill } from './helpers.js'
 import { level0 } from './level0.js'
 import { level1 } from './level1.js'
@@ -13,7 +14,7 @@ export const levels: Level[] = [level0, level1, level2, level3, level4, level5].
  lessons: [...level.lessons.map(lesson => ({...lesson, duration: lesson.duration + 15,
  sections: [...lesson.sections, {title:'Mémoriser activement', body:'Cache les traductions de la liste de vocabulaire. Lis chaque mot en coréen, donne son sens puis vérifie. Reprends les mots difficiles dans une phrase du cours. Après les exercices, explique la règle principale à voix haute avec un exemple personnel.', tip:'Revois les mots demain, dans trois jours puis dans une semaine. Un résultat parfait aujourd’hui ne remplace pas une révision espacée.'}],
  exercises: [...lesson.exercises, ...lesson.vocab.slice(0,4).map((v,i) => qcm('Révision active : que signifie « '+v.ko+' » ?', v.fr, [...new Set(lesson.vocab.filter((_,j)=>j!==i).map(x=>x.fr))].filter(x=>x!==v.fr).slice(0,3), v.ko+' : '+v.fr)), ...lesson.vocab.slice(0,2).map(v=>fill('Rappel de vocabulaire : écris « '+v.fr+' » en coréen.',v.ko.split('/').map(x=>x.trim()),v.rom))]
- })), ...workshops.filter(w=>w.levelIndex===level.index).map(workshopLesson)]
+ })), ...structureLessons.filter(x=>x.level===level.index).map(x=>x.lesson), ...workshops.filter(w=>w.levelIndex===level.index).map(workshopLesson)]
 }))
 
 export function getLevel(id: string | undefined): Level | undefined {

@@ -31,6 +31,8 @@ export default function Dashboard() {
       </div>
 
       <div className="stat-grid">
+        <Link to="/pratique" className="card"><h2>Mises en situation</h2><p>Commande au café, joue un dialogue et entraîne-toi à parler.</p><span className="link">Jouer une scène →</span></Link>
+        <Link to="/structures" className="card"><h2>Phrases & grammaire</h2><p>Comprends les structures et construis tes propres phrases.</p><span className="link">Choisir un atelier →</span></Link>
         <div className="card stat">
           <span className="stat-icon">⭐</span>
           <strong>{p.xp}</strong>
