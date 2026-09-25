@@ -46,6 +46,7 @@ export function Layout() {
                 {menu && (
                   <div className="dropdown" role="menu">
                     <Link to="/tableau-de-bord">📊 Mon parcours</Link>
+                    {user.role==='admin'&&<Link to="/admin">Administration</Link>}
                     <Link to="/profil">👤 Mon profil</Link>
                     <Link to="/profil/modifier">✏️ Modifier le profil</Link>
                     <Link to="/reservations">📅 Mes réservations</Link>

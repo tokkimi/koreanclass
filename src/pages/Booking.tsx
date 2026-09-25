@@ -96,9 +96,12 @@ export default function Booking() {
             </>
           )}
           {payLink && !user.isDemo && (
+            <>
+            <p className="small">Sur PayPal, règle en EUR pour un achat de service et indique la référence <strong>{confirmed.id}</strong>. Le paiement sera vérifié par le professeur avant activation des crédits.</p>
             <a className="btn big ghost" href={payLink} target="_blank" rel="noreferrer noopener">
-              💳 Payer en ligne ({choice === 'pack10' ? PRICING.pack10.price : PRICING.single.price} €)
+              Payer avec PayPal ({choice === 'pack10' ? PRICING.pack10.price : PRICING.single.price} €)
             </a>
+            </>
           )}
           <div className="row center gap">
             <Link to="/reservations" className="btn ghost">

@@ -4,6 +4,7 @@ import { Layout } from './components/Layout'
 import { useCurrentUser, useReady } from './lib/store'
 import Home from './pages/Home'
 import Practice from './pages/Practice'
+import Admin from './pages/Admin'
 import Courses from './pages/Courses'
 import LevelPage from './pages/LevelPage'
 import LessonPage from './pages/LessonPage'
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="tests/:levelId" element={<LevelTest />} />
         <Route path="test-de-niveau" element={<Placement />} />
         <Route path="pratique" element={<Practice />} />
+        <Route path="admin" element={<RequireAuth><Admin /></RequireAuth>} />
         <Route path="alphabet" element={<Alphabet />} />
         <Route path="reserver" element={<Booking />} />
         <Route path="reservations" element={<RequireAuth><Bookings /></RequireAuth>} />

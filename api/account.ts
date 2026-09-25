@@ -5,6 +5,7 @@ import { workshops } from '../src/data/workshops.js'
 import { compareSpeech } from '../src/lib/oral.js'
 import { recordAttempt } from '../server/progress.js'
 import { emptyProgress, type User, type Booking } from '../src/lib/model.js'
+import { adminAction, adminSnapshot, AdminError } from '../server/admin.js'
 
 const usernameRE = /^[a-z0-9._]{3,20}$/
 class HttpError extends Error { constructor(public status: number, message: string) { super(message) } }
@@ -24,6 +25,14 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     if (req.method === 'GET') {
       const { db } = await readDatabase()
       const a = findSession(db, token)
+      if(req.url?.includes('view=admin')) {
+        if(!a || a.user.role!=='admin')fail('Accès administrateur requis.',403)
+        res.end(JSON.stringify(adminSnapshot(db)));return
+      }
+      if(req.url?.includes('view=payments')) {
+        if(!a)fail('Connexion requise.',401)
+        res.end(JSON.stringify((db.payments??[]).filter(p=>p.userId===a!.user.id)));return
+      }
       res.end(JSON.stringify(a ? snapshot(a) : { user: null, progress: emptyProgress() })); return
     }
     const origin = req.headers.origin
@@ -51,7 +60,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         if (!account || !await verifyPassword(supplied, account)) fail('Identifiant ou mot de passe incorrect.', 401)
         const data = await transaction(async latest => {
           const a = latest.accounts[account!.user.id]
-          if (!a || a.password !== account!.password) fail('Reconnecte-toi.', 401)
+          if (!a || a.password !== account!.password || a.user.suspended || a.user.archived) fail('Compte indisponible. Contacte l’administrateur.', 401)
           startSession(a, newToken)
           return snapshot(a)
         })
@@ -77,6 +86,11 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     const { db: current } = await readDatabase()
     const currentAccount = findSession(current, token)
     if (!currentAccount) fail('Ta session a expiré. Reconnecte-toi pour enregistrer.', 401)
+    if(typeof action==='string'&&action.startsWith('admin')) {
+      if(currentAccount!.user.role!=='admin')fail('Accès administrateur requis.',403)
+      const result=await transaction(async db=>{const actor=findSession(db,token);if(!actor||actor.user.role!=='admin')fail('Accès administrateur requis.',403);await adminAction(db,actor!,body);return adminSnapshot(db)})
+      res.end(JSON.stringify(result));return
+    }
     let nextPassword: { salt: string; hash: string } | undefined
     if (action === 'password') {
       if (!await verifyPassword(str(body.current,128), currentAccount!)) fail('Mot de passe actuel incorrect.')
@@ -130,6 +144,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       } else if (action === 'reset') {
         account.progress = { ...emptyProgress(), bookings: account.progress.bookings, packCredits: account.progress.packCredits }
       } else if (action === 'delete') {
+        if(account.user.role==='admin')fail('Le compte administrateur est protégé.')
+        if((db.payments??[]).some(p=>p.userId===account.user.id))fail('Contacte l’administrateur pour clôturer un compte associé à des règlements.')
         delete db.accounts[account.user.id]
         return { user: null, progress: emptyProgress() }
       } else if (action === 'booking') {
@@ -144,9 +160,20 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         // A request is not a paid purchase: credits require payment confirmation.
         const booking: Booking = { id: operationId, formula: b.formula === 'single' ? 'single' : 'pack10', date: str(b.date), time: str(b.time), topic: str(b.topic,100), message: str(b.message,500), status: 'demandée', createdAt: new Date().toISOString() }
         account.progress.bookings.unshift(booking)
+        booking.usedCredit=b.formula==='credit'&&!account.user.isDemo
+        if(b.formula!=='credit'&&!account.user.isDemo){
+          booking.paymentId=operationId
+          ;(db.payments??=[]).push({id:operationId,userId:account.user.id,customer:account.user.displayName,bookingId:booking.id,amount:b.formula==='single'?1500:10000,currency:'EUR',status:'pending',createdAt:booking.createdAt})
+        }
       } else if (action === 'cancelBooking') {
         const booking = account.progress.bookings.find(x => x.id === body.id)
-        if (booking && booking.status !== 'annulée') booking.status = 'annulée'
+        if (booking && booking.status !== 'annulée') {
+          if(new Date(`${booking.date}T${booking.time}:00Z`).getTime()-Date.now()<26*3600000)fail('Pour annuler à moins de 24 h du cours (heure de Paris), contacte le professeur.')
+          booking.status = 'annulée'
+          if(booking.usedCredit){account.progress.packCredits++;booking.usedCredit=false}
+          const payment=db.payments?.find(p=>p.id===booking.paymentId)
+          if(payment?.status==='pending')payment.status='cancelled'
+        }
       } else fail('Action inconnue.')
       account.operations = [...account.operations, operationId].slice(-2000)
       return snapshot(account)
@@ -154,8 +181,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     if (action === 'delete') cookie(res, '', secure)
     res.end(JSON.stringify(result))
   } catch (error) {
-    const known = error instanceof HttpError
-    res.statusCode = known ? error.status : error instanceof SyntaxError ? 400 : 503
+    const known = error instanceof HttpError || error instanceof AdminError
+    res.statusCode = error instanceof HttpError ? error.status : error instanceof AdminError || error instanceof SyntaxError ? 400 : 503
     res.end(JSON.stringify({ error: known ? error.message : 'La sauvegarde est momentanément indisponible. Réessaie : tes réponses restent affichées.' }))
     if (!known) console.error('Account service:', error instanceof Error ? error.message : 'unknown error')
   }

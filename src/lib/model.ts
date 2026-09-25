@@ -6,6 +6,9 @@ export interface User {
   email: string
   displayName: string
   isDemo?: boolean
+  role?: 'admin' | 'student'
+  suspended?: boolean
+  archived?: boolean
   avatar: string | null
   bio: string
   location: string
@@ -43,6 +46,8 @@ export interface ResultEntry {
 export type Formula = 'single' | 'pack10'
 
 export interface Booking {
+  paymentId?: string
+  usedCredit?: boolean
   id: string
   formula: Formula
   date: string

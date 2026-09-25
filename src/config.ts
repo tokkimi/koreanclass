@@ -10,8 +10,8 @@ export const SITE_NAME = 'KoreanClass'
 export const CONTACT_EMAIL: string = env.VITE_CONTACT_EMAIL ?? ''
 
 /** Liens de paiement optionnels (ex. Stripe Payment Links, PayPal.me). */
-export const PAYMENT_LINK_SINGLE: string = env.VITE_PAYMENT_LINK_SINGLE ?? ''
-export const PAYMENT_LINK_PACK: string = env.VITE_PAYMENT_LINK_PACK ?? ''
+export const PAYMENT_LINK_SINGLE: string = 'https://paypal.me/Siasiakorea/15EUR'
+export const PAYMENT_LINK_PACK: string = 'https://paypal.me/Siasiakorea/100EUR'
 
 export const PRICING = {
   single: { label: 'Cours particulier 1 h', price: 15, hours: 1 },
