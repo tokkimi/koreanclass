@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useMemo, useState, useRef } from 'react'
 import type { Exercise } from '../data/types'
 import { checkFill, checkMatch, checkOrder, scoreLabel, seededShuffle, shuffleDifferent } from '../lib/grading'
@@ -74,6 +75,7 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
           {score} bonne{score > 1 ? 's' : ''} réponse{score > 1 ? 's' : ''} sur {exercises.length}
           {passMark !== undefined && (passed ? ' — niveau validé ✅' : ` — il faut ${passMark} % pour valider`)}
         </p>
+        <div className="card mt"><h3>On le travaille ensemble ?</h3><p>Reprends ces notions et pratique à l’oral avec ton professeur. Cours particulier : 15 € / heure.</p><Link className="btn" to="/reserver?formule=single">Réserver mon cours · 15 €</Link><p className="small"><Link className="link" to="/reserver?formule=pack10">Ou choisir 10 heures à 100 € →</Link></p></div>
         <details className="recap">
           <summary>Voir le détail des réponses</summary>
           <ol>
