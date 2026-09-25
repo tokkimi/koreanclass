@@ -1908,3 +1908,14 @@ body { background: radial-gradient(ellipse at 0% 10%,#b4d8ff66,transparent 50%),
 @media(prefers-color-scheme:dark) { body { background: radial-gradient(ellipse at 0% 0%,#274b6955,transparent 70%),#101923; }:root { --card:#1d2b3bd6;--bg:#111c28;--border:#667c9440; }.card,.chapter-card,.quick-action,.word-card,.home-counters>span,.scenario-card { background:#2335498c;border-color:#72859d44;box-shadow:0 12px 40px #0002,inset 0 1px 0 #fff1; }.header {background:#182a3aba;border-color:#ffffff22;}.practice-invite {background:#2335498c;border-color:#72859d44;}.oral-model,.transcript-box {background:#16263777;border-color:#566f8944;}.oral-feedback {background:#233952;}.oral-feedback.ok{background:#254336;}.oral-feedback.review{background:#443c27;}.voice-settings{border-color:#667c9440;}.footer {background:#182839aa;}.mobile-dock{background:#182839dd;}.join-banner{background:#253e5799;} }
 @media(max-width:1000px){.scenario-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:760px){.study-hero.photo-hero{padding:22px;}.photo-hero .study-hero-content{grid-template-columns:1fr 76px;gap:12px;}.hero-destination{padding:18px 5px;border-radius:18px;}.hero-destination>span{font-size:2rem;}.hero-destination small{font-size:.5rem;}.photo-hero .hero-label{font-size:.6rem;}.word-photo{width:calc(100% + 44px);margin:-22px -22px 20px;height:140px;}.practice-invite{grid-template-columns:1fr;}.practice-invite>div{padding:24px;}.practice-invite h2{font-size:1.6rem;}.practice-invite img{height:180px;grid-row:1;}.scenario-grid{grid-template-columns:1fr;gap:18px;}.scenario-photo{height:190px;}.scene-header{padding:24px;}.scene-header h1{font-size:1.8rem;}.oral-model{padding:18px;}.oral-model .ko-text{font-size:1.2rem;}.oral-practice{padding:20px;}.oral-practice .oral-tabs .btn{flex:1;}.oral-feedback{padding:18px;}.mic-button{width:100%;}.scene-header .oral-tabs .btn{width:100%;}.speech-error{max-width:100%;}.practice-invite .btn{width:100%;}}
+/* Keep every learning section visible without crowding the logo. */
+@media (min-width: 761px) {
+  .header-inner { height: auto; min-height: 78px; gap: 24px; padding-block: 10px; }
+  .header-inner > .logo { flex-shrink: 0; }
+  .header .nav { flex-wrap: wrap; justify-content: flex-end; gap: 8px 18px; }
+  .header .nav > a { white-space: nowrap; }
+}
+@media (max-width: 760px) {
+  .header .nav.open { max-height: calc(100dvh - 64px); overflow-y: auto; }
+  .header .nav > a:not(.btn) { padding-block: 10px; }
+}

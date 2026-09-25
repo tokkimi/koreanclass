@@ -29,9 +29,13 @@ export function Layout() {
           <button className="burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}>
             ☰
           </button>
-          <nav className={`nav ${open ? 'open' : ''}`}>
+          <nav className={`nav ${open ? 'open' : ''}`} aria-label="Menu principal">
             <NavLink to="/" end>Accueil</NavLink>
             <NavLink to="/cours">Cours</NavLink>
+            <NavLink to="/alphabet">Hangeul</NavLink>
+            <NavLink to="/nombres">Nombres</NavLink>
+            <NavLink to="/vocabulaire">Vocabulaire</NavLink>
+            <NavLink to="/couleurs">Couleurs</NavLink>
             <NavLink to="/structures">Phrases & grammaire</NavLink>
             <NavLink to="/tests">Tests & QCM</NavLink>
             <NavLink to="/pratique">En situation</NavLink>

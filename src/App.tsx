@@ -1,3 +1,4 @@
+import Colors from './pages/Colors'
 import Vocabulary from './pages/Vocabulary'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="admin" element={<RequireAuth><Admin /></RequireAuth>} />
         <Route path="structures" element={<Structures />} />
         <Route path="alphabet" element={<Alphabet />} />
+        <Route path="couleurs" element={<Colors />} />
         <Route path="vocabulaire" element={<Vocabulary />} />
         <Route path="nombres" element={<Numbers />} />
         <Route path="reserver" element={<Booking />} />
