@@ -37,6 +37,7 @@ export function Layout() {
             <NavLink to="/nombres">Nombres</NavLink>
             <NavLink to="/vocabulaire">Vocabulaire</NavLink>
             <NavLink to="/couleurs">Couleurs</NavLink>
+            <NavLink to="/cgv">Conditions de vente</NavLink>
             <NavLink to="/structures">Phrases & grammaire</NavLink>
             <NavLink to="/tests">Tests & QCM</NavLink>
             <NavLink to="/pratique">En situation</NavLink>
@@ -114,6 +115,7 @@ export function Layout() {
             <h4>Infos</h4>
             <Link to="/#tarifs">Tarifs</Link>
             <Link to="/#faq">FAQ</Link>
+            <Link to="/cgv">Conditions de vente & contact</Link>
             <Link to="/confidentialite">Confidentialité</Link>
           </div>
         </div>

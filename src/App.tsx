@@ -1,3 +1,4 @@
+import Terms from './pages/Terms'
 import Colors from './pages/Colors'
 import Vocabulary from './pages/Vocabulary'
 import { Navigate, Route, Routes } from 'react-router-dom'
@@ -59,6 +60,7 @@ export default function App() {
         <Route path="profil" element={<RequireAuth><Profile /></RequireAuth>} />
         <Route path="profil/modifier" element={<RequireAuth><EditProfile /></RequireAuth>} />
         <Route path="u/:username" element={<Profile />} />
+        <Route path="cgv" element={<Terms />} />
         <Route path="confidentialite" element={<Privacy />} />
         <Route path="*" element={<NotFound />} />
       </Route>

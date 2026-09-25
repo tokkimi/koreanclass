@@ -97,7 +97,7 @@ export default function Booking() {
           )}
           {payLink && !user.isDemo && (
             <>
-            <p className="small">Sur PayPal, règle en EUR pour un achat de service et indique la référence <strong>{confirmed.id}</strong>. Le paiement sera vérifié par le professeur avant activation des crédits.</p>
+            <p className="small"><Link className="link" to="/cgv" target="_blank">Conditions de vente et remboursement</Link></p><p className="small">Sur PayPal, règle en EUR pour un achat de service et indique la référence <strong>{confirmed.id}</strong>. Le paiement sera vérifié par le professeur avant activation des crédits.</p>
             <a className="btn big ghost" href={payLink} target="_blank" rel="noreferrer noopener">
               Payer avec PayPal ({choice === 'pack10' ? PRICING.pack10.price : PRICING.single.price} €)
             </a>
@@ -227,10 +227,11 @@ export default function Booking() {
               <strong>{choice === 'single' ? `${PRICING.single.price} €` : choice === 'pack10' ? `${PRICING.pack10.price} €` : '0 € (crédit)'}</strong>
             </li>
           </ul>
+          <p className="small">Consultez les <Link className="link" to="/cgv" target="_blank">conditions de vente</Link> avant de réserver : report gratuit jusqu’à 24 h avant, pas de remboursement commercial, droits légaux réservés.</p><label className="small"><input type="checkbox" required /> J’ai lu et j’accepte les conditions de vente.</label>
           {error && <p className="error">{error}</p>}
           {user ? (
             <button className="btn full big" disabled={!date || !time}>
-              Confirmer la réservation
+              Envoyer la demande
             </button>
           ) : (
             <>

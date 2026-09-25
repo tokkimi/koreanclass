@@ -58,7 +58,7 @@ export default function Bookings() {
           + Nouvelle réservation
         </Link>
       </div>
-      <h2>À venir</h2>
+      <p className="small"><Link className="link" to="/cgv">Conditions de vente, reports et remboursements</Link></p><h2>À venir</h2>
       {paymentError&&<p role="alert">{paymentError}</p>}
       {upcoming.length ? (
         <ul className="stack plain">
