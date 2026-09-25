@@ -1,3 +1,4 @@
+import { BookingBubble } from './BookingBubble'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { logout, useCurrentUser, useSyncStatus } from '../lib/store'
@@ -76,6 +77,7 @@ export function Layout() {
           </nav>
         </div>
       </header>
+      <BookingBubble />
       <main>
         {sync && <div className="container sync-status" role="status">{sync}</div>}
         <Outlet />

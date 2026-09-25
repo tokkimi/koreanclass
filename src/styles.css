@@ -1927,3 +1927,7 @@ body { background: radial-gradient(ellipse at 0% 10%,#b4d8ff66,transparent 50%),
 .header .nav > a.active { background:color-mix(in srgb,var(--primary) 10%,transparent); }
 .header .nav .dropdown { position:static; box-shadow:none; }
 @media(min-width:761px) { .header .nav { left:auto; right:24px; width:360px; border:1px solid var(--border); border-radius:20px; } }
+.booking-bubble { position:fixed; z-index:65; width:124px; min-height:82px; border-radius:28px; border:1px solid #ffffff99; background:linear-gradient(135deg,#4458e8ed,#7566e8ed); color:white; box-shadow:0 8px 28px #3346ac40; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; touch-action:none; user-select:none; cursor:grab; backdrop-filter:blur(16px); }
+.booking-bubble:active { cursor:grabbing; }.booking-bubble small {font-size:10px;}.booking-bubble>span{font-size:22px;}
+.booking-overlay {position:fixed;inset:0;z-index:70;background:#10203b45;backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:20px;}
+.booking-panel {width:min(440px,100%);max-height:calc(100dvh - 40px);overflow-y:auto;}.booking-panel>.btn{display:flex;justify-content:center;width:100%;margin-top:12px;}.booking-panel h2{margin:0;font-size:1.35rem;}
