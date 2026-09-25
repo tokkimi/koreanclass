@@ -26,6 +26,7 @@ export default function Courses() {
       </div>
 
       <div className="level-grid">
+        <Link to="/nombres" className="card"><h2>Chiffres & nombres</h2><p>De zéro aux grands nombres : deux systèmes, des explications audio, l’âge, l’heure, les dates, les prix et des exercices corrigés.</p><span className="link">Apprendre à compter →</span></Link>
         <Link to="/structures" className="card"><h2>Phrases & grammaire en contexte</h2><p>Comprendre le hangeul, conjuguer, relier les idées et adapter son ton : {structureUnits.length} ateliers avec phrases décomposées et exercices corrigés.</p><span className="link">Explorer les structures →</span></Link>
         {stats.map(({ level, done, total, pct, test }) => (
           <Link key={level.id} to={`/cours/${level.id}`} className="card level-card" style={{ ['--accent' as string]: level.color }}>

@@ -13,6 +13,7 @@ import Tests from './pages/Tests'
 import LevelTest from './pages/LevelTest'
 import Placement from './pages/Placement'
 import Alphabet from './pages/Alphabet'
+import Numbers from './pages/Numbers'
 import Booking from './pages/Booking'
 import Bookings from './pages/Bookings'
 import { Login, Register } from './pages/Auth'
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="admin" element={<RequireAuth><Admin /></RequireAuth>} />
         <Route path="structures" element={<Structures />} />
         <Route path="alphabet" element={<Alphabet />} />
+        <Route path="nombres" element={<Numbers />} />
         <Route path="reserver" element={<Booking />} />
         <Route path="reservations" element={<RequireAuth><Bookings /></RequireAuth>} />
         <Route path="connexion" element={<Login />} />
