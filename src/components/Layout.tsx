@@ -79,7 +79,7 @@ export function Layout() {
       </header>
       <BookingBubble />
       <main>
-        {sync && <div className="container sync-status" role="status">{sync}</div>}
+        {sync && sync !== 'Progression sauvegardée en ligne' && sync !== 'Sauvegarde en cours…' && <div className="container sync-status" role="status">{sync}</div>}
         <Outlet />
       </main>
       <nav className="mobile-dock" aria-label="Navigation principale">
