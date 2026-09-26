@@ -6,6 +6,7 @@ import { PathOrbit, usePathCards } from '../components/PathOrbit'
 import { TiltCard } from '../components/TiltCard'
 import { JourneySnapshot } from '../components/JourneySnapshot'
 import { LevelCheckBanner } from '../components/LevelCheckBanner'
+import { PracticeVideoInvite } from '../components/PracticeVideoInvite'
 import { PRICING } from '../config'
 
 const chapters = ['Tes premiers caractères', 'Les bases pour discuter', 'Raconte ton quotidien', 'Trouve les bons mots', 'Affirme ton style', 'À toi les nuances']
@@ -55,6 +56,10 @@ export default function Home() {
 
         <div className="container">
           <LevelCheckBanner questionCount={36} />
+        </div>
+
+        <div className="container">
+          <PracticeVideoInvite />
         </div>
 
         {/* Les deux offres pour réserver un professeur */}
