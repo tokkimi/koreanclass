@@ -2212,3 +2212,316 @@ body { background: radial-gradient(ellipse at 0% 10%,#b4d8ff66,transparent 50%),
     flex-direction: row;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Parcours en orbite 3D (PathOrbit)                                   */
+/* ------------------------------------------------------------------ */
+.orbit-stage {
+  position: relative;
+  height: clamp(380px, 62vh, 600px);
+  border-radius: 32px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #1d3b73 0%, #0d1a33 55%, #070d1c 100%);
+  box-shadow: inset 0 1px 0 #ffffff22, 0 24px 60px -24px #0d1a3380;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+.orbit-stage:active {
+  cursor: grabbing;
+}
+.orbit-canvas {
+  position: absolute !important;
+  inset: 0;
+}
+.orbit-loading {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, #3a64c455, transparent 60%);
+  animation: orbit-pulse 1.4s ease-in-out infinite alternate;
+}
+@keyframes orbit-pulse {
+  to {
+    opacity: 0.4;
+  }
+}
+.orbit-help {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #ffffff14;
+  border: 1px solid #ffffff22;
+  backdrop-filter: blur(10px);
+  color: #dfe8ff;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.orbit-controls {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+.btn.orbit-arrow {
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  padding: 0;
+  font-size: 1.2rem;
+}
+.orbit-focus {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px 12px 20px;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--card) 78%, transparent);
+  border: 1px solid #ffffffc0;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.orbit-focus > div {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.orbit-focus strong {
+  font-size: 1.05rem;
+}
+.orbit-focus small {
+  color: var(--muted);
+}
+.orbit-focus-ko {
+  font-family: var(--font-ko);
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+.orbit-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.orbit-fallback {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.orbit-chip-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #fff, var(--tint));
+  border: 1px solid #fff;
+  box-shadow: var(--shadow);
+}
+.orbit-chip-card span {
+  font-family: var(--font-ko);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+.orbit-chip-card small {
+  color: var(--muted);
+}
+@media (max-width: 760px) {
+  .orbit-stage {
+    height: 420px;
+    border-radius: 24px;
+  }
+  .orbit-controls {
+    grid-template-columns: auto 1fr auto;
+    gap: 8px;
+  }
+  .orbit-focus {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  .orbit-focus-ko {
+    font-size: 1.5rem;
+  }
+  .orbit-focus .btn {
+    width: 100%;
+  }
+  .btn.orbit-arrow {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+  .orbit-help {
+    font-size: 0.72rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Boutons « liquid glass » (adapté de liquid-glass-button)            */
+/* Appliqué à tous les .btn du site, sans Tailwind.                    */
+/* ------------------------------------------------------------------ */
+:root {
+  /* reflets intérieurs blancs, pour les verres teintés */
+  --glass-shine: 0 0 8px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.08), inset 3px 3px 0.5px -3.5px rgba(255, 255, 255, 0.09),
+    inset -3px -3px 0.5px -3.5px rgba(255, 255, 255, 0.85), inset 1px 1px 1px -0.5px rgba(255, 255, 255, 0.6),
+    inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.6), inset 0 0 6px 6px rgba(255, 255, 255, 0.12), inset 0 0 2px 2px rgba(255, 255, 255, 0.06);
+  /* bord sombre gravé, pour le verre transparent sur fond clair */
+  --glass-etch: 0 0 6px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.08), inset 3px 3px 0.5px -3px rgba(0, 0, 0, 0.9),
+    inset -3px -3px 0.5px -3px rgba(0, 0, 0, 0.85), inset 1px 1px 1px -0.5px rgba(0, 0, 0, 0.6), inset -1px -1px 1px -0.5px rgba(0, 0, 0, 0.6),
+    inset 0 0 6px 6px rgba(0, 0, 0, 0.12), inset 0 0 2px 2px rgba(0, 0, 0, 0.06), 0 0 12px rgba(255, 255, 255, 0.15);
+}
+.btn,
+.header .burger,
+.orbit-chip {
+  --glass-tint: #2858ec;
+  --glass-ink: #fff;
+  --glass-glow: #2858ec55;
+  position: relative;
+  isolation: isolate;
+  border-radius: 999px;
+  border: 1px solid #ffffff59;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--glass-tint) 86%, #fff) 0%, color-mix(in srgb, var(--glass-tint) 94%, transparent) 100%);
+  color: var(--glass-ink);
+  box-shadow: var(--glass-shine), 0 10px 24px -12px var(--glass-glow);
+  backdrop-filter: blur(12px) saturate(170%);
+  -webkit-backdrop-filter: blur(12px) saturate(170%);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, filter 0.2s ease;
+}
+.btn:hover:not(:disabled),
+.header .burger:hover,
+.orbit-chip:hover {
+  transform: scale(1.04);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--glass-tint) 80%, #fff) 0%, var(--glass-tint) 100%);
+  border-color: #ffffff80;
+  box-shadow: var(--glass-shine), 0 14px 30px -12px var(--glass-glow);
+  filter: brightness(1.04);
+}
+.btn:active:not(:disabled),
+.orbit-chip:active {
+  transform: scale(0.98);
+  filter: brightness(0.96);
+}
+.btn:focus-visible,
+.header .burger:focus-visible,
+.orbit-chip:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--glass-tint) 50%, transparent);
+  outline-offset: 3px;
+}
+/* Verre transparent : l'aspect par défaut du composant d'origine */
+.btn.ghost,
+.header .burger,
+.orbit-chip {
+  --glass-ink: var(--primary);
+  --glass-glow: #1b2c4a22;
+  background: linear-gradient(180deg, #ffffff73, #ffffff33);
+  border-color: #ffffffb3;
+  box-shadow: var(--glass-etch);
+}
+.header .burger {
+  --glass-ink: var(--text);
+}
+.btn.ghost:hover:not(:disabled),
+.header .burger:hover,
+.orbit-chip:hover {
+  background: linear-gradient(180deg, #ffffffa6, #ffffff4d);
+  border-color: #fff;
+  box-shadow: var(--glass-etch), 0 10px 24px -14px #1b2c4a55;
+}
+.orbit-chip {
+  min-height: 38px;
+  padding: 0.35rem 0.95rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.orbit-chip.active {
+  --glass-tint: #2858ec;
+  --glass-ink: #fff;
+  background: linear-gradient(180deg, color-mix(in srgb, #2858ec 86%, #fff), #2858ec);
+  box-shadow: var(--glass-shine), 0 8px 20px -10px #2858ec88;
+}
+.btn.danger {
+  --glass-tint: #d23b3b;
+  --glass-ink: #fff;
+  --glass-glow: #d23b3b55;
+}
+.btn.light,
+.btn.hero-start {
+  --glass-tint: #d9f87a;
+  --glass-ink: #172033;
+  --glass-glow: #b8e04a66;
+}
+.btn.hero-start:hover {
+  background: linear-gradient(180deg, #f0ffc4, #d9f87a);
+}
+.scroll-hero .btn.scroll-hero__cta {
+  --glass-tint: #ffffff;
+  --glass-ink: #10233a;
+  --glass-glow: #0008;
+  background: linear-gradient(180deg, #ffffffeb, #ffffffb8);
+  border-color: #fff;
+}
+.scroll-hero .btn.scroll-hero__cta:hover {
+  background: linear-gradient(180deg, #fff, #ffffffd9);
+}
+.scene-header .btn.ghost {
+  --glass-ink: #133151;
+  background: linear-gradient(180deg, #ffffffd9, #ffffffa6);
+}
+.btn:disabled {
+  transform: none;
+  filter: saturate(0.4);
+}
+@media (prefers-color-scheme: dark) {
+  .btn.ghost,
+  .header .burger,
+  .orbit-chip:not(.active) {
+    --glass-ink: #cfe0ff;
+    background: linear-gradient(180deg, #ffffff1f, #ffffff0a);
+    border-color: #ffffff33;
+    box-shadow: var(--glass-shine);
+  }
+  .header .burger {
+    --glass-ink: var(--text);
+  }
+  .orbit-focus {
+    border-color: #ffffff22;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover:not(:disabled),
+  .btn:active:not(:disabled),
+  .orbit-chip:hover,
+  .header .burger:hover {
+    transform: none;
+  }
+}
+@media (max-width: 760px) {
+  .orbit-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: -20px;
+    padding: 4px 20px 10px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .orbit-chips::-webkit-scrollbar {
+    display: none;
+  }
+  .orbit-chip {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+}

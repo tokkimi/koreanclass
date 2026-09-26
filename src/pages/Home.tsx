@@ -5,6 +5,7 @@ import { SpeakButton } from '../components/Speak'
 import { ProgressBar } from '../components/ProgressBar'
 import { Icon } from '../components/Icon'
 import { ScrollHero } from '../components/ScrollHero'
+import { PathOrbit, usePathCards } from '../components/PathOrbit'
 
 const chapters = ['Tes premiers caractères', 'Les bases pour discuter', 'Raconte ton quotidien', 'Trouve les bons mots', 'Affirme ton style', 'À toi les nuances']
 export default function Home() {
@@ -12,6 +13,7 @@ export default function Home() {
   const p = useProgress()
   const g = globalStats(p)
   const stats = levelStats(p)
+  const pathCards = usePathCards(stats, chapters)
   const next = allLessons.find(({ level, lesson }) => level.index >= (p.placement?.levelIndex ?? 0) && !p.lessons[lesson.id]?.completed)
     ?? allLessons.find(({ lesson }) => !p.lessons[lesson.id]?.completed)
   return <>
@@ -36,7 +38,7 @@ export default function Home() {
       <Link to="/tableau-de-bord" className="quick-action"><span className="action-icon blue"><Icon name="chart" /></span><div><h2>Tes petites victoires</h2><p>Scores, XP et badges</p></div><span className="action-arrow">↗</span></Link>
     </section>
     <section className="practice-invite"><div><p className="eyebrow">TON PROCHAIN DÉFI</p><h2>Un café. Une rencontre. Ta première conversation.</h2><p>Choisis tes réponses, écoute le dialogue et prends le micro dans le studio oral.</p><Link to="/pratique" className="btn">Entrer dans la scène ↗</Link></div><img src="/images/cafe.jpg" alt="Deux boissons dans un café de Séoul" loading="lazy" /></section>
-    <section className="path-section"><div className="section-title"><div><p className="eyebrow">CHAQUE ÉTAPE COMPTE</p><h2>Ton parcours, sans pression.</h2></div><Link className="link" to="/cours">Tout explorer ↗</Link></div><div className="chapter-grid">{stats.map(({level,done,total,pct}) => <Link className="chapter-card" key={level.id} to={`/cours/${level.id}`}><div className="row between"><span className={`chapter-number chapter-${level.index}`}>{String(level.index + 1).padStart(2, '0')}</span><span className="small muted">{level.cefr}</span></div><p className="chapter-ko" lang="ko">{level.korean}</p><h3>{chapters[level.index]}</h3><p className="muted small">{level.name.split('— ')[1]} · {total} leçons</p><ProgressBar value={pct} label={`Progression ${level.name}`} /><div className="row between small"><span>{done ? `${done} / ${total} validées` : 'À découvrir'}</span><span aria-hidden="true">→</span></div></Link>)}</div></section>
+    <section className="path-section"><div className="section-title"><div><p className="eyebrow">CHAQUE ÉTAPE COMPTE</p><h2>Ton parcours, sans pression.</h2></div><Link className="link" to="/cours">Tout explorer ↗</Link></div><PathOrbit cards={pathCards} /></section>
     {!user && <div className="join-banner"><div><h2>Tes progrès te suivent partout.</h2><p className="muted">Sur mobile ou ordinateur : un profil, le même parcours.</p></div><Link to="/inscription" className="btn">Créer mon profil</Link></div>}
     <div className="home-footnote"><span>{levels.length} niveaux · {totalLessons} leçons · accès libre</span><Link to="/test-de-niveau">Tu connais déjà les bases ? Teste ton niveau →</Link></div>
     <section id="tarifs" className="home-extra"><h2>Envie de parler avec un professeur ?</h2><p className="muted">Cours particulier : 15 €/h · Pack de 10 heures : 100 €.</p><Link to="/reserver" className="btn ghost">Voir les créneaux</Link></section>
