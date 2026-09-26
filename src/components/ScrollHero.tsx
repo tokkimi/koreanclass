@@ -190,11 +190,6 @@ export function ScrollHero({
         <div className="scroll-hero__blossoms" aria-hidden="true">
           {Array.from({ length: 18 }, (_, index) => <i key={index} style={{ ['--i' as string]: index, ['--left' as string]: `${5 + index * 5.4}%`, ['--top' as string]: `${5 + (index % 5) * 10}%` } as CSSProperties} />)}
         </div>
-        <div className="scroll-hero__moments" aria-hidden="true">
-          <span className="scroll-hero__moment one">한글</span>
-          <span className="scroll-hero__moment two">서울</span>
-        </div>
-
         <a className="scroll-hero__skip" href={`#${skipTargetId}`} onClick={skip}>
           Passer aux cours <span aria-hidden="true">↓</span>
         </a>
