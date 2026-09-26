@@ -3406,17 +3406,17 @@ body:has(.home-clean) .booking-bubble {
 .level-check{padding-bottom:0;background:linear-gradient(90deg,#0a183eea 0%,#10295fc2 48%,#13275855 100%),url('/images/seoul.jpg') center/cover;}.level-check::before{display:none;}.level-check::after{display:none;}.level-check-copy{padding-bottom:clamp(30px,5vw,66px);position:relative;z-index:1;}.level-check-robot{align-self:end;height:440px;margin-bottom:-66px;overflow:visible;filter:drop-shadow(0 18px 25px #03081780);}.spline-robot{transform:translateY(7%);transform-origin:center bottom;}@media(max-width:760px){.level-check{padding-bottom:0;}.level-check-copy{padding-bottom:6px;}.level-check-robot{height:340px;margin-top:0;margin-bottom:-32px;}.spline-robot{transform:translateY(4%);}}
 
 /* Bannière : seuls les vrais panneaux de bois du visuel s'écartent. */
-.scroll-hero__door{width:50%;border:0;background-image:url('/images/hanok-doors.png');background-repeat:no-repeat;background-size:200% 100%;box-shadow:0 10px 38px #0906048c;}.scroll-hero__door i,.scroll-hero__door-top,.scroll-hero__door-threshold,.scroll-hero__moments{display:none;}.scroll-hero__door--left{background-position:left center;transform:translateX(calc(var(--p) * -104%));}.scroll-hero__door--right{background-position:right center;transform:translateX(calc(var(--p) * 104%));}@media(max-width:760px){.scroll-hero__door{width:52%;background-size:200% 100%;}.scroll-hero__door--left{transform:translateX(calc(var(--p) * -108%));}.scroll-hero__door--right{transform:translateX(calc(var(--p) * 108%));}}
+.scroll-hero__door{width:50%;border:0;background-image:none;background-repeat:no-repeat;background-size:200% 100%;box-shadow:0 10px 38px #0906048c;}.scroll-hero__door i,.scroll-hero__door-top,.scroll-hero__door-threshold,.scroll-hero__moments{display:none;}.scroll-hero__door--left{background-position:left center;transform:translateX(calc(var(--p) * -104%));}.scroll-hero__door--right{background-position:right center;transform:translateX(calc(var(--p) * 104%));}@media(max-width:760px){.scroll-hero__door{width:52%;background-size:200% 100%;}.scroll-hero__door--left{transform:translateX(calc(var(--p) * -108%));}.scroll-hero__door--right{transform:translateX(calc(var(--p) * 108%));}}
 
 /* Fleurs fournies : elles restent derrière les vantaux et dévoilent Séoul. */
 .scroll-hero__hanok{z-index:1;overflow:visible;}
 .scroll-hero__hanok::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;}
-.scroll-hero__hanok::after{content:'';position:absolute;inset:0;z-index:3;background:url('/images/hanok-frame.png') center center/100% 100% no-repeat;pointer-events:none;}
+.scroll-hero__hanok::after{content:'';position:absolute;inset:0;z-index:3;background:none;pointer-events:none;}
 .scroll-hero__blossoms{z-index:2;}.scroll-hero__blossoms i{z-index:1;}
 
 /* Les vantaux sont deux moitiés d'un même PNG transparent : le cadre reste
    fixe et les feuilles coulissent vers l'extérieur au fil du scroll. */
-.scroll-hero__door{z-index:1;width:54%;border:0;background-image:url('/images/hanok-door-leaves.png');background-repeat:no-repeat;background-size:200% 100%;background-color:transparent;box-shadow:0 14px 34px #160c0955;will-change:transform;}
+.scroll-hero__door{z-index:1;width:54%;border:0;background-image:none;background-repeat:no-repeat;background-size:200% 100%;background-color:transparent;box-shadow:0 14px 34px #160c0955;will-change:transform;}
 .scroll-hero__door--left{background-position:left center;transform:translateX(calc(var(--p) * -122%));}
 .scroll-hero__door--right{background-position:right center;transform:translateX(calc(var(--p) * 122%));}
 @media(max-width:760px){
@@ -3434,7 +3434,7 @@ body:has(.home-clean) .booking-bubble {
 .scroll-hero__door--center{display:none;}
 @media(max-width:760px){
   .scroll-hero__hanok::after{display:none;}
-  .scroll-hero__door{top:0;bottom:0;width:33.334%;background-image:url('/images/hanok-single-door.png');background-size:100% auto;background-position:center;background-repeat:no-repeat;box-shadow:none;}
+  .scroll-hero__door{top:0;bottom:0;width:33.334%;background-image:none;background-size:100% auto;background-position:center;background-repeat:no-repeat;box-shadow:none;}
   .scroll-hero__door--left{left:0;right:auto;transform:translateX(calc(var(--p) * -320%));}
   .scroll-hero__door--center{display:block;left:33.333%;right:auto;transform:translateX(calc(var(--p) * 320%));}
   .scroll-hero__door--right{left:auto;right:0;transform:translateX(calc(var(--p) * 320%));}
