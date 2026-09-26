@@ -209,7 +209,7 @@ function drawCard(card: OrbitCard): THREE.CanvasTexture {
   // carte, avec une ombre douce pour se détacher du fond clair de la page
   roundRect(ctx, 14, 10, W - 28, H - 30, 44)
   ctx.save()
-  ctx.shadowColor = 'rgba(40, 32, 20, 0.16)'
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.14)'
   ctx.shadowBlur = 18
   ctx.shadowOffsetY = 8
   const bg = ctx.createLinearGradient(0, 0, 0, H)
@@ -219,7 +219,7 @@ function drawCard(card: OrbitCard): THREE.CanvasTexture {
   ctx.fill()
   ctx.restore()
   ctx.lineWidth = 3
-  ctx.strokeStyle = '#e4dfd7'
+  ctx.strokeStyle = '#e5e5ea'
   ctx.stroke()
 
   // pastille
@@ -251,7 +251,7 @@ function drawCard(card: OrbitCard): THREE.CanvasTexture {
   // pied : progression ou invitation
   if (card.pct !== undefined) {
     roundRect(ctx, 40, H - 92, W - 80, 16, 8)
-    ctx.fillStyle = '#ebe7e0'
+    ctx.fillStyle = '#ececf0'
     ctx.fill()
     if (card.pct > 0) {
       roundRect(ctx, 40, H - 92, Math.max(16, ((W - 80) * card.pct) / 100), 16, 8)

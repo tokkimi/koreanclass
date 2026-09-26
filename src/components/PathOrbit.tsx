@@ -162,7 +162,7 @@ export function usePathCards(
   return useMemo(() => {
     // Palette neutre : cartes blanches, teintes très douces, encre sombre.
     const palette = [
-      { accent: '#1d1d1f', tint: '#f2efe9' },
+      { accent: '#1d1d1f', tint: '#f5f5f7' },
       { accent: '#3d5a2b', tint: '#edf2e6' },
       { accent: '#8a4b36', tint: '#f6ebe5' },
     ]
