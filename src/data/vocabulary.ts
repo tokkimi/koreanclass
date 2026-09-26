@@ -13,11 +13,21 @@ export const vocabularyThemes = [
  {name:'Vêtements',photo:'photo-1445205170230-053b83016050',items:'옷|vêtements;셔츠|chemise;티셔츠|t-shirt;바지|pantalon;치마|jupe;원피스|robe;코트|manteau;신발|chaussures;양말|chaussettes;모자|chapeau;장갑|gants;목도리|écharpe'},
  {name:'Corps',photo:'photo-1506794778202-cad84cf45f1d',items:'머리|tête;얼굴|visage;눈|œil;코|nez;입|bouche;귀|oreille;이|dent;목|cou;어깨|épaule;팔|bras;손|main;발|pied'},
  {name:'Famille & personnes',photo:'photo-1511895426328-dc8714191300',items:'가족|famille;부모님|parents;어머니|mère;아버지|père;엄마|maman;아빠|papa;할머니|grand-mère;할아버지|grand-père;아이|enfant;아기|bébé;동생|petit frère ou petite sœur;사람|personne'},
+ {name:'Mode & accessoires',photo:'photo-1445205170230-053b83016050',items:'청바지|jean;운동화|baskets;구두|chaussures de ville;안경|lunettes;선글라스|lunettes de soleil;목걸이|collier;반지|bague;귀걸이|boucles d’oreilles;팔찌|bracelet;벨트|ceinture;지갑|portefeuille;우산|parapluie'},
+ {name:'Couple & amour',photo:'photo-1511895426328-dc8714191300',items:'사랑|amour|사랑해요.|Je t’aime.;애인|amoureux, amoureuse;남자 친구|petit ami;여자 친구|petite amie;커플|couple|우리는 커플이에요.|Nous sommes en couple.;데이트|rendez-vous amoureux|주말에 데이트해요.|Ce week-end, on a un rendez-vous.;고백|déclaration d’amour|어제 고백했어요.|Hier, je me suis déclaré(e).;결혼|mariage|내년에 결혼해요.|On se marie l’année prochaine.;남편|mari;아내|épouse;기념일|anniversaire de couple|오늘은 우리 기념일이에요.|Aujourd’hui, c’est notre anniversaire.;선물|cadeau'},
+ {name:'Pièces de la maison',photo:'photo-1495446815901-a7297e633e8d',items:'거실|salon;부엌|cuisine (pièce);욕실|salle de bain;현관|entrée;계단|escalier;베란다|balcon;벽|mur;바닥|sol;천장|plafond;지붕|toit;마당|cour, jardin;차고|garage'},
+ {name:'Objets de la maison',photo:'photo-1495446815901-a7297e633e8d',items:'세탁기|lave-linge;청소기|aspirateur;텔레비전|télévision;에어컨|climatiseur;전등|lampe;이불|couette;베개|oreiller;수건|serviette de toilette;비누|savon;칫솔|brosse à dents;치약|dentifrice;휴지|mouchoir, papier toilette'},
+ {name:'Émotions',photo:'photo-1506794778202-cad84cf45f1d',items:'기쁘다|être joyeux|정말 기뻐요.|Je suis vraiment content(e).;슬프다|être triste|조금 슬퍼요.|Je suis un peu triste.;화나다|se fâcher|왜 화났어요?|Pourquoi tu es fâché(e) ?;무섭다|avoir peur|이 영화는 무서워요.|Ce film fait peur.;행복하다|être heureux|지금 행복해요.|Je suis heureux / heureuse maintenant.;피곤하다|être fatigué|오늘 너무 피곤해요.|Je suis très fatigué(e) aujourd’hui.;걱정하다|s’inquiéter|걱정하지 마세요.|Ne t’inquiète pas.;놀라다|être surpris|깜짝 놀랐어요.|J’ai été très surpris(e).;부끄럽다|être gêné, timide|조금 부끄러워요.|Je suis un peu gêné(e).;외롭다|se sentir seul|가끔 외로워요.|Je me sens seul(e) parfois.;설레다|avoir le cœur qui bat|너무 설레요!|J’ai le cœur qui bat !;지루하다|s’ennuyer, être ennuyeux|수업이 지루해요.|Le cours est ennuyeux.'},
+ {name:'Métiers',photo:'photo-1495446815901-a7297e633e8d',items:'의사|médecin;간호사|infirmier, infirmière;경찰|policier;소방관|pompier;요리사|cuisinier;가수|chanteur, chanteuse;배우|acteur, actrice;회사원|employé(e) de bureau;변호사|avocat(e);기자|journaliste;미용사|coiffeur, coiffeuse;농부|agriculteur'},
+ {name:'Sport',photo:'photo-1485965120184-e220f721d03e',items:'달리기|course à pied|매일 아침 달리기를 해요.|Je cours tous les matins.;야구|baseball;배구|volley-ball;테니스|tennis;탁구|ping-pong;태권도|taekwondo|태권도를 배워요.|J’apprends le taekwondo.;요가|yoga;스키|ski;등산|randonnée en montagne|주말에 등산 가요.|Le week-end, je vais randonner.;헬스장|salle de sport;경기|match;선수|joueur, athlète'},
+ {name:'Shopping',photo:'photo-1445205170230-053b83016050',items:'가게|magasin;시장|marché;백화점|grand magasin;편의점|supérette;가격|prix|가격이 얼마예요?|C’est combien ?;할인|réduction;영수증|ticket de caisse;카드|carte bancaire|카드로 계산할게요.|Je vais payer par carte.;현금|espèces;돈|argent;세일|soldes;계산대|caisse'},
+ {name:'Relations & entourage',photo:'photo-1511895426328-dc8714191300',items:'선배|aîné(e) (école, travail);후배|cadet(te);동료|collègue;이웃|voisin(e);손님|invité(e), client(e);언니|grande sœur (dit par une fille);누나|grande sœur (dit par un garçon);오빠|grand frère (dit par une fille);형|grand frère (dit par un garçon);사촌|cousin(e);삼촌|oncle;이모|tante (côté maternel)'},
 ]
 export const extraWords = vocabularyThemes.flatMap(theme=>theme.items.split(';').map(item=>{
- const [ko,fr]=item.split('|')
+ const [ko,fr,sentence,translation]=item.split('|')
  const final = (ko.charCodeAt(ko.length-1)-0xac00)%28
- return [theme.name,ko,'',fr,ko+(final?'이에요.':'예요.'),'C’est : '+fr+'.','']
+ // Phrase d'exemple fournie, sinon « C'est … » (valable pour les noms).
+ return [theme.name,ko,'',fr,sentence ?? ko+(final?'이에요.':'예요.'),translation ?? 'C’est : '+fr+'.','']
 }))
 
 export const words = [...extraWords,

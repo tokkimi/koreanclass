@@ -38,7 +38,9 @@ interface Props {
   onOpen: (card: OrbitCard) => void
 }
 
-const RADIUS = 6.2
+const MIN_RADIUS = 6.2
+/** Rayon de l'anneau : assez grand pour que les cartes ne se chevauchent pas. */
+const ringRadius = (count: number) => Math.max(MIN_RADIUS, (count * (CARD_W + 0.55)) / (Math.PI * 2))
 const CARD_W = 2.3
 const CARD_H = 2.9
 
@@ -52,7 +54,7 @@ export default function OrbitGallery3D({ cards, control, reduced, active, onFron
       gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
       aria-hidden="true"
     >
-      <Rig />
+      <Rig radius={ringRadius(cards.length)} />
       <Particles reduced={reduced} />
       <Ring cards={cards} control={control} reduced={reduced} onFront={onFront} onOpen={onOpen} />
     </Canvas>
@@ -60,14 +62,15 @@ export default function OrbitGallery3D({ cards, control, reduced, active, onFron
 }
 
 /** Recule la caméra sur les écrans étroits pour que l'anneau tienne. */
-function Rig() {
+function Rig({ radius }: { radius: number }) {
   const { camera, size } = useThree()
   useEffect(() => {
     const aspect = size.width / size.height
-    const z = aspect < 0.75 ? 15.5 : aspect < 1.1 ? 15 : 12.5
+    // distance constante à la carte de face, quel que soit le rayon
+    const z = radius + (aspect < 0.75 ? 9.3 : aspect < 1.1 ? 8.8 : 6.3)
     camera.position.set(0, aspect < 0.75 ? 2.4 : 2.1, z)
     camera.lookAt(0, -1.1, 0)
-  }, [camera, size])
+  }, [camera, size, radius])
   return null
 }
 
@@ -77,6 +80,7 @@ function Ring({ cards, control, reduced, onFront, onOpen }: Omit<Props, 'active'
   const [hovered, setHovered] = useState<number | null>(null)
   const lastFront = useRef(-1)
   const step = (Math.PI * 2) / cards.length
+  const radius = ringRadius(cards.length)
   const textures = useCardTextures(cards)
 
   useEffect(() => {
@@ -116,7 +120,7 @@ function Ring({ cards, control, reduced, onFront, onOpen }: Omit<Props, 'active'
             ref={(m) => {
               meshes.current[i] = m
             }}
-            position={[Math.sin(a) * RADIUS, 0, Math.cos(a) * RADIUS]}
+            position={[Math.sin(a) * radius, 0, Math.cos(a) * radius]}
             rotation={[0, a, 0]}
             onPointerOver={(e: ThreeEvent<PointerEvent>) => {
               e.stopPropagation()

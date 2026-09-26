@@ -22,7 +22,7 @@ function hasWebGL() {
  * navigation au clavier, et la carte de face s'ouvre via un vrai lien.
  * Sans WebGL, une grille de liens classique est affichée.
  */
-export function PathOrbit({ cards }: { cards: OrbitCard[] }) {
+export function PathOrbit({ cards, onSelect }: { cards: OrbitCard[]; onSelect?: (card: OrbitCard) => void }) {
   const navigate = useNavigate()
   const wrap = useRef<HTMLDivElement>(null)
   const control = useRef<OrbitControl>({ target: 0, current: 0, dragging: false })
@@ -57,7 +57,7 @@ export function PathOrbit({ cards }: { cards: OrbitCard[] }) {
   }, [])
 
   const onFront = useCallback(() => {}, [])
-  const onOpen = useCallback((card: OrbitCard) => navigate(card.to), [navigate])
+  const onOpen = useCallback((card: OrbitCard) => (onSelect ? onSelect(card) : navigate(card.to)), [navigate, onSelect])
 
   function pointerDown(e: PointerEvent<HTMLDivElement>) {
     drag.current = { x: e.clientX, y: e.clientY, id: e.pointerId, decided: e.pointerType === 'mouse', horizontal: e.pointerType === 'mouse' }
@@ -132,7 +132,17 @@ export function PathOrbit({ cards }: { cards: OrbitCard[] }) {
         <ul>
           {cards.map((c) => (
             <li key={c.id}>
-              <Link to={c.to}>
+              <Link
+                to={c.to}
+                onClick={
+                  onSelect
+                    ? (e) => {
+                        e.preventDefault()
+                        onSelect(c)
+                      }
+                    : undefined
+                }
+              >
                 {c.title} — {c.subtitle}
               </Link>
             </li>

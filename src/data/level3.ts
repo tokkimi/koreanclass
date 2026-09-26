@@ -8,7 +8,7 @@ export const level3: Level = {
   korean: '중급 1',
   cefr: 'B1',
   topik: 'TOPIK II — niveau 3',
-  color: '#397953',
+  color: '#6b5b3e',
   description:
     "Parler avec respect (honorifiques), construire des propositions relatives, exprimer conditions, obligations, capacités et intentions, et découvrir le style écrit et le 반말. Entrée dans le TOPIK II.",
   lessons: [

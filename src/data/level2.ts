@@ -8,7 +8,7 @@ export const level2: Level = {
   korean: '초급 2',
   cefr: 'A2',
   topik: 'TOPIK I — niveau 2',
-  color: '#698326',
+  color: '#8a4b36',
   description:
     "Raconter au passé, parler de ses projets, exprimer ses envies, relier des phrases, demander poliment et maîtriser les verbes irréguliers. Objectif : réussir le TOPIK I.",
   lessons: [

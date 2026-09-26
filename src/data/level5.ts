@@ -8,7 +8,7 @@ export const level5: Level = {
   korean: '고급',
   cefr: 'C1 – C2',
   topik: 'TOPIK II — niveaux 5 et 6',
-  color: '#7860bd',
+  color: '#7a3f5c',
   description:
     "Structures avancées, vocabulaire sino-coréen, proverbes, registre journalistique et académique, méthode pour l'expression écrite du TOPIK II, et langue parlée authentique. Objectif : parler couramment.",
   lessons: [

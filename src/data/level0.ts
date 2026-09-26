@@ -8,7 +8,7 @@ export const level0: Level = {
   korean: '한글',
   cefr: 'Pré-A1',
   topik: 'Avant TOPIK I',
-  color: '#2858ec',
+  color: '#1d1d1f',
   description:
     "Lire et écrire l'alphabet coréen : voyelles, consonnes, syllabes, consonnes finales (batchim) et règles de prononciation. En quelques heures, vous pourrez lire n'importe quel mot coréen.",
   lessons: [

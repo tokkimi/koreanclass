@@ -8,7 +8,7 @@ export const level4: Level = {
   korean: '중급 2',
   cefr: 'B2',
   topik: 'TOPIK II — niveau 4',
-  color: '#4869bd',
+  color: '#4a4a4f',
   description:
     "Rapporter des paroles, faire des suppositions, raconter ce qu'on a observé, nuancer ses propos (거든요, 잖아요), maîtriser le passif et le causatif. Vous devenez autonome dans la plupart des situations.",
   lessons: [
