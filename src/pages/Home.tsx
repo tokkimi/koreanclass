@@ -4,9 +4,12 @@ import { globalStats, levelStats, useCurrentUser, useProgress } from '../lib/sto
 import { ScrollHero } from '../components/ScrollHero'
 import { PathOrbit, usePathCards } from '../components/PathOrbit'
 import { TiltCard } from '../components/TiltCard'
+import { JourneySnapshot } from '../components/JourneySnapshot'
+import { LevelCheckBanner } from '../components/LevelCheckBanner'
 import { PRICING } from '../config'
 
 const chapters = ['Tes premiers caractères', 'Les bases pour discuter', 'Raconte ton quotidien', 'Trouve les bons mots', 'Affirme ton style', 'À toi les nuances']
+const GUIDED_HOURS = Math.round(allLessons.reduce((minutes, entry) => minutes + entry.lesson.duration, 0) / 60)
 
 export default function Home() {
   const user = useCurrentUser()
@@ -46,23 +49,15 @@ export default function Home() {
           )}
         </section>
 
-        {/* 2. Mise en situation, en grande image */}
-        <section className="hc-band" aria-labelledby="hc-band-title">
-          <img src="/images/cafe.jpg" alt="" loading="lazy" />
-          <div className="hc-band-copy container">
-            <p className="hc-eyebrow light">En situation</p>
-            <h2 id="hc-band-title">
-              Un café. Une rencontre.
-              <br />
-              Ta première conversation.
-            </h2>
-            <Link to="/pratique" className="btn hc-light">
-              Entrer dans la scène <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </section>
+        <div className="container">
+          <JourneySnapshot levels={levels.length} lessons={totalLessons} guidedHours={GUIDED_HOURS} />
+        </div>
 
-        {/* 3. Les deux offres pour réserver un professeur */}
+        <div className="container">
+          <LevelCheckBanner questionCount={36} />
+        </div>
+
+        {/* Les deux offres pour réserver un professeur */}
         <section className="hc-section" id="tarifs">
           <div className="container hc-head">
             <p className="hc-eyebrow">Avec un professeur</p>
