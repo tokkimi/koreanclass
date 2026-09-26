@@ -86,7 +86,7 @@ export default function Home() {
             <TiltCard
               title="Pack 10 heures"
               subtitle="Pour progresser vraiment"
-              imageUrl="/images/seoul.jpg"
+              imageUrl="/images/online-korean-lesson.png"
               badge={<>{PRICING.pack10.price} €</>}
               actionText="Prendre le pack"
               to="/reserver?formule=pack10"
@@ -98,7 +98,7 @@ export default function Home() {
             </TiltCard>
           </div>
           <p className="container hc-level">
-            Déjà quelques bases ? <Link to="/test-de-niveau">Trouve ton niveau en 10 minutes →</Link>
+            Déjà quelques bases ? <Link to="/test-de-niveau">Trouve ton niveau en 18 minutes →</Link>
           </p>
         </section>
 

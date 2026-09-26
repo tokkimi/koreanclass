@@ -42,11 +42,20 @@ export const totalLessons = allLessons.length
  * Test de positionnement : 4 questions QCM par niveau, de difficulté croissante.
  * Le niveau recommandé est le premier niveau où l'apprenant obtient moins de 3/4.
  */
-export const placementTest: { levelIndex: number; exercise: Exercise }[] = levels.flatMap((level) =>
-  level.test
-    .filter((e) => e.type === 'qcm')
-    .slice(0, 4)
-    .map((exercise) => ({ levelIndex: level.index, exercise })),
-)
+/**
+ * Positionnement : chaque palier contrôle à la fois les acquis du niveau et
+ * les structures qui permettent réellement de faire une phrase.  Les tests
+ * de fin de niveau restent plus longs ; celui-ci sert à choisir un point de
+ * départ sans donner l'illusion qu'un simple mot de vocabulaire suffit.
+ */
+export const placementTest: { levelIndex: number; exercise: Exercise }[] = levels.flatMap((level) => {
+  const foundations = level.test.filter((exercise) => exercise.type === 'qcm').slice(0, 3)
+  const structureEntries = structureLessons.filter((entry) => entry.level === level.index)
+  const firstPatternOfEachUnit = structureEntries.flatMap((entry) => entry.lesson.exercises.filter((exercise) => exercise.type === 'qcm').slice(0, 1))
+  const extraPatternChecks = structureEntries.flatMap((entry) => entry.lesson.exercises.filter((exercise) => exercise.type === 'qcm').slice(1, 2))
+  const patterns = [...firstPatternOfEachUnit, ...extraPatternChecks].slice(0, 3)
+
+  return [...foundations, ...patterns].map((exercise) => ({ levelIndex: level.index, exercise }))
+})
 
 export type { Exercise, Lesson, Level } from './types.js'

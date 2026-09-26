@@ -4,7 +4,7 @@ import { levels, placementTest } from '../data'
 import { recordPlacement, useCurrentUser } from '../lib/store'
 import { ExerciseRunner } from '../components/ExerciseRunner'
 
-/** Niveau recommandé : premier niveau où l'on obtient moins de 3 bonnes réponses sur 4. */
+/** Niveau recommandé : premier palier dont les bases ou structures ne sont pas encore stables. */
 export function recommendLevel(correctByLevel: number[], perLevel: number[]): number {
   for (let i = 0; i < perLevel.length; i++) {
     if (correctByLevel[i] < Math.ceil(perLevel[i] * 0.75)) return i
@@ -24,8 +24,8 @@ export default function Placement() {
       <div className="card test-head">
         <h1>🎯 Test de positionnement</h1>
         <p className="muted">
-          {exercises.length} questions, du plus simple (hangeul) au plus avancé (niveau TOPIK 5-6). Répondez honnêtement : si vous ne savez pas, choisissez la
-          réponse qui vous semble la plus probable. À la fin, nous vous recommandons un niveau de départ.
+          {exercises.length} questions, du hangeul au niveau avancé. Chaque niveau combine des bases, une situation et des structures de phrase
+          (temps, cause, opposition, registre, nuance). Comptez environ 18 minutes. À la fin, nous vous recommandons un point de départ et vous gardez le détail par niveau.
         </p>
         {!started && (
           <button className="btn big" onClick={() => setStarted(true)}>

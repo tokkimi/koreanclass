@@ -16,7 +16,7 @@ export default function Tests() {
         <div>
           <h2>🎯 Test de positionnement</h2>
           <p className="muted">
-            {placementTest.length} questions de difficulté croissante · environ 10 minutes · recommandation de niveau à la fin
+            {placementTest.length} questions de difficulté croissante · environ 18 minutes · bases, compréhension et structures de phrase · recommandation de niveau à la fin
           </p>
           {progress.placement && (
             <p className="small">

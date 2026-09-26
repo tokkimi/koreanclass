@@ -54,6 +54,9 @@ describe('contenu pédagogique', () => {
 
   it('le test de positionnement couvre tous les niveaux', () => {
     expect(new Set(placementTest.map((p) => p.levelIndex)).size).toBe(levels.length)
+    for (const level of levels) {
+      expect(placementTest.filter((p) => p.levelIndex === level.index).length, level.id).toBe(6)
+    }
   })
 })
 
