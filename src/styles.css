@@ -3469,9 +3469,9 @@ main:has(.scroll-hero) .sync-status{position:fixed;z-index:60;top:78px;left:50%;
 /* Les deux vantaux sont des recadrages sans mise à l'échelle du visuel fourni.
    Ils se rejoignent au centre, puis coulissent complètement hors du champ. */
 .scroll-hero__hanok::after{display:none;}
-.scroll-hero__door{top:0;bottom:0;width:min(50vw,57.4svh);border:0;background-color:transparent;background-repeat:no-repeat;background-position:center;background-size:100% 100%;box-shadow:0 14px 34px #160c0955;}
-.scroll-hero__door--left{left:auto;right:50%;background-image:url('/images/hanok-door-left.png');transform:translateX(calc(var(--p) * -185%));}
-.scroll-hero__door--right{left:50%;right:auto;background-image:url('/images/hanok-door-right.png');transform:translateX(calc(var(--p) * 185%));}
+.scroll-hero__door{top:0;bottom:0;width:min(50vw,57.4svh);border:0;background-color:transparent;background-repeat:no-repeat;background-position:center;background-size:100% 100%;box-shadow:none;filter:none;}
+.scroll-hero__door--left{left:auto;right:50%;background-image:url('/images/hanok-door-left.png');transform:translateX(calc(-72% - var(--p) * 185%));}
+.scroll-hero__door--right{left:50%;right:auto;background-image:url('/images/hanok-door-right.png');transform:translateX(calc(72% + var(--p) * 185%));}
 .scroll-hero__door--center{display:none;}
 @media(max-width:760px){
   main{padding-top:64px;}
@@ -3481,7 +3481,7 @@ main:has(.scroll-hero) .sync-status{position:fixed;z-index:60;top:78px;left:50%;
   /* Sur téléphone, la photo reste entièrement visible : aucune porte flottante. */
   .scroll-hero__hanok{display:none;}
 }
-@media(prefers-reduced-motion:reduce){.scroll-hero__door--left{transform:translateX(-185%);}.scroll-hero__door--right{transform:translateX(185%);}}
+@media(prefers-reduced-motion:reduce){.scroll-hero__door--left{transform:translateX(-257%);}.scroll-hero__door--right{transform:translateX(257%);}}
 
 /* Les pétales ne remontent jamais : ils tombent et composent un tapis progressif. */
 .scroll-hero__blossoms i{animation-name:blossom-fall;animation-timing-function:linear;animation-iteration-count:infinite;animation-direction:normal;}
