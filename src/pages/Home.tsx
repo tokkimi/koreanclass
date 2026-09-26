@@ -3,6 +3,8 @@ import { allLessons, levels, totalLessons } from '../data'
 import { globalStats, levelStats, useCurrentUser, useProgress } from '../lib/store'
 import { ScrollHero } from '../components/ScrollHero'
 import { PathOrbit, usePathCards } from '../components/PathOrbit'
+import { TiltCard } from '../components/TiltCard'
+import { PRICING } from '../config'
 
 const chapters = ['Tes premiers caractères', 'Les bases pour discuter', 'Raconte ton quotidien', 'Trouve les bons mots', 'Affirme ton style', 'À toi les nuances']
 
@@ -60,24 +62,44 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 3. Professeur + niveau */}
-        <section className="hc-section container hc-duo" id="tarifs">
-          <div>
+        {/* 3. Les deux offres pour réserver un professeur */}
+        <section className="hc-section" id="tarifs">
+          <div className="container hc-head">
             <p className="hc-eyebrow">Avec un professeur</p>
             <h2>Parle. On t’écoute.</h2>
-            <p className="hc-lead">Cours particulier en visio : 15 € l’heure, ou 100 € les 10 heures.</p>
-            <Link to="/reserver" className="btn">
-              Voir les créneaux <span aria-hidden="true">→</span>
-            </Link>
+            <p className="hc-lead">Des cours particuliers en visio, adaptés à ton niveau et à tes envies.</p>
           </div>
-          <div>
-            <p className="hc-eyebrow">Déjà quelques bases ?</p>
-            <h2>Trouve ton niveau.</h2>
-            <p className="hc-lead">24 questions, 10 minutes, et on te dit par où commencer.</p>
-            <Link to="/test-de-niveau" className="btn ghost">
-              Faire le test <span aria-hidden="true">→</span>
-            </Link>
+          <div className="container hc-offers">
+            <TiltCard
+              title="Une heure"
+              subtitle="Pour essayer, sans engagement"
+              imageUrl="/images/cafe.jpg"
+              badge={<>{PRICING.single.price} €</>}
+              actionText="Réserver 1 heure"
+              to="/reserver?formule=single"
+            >
+              <ul>
+                <li>1 h en visio avec un professeur</li>
+                <li>Conversation, grammaire ou TOPIK</li>
+              </ul>
+            </TiltCard>
+            <TiltCard
+              title="Pack 10 heures"
+              subtitle="Pour progresser vraiment"
+              imageUrl="/images/seoul.jpg"
+              badge={<>{PRICING.pack10.price} €</>}
+              actionText="Prendre le pack"
+              to="/reserver?formule=pack10"
+            >
+              <ul>
+                <li>10 €/h · 50 € d’économie</li>
+                <li>Tes heures, quand tu veux</li>
+              </ul>
+            </TiltCard>
           </div>
+          <p className="container hc-level">
+            Déjà quelques bases ? <Link to="/test-de-niveau">Trouve ton niveau en 10 minutes →</Link>
+          </p>
         </section>
 
         <section className="container hc-faq" id="faq">

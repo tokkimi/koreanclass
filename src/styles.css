@@ -2728,3 +2728,161 @@ body:has(.home-clean) .booking-bubble {
     height: clamp(380px, 56vh, 560px);
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Cartes des offres, inclinaison 3D (TiltCard)                        */
+/* ------------------------------------------------------------------ */
+.hc-offers {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(24px, 4vw, 48px);
+  margin-top: 16px;
+}
+.tilt-wrap {
+  perspective: 1000px;
+  width: min(100%, 360px);
+}
+.tilt-card {
+  --rx: 0deg;
+  --ry: 0deg;
+  position: relative;
+  height: 28rem;
+  border-radius: 24px;
+  border: 1px solid #1d1d1f14;
+  background: #ffffff80;
+  box-shadow: 0 30px 60px -28px #0000004d;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.tilt-card:hover {
+  transition-duration: 0.12s;
+}
+.tilt-inner {
+  position: absolute;
+  inset: 14px;
+  border-radius: 18px;
+  overflow: hidden;
+  transform: translateZ(50px);
+  transform-style: preserve-3d;
+  box-shadow: 0 12px 30px -12px #0006;
+}
+.tilt-inner img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.tilt-card:hover .tilt-inner img {
+  transform: scale(1.04);
+}
+.tilt-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #00000040 0%, #0000 35%, #0000 50%, #000000b8 100%);
+}
+.tilt-content {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  color: #fff;
+}
+.tilt-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.tilt-top h3 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 16px #0006;
+}
+.tilt-top p {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  color: #ffffffcc;
+}
+.tilt-badge {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #ffffff33;
+  border: 1px solid #ffffff4d;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 1.1rem;
+  font-weight: 750;
+}
+.tilt-body {
+  margin-top: auto;
+}
+.tilt-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  font-size: 0.93rem;
+}
+.tilt-body li {
+  padding: 3px 0;
+}
+.tilt-body li::before {
+  content: '✓ ';
+  color: #d9f87a;
+}
+.tilt-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  border-radius: 14px;
+  background: #ffffff1f;
+  border: 1px solid #ffffff40;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #fff;
+  font-weight: 650;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.tilt-action:hover {
+  background: #ffffff38;
+  transform: scale(1.03);
+}
+.tilt-action:active {
+  transform: scale(0.97);
+}
+.tilt-action:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+.hc-level {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+.hc-level a {
+  color: var(--ink);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .tilt-card {
+    height: 24rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tilt-card,
+  .tilt-card:hover .tilt-inner img {
+    transform: none;
+  }
+}
