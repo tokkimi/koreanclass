@@ -59,6 +59,7 @@ export default function Vocabulary() {
           ko: THEME_KO[t.name] ?? t.name,
           title: t.name,
           subtitle: items.slice(0, 3).map((x) => x.split(',')[0]).join(' · '),
+          image: t.photo.startsWith('/') ? t.photo : `https://images.unsplash.com/${t.photo}?auto=format&fit=crop&w=600&h=760&q=75`,
           ...PALETTE[i % PALETTE.length],
         }
       }),

@@ -20,6 +20,8 @@ export interface OrbitCard {
   pct?: number
   accent: string
   tint: string
+  /** Photo de fond facultative (URL absolue ou chemin local). */
+  image?: string
 }
 
 export interface OrbitControl {
@@ -191,20 +193,44 @@ function useCardTextures(cards: OrbitCard[]) {
       alive = false
     }
   }, [])
-  const textures = useMemo(() => cards.map(drawCard), [cards, version])
+  // Photos de fond : on dessine d'abord la carte sans photo (jamais d'écran vide),
+  // puis on la redessine dès que sa photo est chargée.
+  const [photos, setPhotos] = useState<Record<string, HTMLImageElement>>({})
+  useEffect(() => {
+    let alive = true
+    const urls = [...new Set(cards.map((c) => c.image).filter((u): u is string => !!u))]
+    urls.forEach((url) => {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.decoding = 'async'
+      img.onload = () => alive && setPhotos((p) => ({ ...p, [url]: img }))
+      img.src = url
+    })
+    return () => {
+      alive = false
+    }
+  }, [cards])
+  const textures = useMemo(() => cards.map((c) => drawCard(c, c.image ? photos[c.image] : undefined)), [cards, version, photos])
   useEffect(() => () => textures.forEach((t) => t.dispose()), [textures])
   return textures
 }
 
-function drawCard(card: OrbitCard): THREE.CanvasTexture {
+const SANS = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif'
+const KO = '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif'
+
+function drawCard(card: OrbitCard, photo?: HTMLImageElement): THREE.CanvasTexture {
+  if (photo) {
+    const t = drawPhotoCard(card, photo)
+    if (t) return t
+  }
   const W = 512
   const H = 646
   const canvas = document.createElement('canvas')
   canvas.width = W
   canvas.height = H
   const ctx = canvas.getContext('2d')!
-  const sans = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif'
-  const ko = '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif'
+  const sans = SANS
+  const ko = KO
 
   // carte, avec une ombre douce pour se détacher du fond clair de la page
   roundRect(ctx, 14, 10, W - 28, H - 30, 44)
@@ -296,4 +322,89 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
   }
   if (line) lines.push(line)
   return lines
+}
+
+/** Carte photo : image plein cadre, voile sombre en bas, texte blanc. */
+function drawPhotoCard(card: OrbitCard, photo: HTMLImageElement): THREE.CanvasTexture | null {
+  const W = 512
+  const H = 646
+  const canvas = document.createElement('canvas')
+  canvas.width = W
+  canvas.height = H
+  const ctx = canvas.getContext('2d')!
+  const x = 14
+  const y = 10
+  const w = W - 28
+  const h = H - 30
+
+  // ombre portée
+  roundRect(ctx, x, y, w, h, 44)
+  ctx.save()
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.22)'
+  ctx.shadowBlur = 18
+  ctx.shadowOffsetY = 8
+  ctx.fillStyle = '#1d1d1f'
+  ctx.fill()
+  ctx.restore()
+
+  // photo recadrée (object-fit: cover)
+  ctx.save()
+  roundRect(ctx, x, y, w, h, 44)
+  ctx.clip()
+  const scale = Math.max(w / photo.naturalWidth, h / photo.naturalHeight)
+  const dw = photo.naturalWidth * scale
+  const dh = photo.naturalHeight * scale
+  ctx.drawImage(photo, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh)
+  const shade = ctx.createLinearGradient(0, y, 0, y + h)
+  shade.addColorStop(0, 'rgba(0,0,0,0.30)')
+  shade.addColorStop(0.35, 'rgba(0,0,0,0.05)')
+  shade.addColorStop(0.55, 'rgba(0,0,0,0.25)')
+  shade.addColorStop(1, 'rgba(0,0,0,0.80)')
+  ctx.fillStyle = shade
+  ctx.fillRect(x, y, w, h)
+  ctx.restore()
+
+  // image d'une autre origine sans CORS : on ne peut pas l'utiliser en WebGL
+  try {
+    ctx.getImageData(0, 0, 1, 1)
+  } catch {
+    return null
+  }
+
+  // pastille en verre
+  roundRect(ctx, 40, 40, 150, 58, 18)
+  ctx.fillStyle = 'rgba(255,255,255,0.22)'
+  ctx.fill()
+  ctx.lineWidth = 2
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)'
+  ctx.stroke()
+  ctx.fillStyle = '#fff'
+  ctx.font = `700 28px ${SANS}`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(card.badge, 115, 70, 136)
+
+  // textes en bas
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'alphabetic'
+  ctx.shadowColor = 'rgba(0,0,0,0.45)'
+  ctx.shadowBlur = 14
+  ctx.fillStyle = '#fff'
+  ctx.font = `700 ${card.ko.length > 3 ? 92 : 116}px ${KO}`
+  ctx.fillText(card.ko, 40, H - 250, W - 80)
+  ctx.font = `700 40px ${SANS}`
+  const lines = wrap(ctx, card.title, W - 80).slice(0, 2)
+  lines.forEach((l, i) => ctx.fillText(l, 40, H - 190 + i * 46))
+  ctx.fillStyle = 'rgba(255,255,255,0.82)'
+  ctx.font = `500 26px ${SANS}`
+  ctx.fillText(card.subtitle, 40, H - 190 + lines.length * 46 + 6, W - 80)
+  ctx.fillStyle = '#fff'
+  ctx.font = `700 26px ${SANS}`
+  ctx.fillText(card.pct !== undefined ? (card.pct ? `${card.pct} % validé` : 'À découvrir') : 'Explorer ↗', 40, H - 52)
+  ctx.shadowBlur = 0
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.anisotropy = 4
+  return texture
 }
