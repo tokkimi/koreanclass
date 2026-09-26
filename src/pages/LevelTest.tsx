@@ -30,8 +30,8 @@ function LevelTest() {
       <div className="card test-head" style={{ ['--accent' as string]: level.color }}>
         <h1>🏁 Test — {level.name}</h1>
         <p className="muted">
-          {level.test.length} questions portant sur l'ensemble du niveau ({level.cefr}, {level.topik}). Obtenez au moins {PASS_MARK} % pour valider le niveau
-          et gagner le badge.
+          {level.test.length} questions couvrant vocabulaire, compréhension, structures de phrase et production guidée ({level.cefr}, {level.topik}). Obtenez au moins {PASS_MARK} % pour valider le niveau
+          et gagner le badge. Ce bilan prépare le parcours : ce n’est pas un examen TOPIK officiel.
         </p>
         {t && (
           <p className="small">
