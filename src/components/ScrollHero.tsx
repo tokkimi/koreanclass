@@ -181,6 +181,17 @@ export function ScrollHero({
           )}
         </div>
         <div className="scroll-hero__veil" aria-hidden="true" />
+        <div className="scroll-hero__hanok" aria-hidden="true">
+          <div className="scroll-hero__door scroll-hero__door--left"><i /><i /><i /></div>
+          <div className="scroll-hero__door scroll-hero__door--right"><i /><i /><i /></div>
+          <div className="scroll-hero__door-top"><span>서울</span></div>
+          <div className="scroll-hero__door-threshold" />
+        </div>
+        <div className="scroll-hero__moments" aria-hidden="true">
+          <span className="scroll-hero__moment one">한글</span>
+          <span className="scroll-hero__moment two">서울</span>
+          <span className="scroll-hero__moment three">TOPIK</span>
+        </div>
 
         <a className="scroll-hero__skip" href={`#${skipTargetId}`} onClick={skip}>
           Passer aux cours <span aria-hidden="true">↓</span>
