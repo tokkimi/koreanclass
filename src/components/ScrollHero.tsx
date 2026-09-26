@@ -183,7 +183,6 @@ export function ScrollHero({
         <div className="scroll-hero__veil" aria-hidden="true" />
           <div className="scroll-hero__hanok" aria-hidden="true">
             <div className="scroll-hero__door scroll-hero__door--left"><i /><i /><i /></div>
-            <div className="scroll-hero__door scroll-hero__door--center"><i /><i /><i /></div>
             <div className="scroll-hero__door scroll-hero__door--right"><i /><i /><i /></div>
           <div className="scroll-hero__door-top"><span>서울</span></div>
           <div className="scroll-hero__door-threshold" />
