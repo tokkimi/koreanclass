@@ -1457,7 +1457,8 @@ td.ko-text {
   background: none;
   border: 0;
   border-top: 2px solid transparent;
-  margin-top: -1px;
+  /* La scène commence sous le header-verre, sur toutes les tailles d'écran. */
+  margin-top: -78px;
   padding: 0.9rem 0.2rem;
   font: inherit;
   font-weight: 600;
@@ -1926,9 +1927,9 @@ body { background: radial-gradient(ellipse at 0% 10%,#0000,transparent 50%),radi
 .scroll-hero__stage {
   --p: 0;
   position: sticky;
-  top: var(--header-h);
-  height: calc(100vh - var(--header-h));
-  height: calc(100svh - var(--header-h));
+  top: 0;
+  height: 100vh;
+  height: 100svh;
   overflow: hidden;
   isolation: isolate;
   color: var(--hero-ink);
@@ -3427,6 +3428,18 @@ body:has(.home-clean) .booking-bubble {
   .scroll-hero__door--right{background-position:81% center;transform:translateX(calc(var(--p) * 126%));}
 }
 @media(prefers-reduced-motion:reduce){.scroll-hero__door--left{transform:translateX(-122%);}.scroll-hero__door--right{transform:translateX(122%);}}
+
+/* Mobile : trois vantaux complets, jamais découpés dans le sprite d'origine.
+   Leur format est conservé ; Séoul reste visible au-dessus et au-dessous. */
+.scroll-hero__door--center{display:none;}
+@media(max-width:760px){
+  .scroll-hero__hanok::after{display:none;}
+  .scroll-hero__door{top:0;bottom:0;width:33.334%;background-image:url('/images/hanok-single-door.png');background-size:100% auto;background-position:center;background-repeat:no-repeat;box-shadow:none;}
+  .scroll-hero__door--left{left:0;right:auto;transform:translateX(calc(var(--p) * -320%));}
+  .scroll-hero__door--center{display:block;left:33.333%;right:auto;transform:translateX(calc(var(--p) * 320%));}
+  .scroll-hero__door--right{left:auto;right:0;transform:translateX(calc(var(--p) * 320%));}
+}
+@media(max-width:760px) and (prefers-reduced-motion:reduce){.scroll-hero__door--left{transform:translateX(-320%);}.scroll-hero__door--center,.scroll-hero__door--right{transform:translateX(320%);}}
 
 /* Trois liens de cursus ancrés sur la même ligne, quelle que soit la longueur du texte. */
 .course-tools .card{display:flex;flex-direction:column;}.course-tools .card .link{margin-top:auto;padding-top:22px;align-self:flex-start;}
