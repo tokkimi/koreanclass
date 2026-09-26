@@ -3415,10 +3415,10 @@ body:has(.home-clean) .booking-bubble {
 
 /* Les vantaux sont deux moitiés d'un même PNG transparent : le cadre reste
    fixe et les feuilles coulissent vers l'extérieur au fil du scroll. */
-.scroll-hero__door{z-index:1;width:50%;border:0;background-image:url('/images/hanok-door-leaves.png');background-repeat:no-repeat;background-size:200% 100%;background-color:transparent;box-shadow:0 14px 34px #160c0955;will-change:transform;}
+.scroll-hero__door{z-index:1;width:54%;border:0;background-image:url('/images/hanok-door-leaves.png');background-repeat:no-repeat;background-size:200% 100%;background-color:transparent;box-shadow:0 14px 34px #160c0955;will-change:transform;}
 .scroll-hero__door--left{background-position:left center;transform:translateX(calc(var(--p) * -122%));}
 .scroll-hero__door--right{background-position:right center;transform:translateX(calc(var(--p) * 122%));}
-@media(max-width:760px){.scroll-hero__hanok::after{background-size:auto 100%;background-position:center;}.scroll-hero__door{width:54%;background-size:200% 100%;}.scroll-hero__door--left{transform:translateX(calc(var(--p) * -126%));}.scroll-hero__door--right{transform:translateX(calc(var(--p) * 126%));}}
+@media(max-width:760px){.scroll-hero__hanok::after{background-size:auto 100%;background-position:center;}.scroll-hero__door{width:58%;background-size:200% 100%;}.scroll-hero__door--left{transform:translateX(calc(var(--p) * -126%));}.scroll-hero__door--right{transform:translateX(calc(var(--p) * 126%));}}
 @media(prefers-reduced-motion:reduce){.scroll-hero__door--left{transform:translateX(-122%);}.scroll-hero__door--right{transform:translateX(122%);}}
 
 /* Trois liens de cursus ancrés sur la même ligne, quelle que soit la longueur du texte. */
