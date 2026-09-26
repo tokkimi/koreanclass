@@ -27,7 +27,6 @@ export function PathOrbit({ cards }: { cards: OrbitCard[] }) {
   const wrap = useRef<HTMLDivElement>(null)
   const control = useRef<OrbitControl>({ target: 0, current: 0, dragging: false })
   const drag = useRef<{ x: number; y: number; id: number; decided: boolean; horizontal: boolean } | null>(null)
-  const [front, setFront] = useState(0)
   const [active, setActive] = useState(false)
   const [seen, setSeen] = useState(false)
   const [webgl] = useState(hasWebGL)
@@ -57,18 +56,7 @@ export function PathOrbit({ cards }: { cards: OrbitCard[] }) {
     return () => io.disconnect()
   }, [])
 
-  const goTo = useCallback(
-    (index: number) => {
-      const c = control.current
-      // chemin le plus court vers la carte demandée
-      const desired = -index * step
-      const turns = Math.round((c.target - desired) / (Math.PI * 2))
-      c.target = desired + turns * Math.PI * 2
-    },
-    [step],
-  )
-  const move = (dir: 1 | -1) => goTo((front + dir + cards.length) % cards.length)
-  const onFront = useCallback((i: number) => setFront(i), [])
+  const onFront = useCallback(() => {}, [])
   const onOpen = useCallback((card: OrbitCard) => navigate(card.to), [navigate])
 
   function pointerDown(e: PointerEvent<HTMLDivElement>) {
@@ -101,13 +89,6 @@ export function PathOrbit({ cards }: { cards: OrbitCard[] }) {
     }
   }
 
-  const card = cards[front]
-  const chipsRef = useRef<HTMLElement>(null)
-  useEffect(() => {
-    const nav = chipsRef.current
-    const chip = nav?.children[front] as HTMLElement | undefined
-    if (nav && chip && nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: chip.offsetLeft - 20, behavior: 'smooth' })
-  }, [front])
 
   if (!webgl) {
     return (
@@ -146,34 +127,17 @@ export function PathOrbit({ cards }: { cards: OrbitCard[] }) {
         </p>
       </div>
 
-      <div className="orbit-controls">
-        <button type="button" className="btn ghost orbit-arrow" onClick={() => move(-1)} aria-label="Carte précédente">
-          ←
-        </button>
-        <div className="orbit-focus" aria-live="polite">
-          <span className="orbit-focus-ko" lang="ko" style={{ color: card.accent }}>
-            {card.ko}
-          </span>
-          <div>
-            <strong>{card.title}</strong>
-            <small>{card.subtitle}</small>
-          </div>
-          <Link to={card.to} className="btn small">
-            Ouvrir <span aria-hidden="true">↗</span>
-          </Link>
-        </div>
-        <button type="button" className="btn ghost orbit-arrow" onClick={() => move(1)} aria-label="Carte suivante">
-          →
-        </button>
-      </div>
-
-      <nav ref={chipsRef} className="orbit-chips" aria-label="Toutes les étapes du parcours">
-        {cards.map((c, i) => (
-          <button key={c.id} type="button" className={`orbit-chip ${i === front ? 'active' : ''}`} aria-pressed={i === front} onClick={() => goTo(i)}>
-            {c.badge.startsWith('0') ? `${c.badge} · ` : ''}
-            {c.title}
-          </button>
-        ))}
+      {/* Pas de commandes visibles : liens pour le clavier et les lecteurs d'écran. */}
+      <nav className="sr-only" aria-label="Toutes les étapes du parcours">
+        <ul>
+          {cards.map((c) => (
+            <li key={c.id}>
+              <Link to={c.to}>
+                {c.title} — {c.subtitle}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </nav>
     </div>
   )

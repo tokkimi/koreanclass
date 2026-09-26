@@ -150,7 +150,7 @@ function Particles({ reduced }: { reduced: boolean }) {
       const theta = Math.sqrt(count * Math.PI) * phi
       const r = 9.5 + (Math.random() - 0.5) * 4
       positions.set([r * Math.cos(theta) * Math.sin(phi), r * Math.cos(phi) * 0.7, r * Math.sin(theta) * Math.sin(phi)], i * 3)
-      color.setHSL(0.6 + Math.random() * 0.12, 0.75, 0.55 + Math.random() * 0.25)
+      color.setHSL(0.6 + Math.random() * 0.1, 0.75, 0.45 + Math.random() * 0.2)
       colors.set([color.r, color.g, color.b], i * 3)
     }
     const g = new THREE.BufferGeometry()
@@ -164,7 +164,7 @@ function Particles({ reduced }: { reduced: boolean }) {
   })
   return (
     <points ref={ref} geometry={geometry}>
-      <pointsMaterial size={0.07} vertexColors transparent opacity={0.85} sizeAttenuation depthWrite={false} />
+      <pointsMaterial size={0.06} vertexColors transparent opacity={0.55} sizeAttenuation depthWrite={false} />
     </points>
   )
 }
@@ -202,15 +202,20 @@ function drawCard(card: OrbitCard): THREE.CanvasTexture {
   const sans = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif'
   const ko = '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif'
 
-  // carte
-  roundRect(ctx, 4, 4, W - 8, H - 8, 44)
+  // carte, avec une ombre douce pour se détacher du fond clair de la page
+  roundRect(ctx, 14, 10, W - 28, H - 30, 44)
+  ctx.save()
+  ctx.shadowColor = 'rgba(24, 48, 100, 0.22)'
+  ctx.shadowBlur = 18
+  ctx.shadowOffsetY = 8
   const bg = ctx.createLinearGradient(0, 0, 0, H)
   bg.addColorStop(0, '#ffffff')
   bg.addColorStop(1, card.tint)
   ctx.fillStyle = bg
   ctx.fill()
-  ctx.lineWidth = 4
-  ctx.strokeStyle = '#ffffffcc'
+  ctx.restore()
+  ctx.lineWidth = 3
+  ctx.strokeStyle = '#d6e0ee'
   ctx.stroke()
 
   // pastille
