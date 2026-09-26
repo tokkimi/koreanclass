@@ -37,7 +37,6 @@ export function Layout() {
             <NavLink to="/nombres">Nombres</NavLink>
             <NavLink to="/vocabulaire">Vocabulaire</NavLink>
             <NavLink to="/couleurs">Couleurs</NavLink>
-            <NavLink to="/cgv">Conditions de vente</NavLink>
             <NavLink to="/structures">Phrases & grammaire</NavLink>
             <NavLink to="/tests">Tests & QCM</NavLink>
             <NavLink to="/pratique">En situation</NavLink>

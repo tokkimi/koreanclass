@@ -3119,10 +3119,10 @@ body {
 /* Accent : le corail du logo TalkToMe. Le fond reste blanc.           */
 /* ------------------------------------------------------------------ */
 :root {
-  --accent: #ff4f6d;
-  --accent-2: #ff8a4c;
-  --accent-soft: #fff0f2;
-  --accent-ink: #d92f50;
+  --accent: #526bd4;
+  --accent-2: #7fa6df;
+  --accent-soft: #edf2ff;
+  --accent-ink: #334a99;
 }
 
 /* Bouton principal : verre liquide teinté corail, reflets blancs, halo */
@@ -3130,7 +3130,7 @@ body {
 .home-clean .btn {
   --glass-tint: var(--accent);
   --glass-ink: #fff;
-  --glass-glow: #ff4f6d66;
+  --glass-glow: #526bd433;
   background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 78%, #fff) 0%, var(--accent) 48%, var(--accent-2) 100%);
   border-color: #ffffff80;
   color: #fff;
@@ -3157,9 +3157,9 @@ body {
 .btn.ghost:hover:not(:disabled),
 .home-clean .btn.ghost:hover:not(:disabled),
 .header .burger:hover {
-  background: linear-gradient(180deg, #fff, #fff5f6);
+  background: linear-gradient(180deg, #fff, #f2f5fc);
   color: var(--accent-ink);
-  box-shadow: var(--glass-etch), 0 10px 24px -14px #ff4f6d66;
+  box-shadow: var(--glass-etch), 0 10px 24px -14px #526bd433;
 }
 .btn.danger {
   background: linear-gradient(180deg, #ffffffcc, #ffffff66);
@@ -3181,7 +3181,7 @@ body {
   text-shadow: none;
 }
 .btn:focus-visible {
-  outline: 3px solid #ff4f6d66;
+  outline: 3px solid #526bd433;
   outline-offset: 3px;
 }
 
@@ -3357,3 +3357,20 @@ body:has(.home-clean) .booking-bubble {
 .word-track .word-sentence {
   align-self: stretch;
 }
+.category-fan {padding:20px 0 36px;overflow:hidden;}.category-fan-stage{position:relative;height:440px;max-width:1100px;margin:auto;}.category-fan-card{position:absolute;left:calc(50% - 125px);top:35px;width:250px;height:330px;padding:0;border:4px solid #fff;border-radius:26px;overflow:hidden;box-shadow:0 18px 35px #14233b30;cursor:pointer;transform:translateX(calc(var(--slot)*100px)) translateY(calc(var(--distance)*18px)) rotate(calc(var(--slot)*7deg)) scale(calc(1 - var(--distance)*.07));transition:transform .5s ease;}.category-fan-card:hover,.category-fan-card:focus-visible{outline:3px solid #6572ed;outline-offset:4px;}.category-fan-card img{width:100%;height:100%;object-fit:cover;}.category-fan-caption{position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#102035ed);color:white;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:24px;text-align:left;}.category-fan-caption strong{font-size:1.35rem;}.word-symbol{height:180px;display:grid;place-content:center;font-size:64px;background:linear-gradient(135deg,#edf0ff,#e2f5eb);border-radius:16px;color:#15243c;}.word-tile img.word-photo{object-fit:cover;width:100%;}
+@media(max-width:600px){.category-fan-stage{height:350px;}.category-fan-card{width:190px;height:265px;left:calc(50% - 95px);transform:translateX(calc(var(--slot)*43px)) translateY(calc(var(--distance)*16px)) rotate(calc(var(--slot)*7deg)) scale(calc(1 - var(--distance)*.09));}.category-fan-caption{padding:16px;}.category-fan-caption strong{font-size:1.1rem;}}
+@media(prefers-reduced-motion:reduce){.category-fan-card{transition:none;}}
+
+/* Transparent glass controls, with neutral ink and no coral fill. */
+.btn, .btn.ghost, .header .nav-cta { color:#172844; background:linear-gradient(145deg,#ffffff99,#ffffff30); border:1px solid #ffffffcc; box-shadow:inset 0 1px 1px #fff,inset 0 -1px 2px #17284420,0 5px 16px #17284412; backdrop-filter:blur(18px) saturate(1.4); -webkit-backdrop-filter:blur(18px) saturate(1.4); }
+.btn:hover,.btn.ghost:hover {background:#edf2ffbb;color:#172844;box-shadow:inset 0 1px 1px #fff,0 8px 22px #17284420;}
+.booking-bubble,body:has(.home-clean) .booking-bubble {background:linear-gradient(135deg,#ffffff65,#ffffff15);color:#172844;border:1px solid #ffffffb3;backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);box-shadow:inset 0 1px 1px #fff,inset 0 -1px 2px #243a5526,0 8px 32px #12264726;border-radius:32px;}
+.booking-contact-icon {display:block;margin:auto;filter:drop-shadow(0 1px 1px #fff9);}
+.booking-bubble small {color:#334560;}
+.orbit-stage {touch-action:none;}
+.orbit-controls {justify-content:center;gap:12px;margin:12px 0 24px;}
+.word-track {scrollbar-color:#526bd455 transparent;}
+
+.word-lettering {height:150px;display:grid;place-content:center;background:linear-gradient(135deg,#edf2fb,#f5f8fc);color:#334560;font:600 2.1rem var(--font-ko);letter-spacing:-.04em;}
+
+.home-clean .btn,.home-clean .btn.ghost,.btn:hover:not(:disabled),.home-clean .btn:hover:not(:disabled),.btn.ghost:hover:not(:disabled),.home-clean .btn.ghost:hover:not(:disabled){background:linear-gradient(145deg,#ffffffb3,#ffffff45);color:#172844;border-color:#ffffffcc;box-shadow:inset 0 1px 1px #fff,inset 0 -1px 2px #17284420,0 5px 16px #17284412;text-shadow:none;}

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { vocabularyThemes } from '../data/vocabulary'
 import type { OrbitCard, OrbitControl } from './OrbitGallery3D'
 
 const OrbitGallery3D = lazy(() => import('./OrbitGallery3D'))
@@ -70,11 +71,12 @@ export function PathOrbit({ cards, onSelect }: { cards: OrbitCard[]; onSelect?: 
     if (!d.decided) {
       if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return
       d.decided = true
-      d.horizontal = Math.abs(dx) > Math.abs(dy)
+      d.horizontal = true
     }
     if (!d.horizontal) return
     if (e.pointerType !== 'mouse' || e.buttons === 1) {
       control.current.dragging = true
+      control.current.tilt = Math.max(-0.45, Math.min(0.45, (control.current.tilt ?? 0) + dy * 0.003))
       control.current.target += (dx / (wrap.current?.clientWidth || 800)) * Math.PI * 1.4
     }
     d.x = e.clientX
@@ -123,10 +125,11 @@ export function PathOrbit({ cards, onSelect }: { cards: OrbitCard[]; onSelect?: 
           <div className="orbit-loading" aria-hidden="true" />
         )}
         <p className="orbit-help" aria-hidden="true">
-          Fais glisser pour tourner · touche une carte pour l’ouvrir
+          Glisse dans les deux directions pour tourner · touche une carte pour l’ouvrir
         </p>
       </div>
 
+      <div className="row center orbit-controls"><button className="btn ghost small" onClick={() => { control.current.target += step }}>Précédent</button><button className="btn ghost small" onClick={() => { control.current.tilt = 0 }}>Recentrer</button><button className="btn ghost small" onClick={() => { control.current.target -= step }}>Suivant</button></div>
       {/* Pas de commandes visibles : liens pour le clavier et les lecteurs d'écran. */}
       <nav className="sr-only" aria-label="Toutes les étapes du parcours">
         <ul>
@@ -166,6 +169,7 @@ export function usePathCards(
       { accent: '#3d5a2b', tint: '#edf2e6' },
       { accent: '#8a4b36', tint: '#f6ebe5' },
     ]
+    const imageFor = (i: number) => { const photo = vocabularyThemes[i].photo; return photo.startsWith('/') ? photo : `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=900&q=80` }
     const levels: OrbitCard[] = stats.map(({ level, total, pct }) => ({
       id: level.id,
       to: `/cours/${level.id}`,
@@ -174,18 +178,19 @@ export function usePathCards(
       title: chapters[level.index] ?? level.name,
       subtitle: `${level.cefr} · ${total} leçons`,
       pct,
+      image: imageFor(level.index),
       ...palette[level.index % 3],
     }))
     // Les cours ajoutés au menu déroulant
     const extras: OrbitCard[] = [
-      { id: 'hangeul', to: '/alphabet', badge: 'Hangeul', ko: '가나다', title: 'L’atelier hangeul', subtitle: 'Lettres, sons et syllabes' },
+      { id: 'atelier-hangeul', to: '/alphabet', badge: 'Hangeul', ko: '가나다', title: 'L’atelier hangeul', subtitle: 'Lettres, sons et syllabes' },
       { id: 'nombres', to: '/nombres', badge: 'Nombres', ko: '하나 둘', title: 'Chiffres & nombres', subtitle: 'Compter, prix, heures' },
       { id: 'vocabulaire', to: '/vocabulaire', badge: 'Mots', ko: '단어', title: 'Vocabulaire en photos', subtitle: 'Des thèmes à retenir' },
       { id: 'couleurs', to: '/couleurs', badge: 'Couleurs', ko: '색깔', title: 'Les couleurs', subtitle: 'Voir, dire, décrire' },
       { id: 'structures', to: '/structures', badge: 'Grammaire', ko: '문장', title: 'Phrases & grammaire', subtitle: 'Construire tes phrases' },
       { id: 'tests', to: '/tests', badge: 'QCM', ko: '시험', title: 'Tests & QCM', subtitle: 'Valide chaque niveau' },
       { id: 'pratique', to: '/pratique', badge: 'Oral', ko: '대화', title: 'En situation', subtitle: 'Jeux et studio oral' },
-    ].map((c, i) => ({ ...c, ...palette[i % 3] }))
+    ].map((c, i) => ({ ...c, image: imageFor(i + 6), ...palette[i % 3] }))
     return [...levels, ...extras]
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])

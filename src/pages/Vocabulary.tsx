@@ -5,7 +5,7 @@ import { vocabularyLessons } from '../data/vocabularyQuizzes'
 import { words, vocabularyThemes } from '../data/vocabulary'
 import { SavedQuiz } from '../components/SavedQuiz'
 import { SpeakButton } from '../components/Speak'
-import { PathOrbit } from '../components/PathOrbit'
+import { CardFan } from '../components/CardFan'
 import type { OrbitCard } from '../components/OrbitGallery3D'
 
 /** Mot coréen qui résume chaque thème, affiché en grand sur sa carte. */
@@ -64,7 +64,7 @@ function WordRow(props: {
   onReveal: (ko: string) => void
   onQuiz: () => void
 }) {
-  const { theme, items, photo, hidden, revealed, onReveal, onQuiz } = props
+  const { theme, items, hidden, revealed, onReveal, onQuiz } = props
   const track = useRef<HTMLDivElement>(null)
   const scroll = (dir: 1 | -1) => track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.8, behavior: 'smooth' })
   return (
@@ -87,21 +87,11 @@ function WordRow(props: {
         </div>
       </div>
       <div className="word-track" ref={track}>
-        {items.map(([cat, ko, rom, fr, sentence, translation, own], i) => {
+        {items.map(([cat, ko, rom, fr, sentence, translation, own]) => {
           const show = !hidden || revealed.includes(ko)
-          const pos = items.length > 1 ? (i / (items.length - 1)) * 100 : 50
           return (
             <article className="word-tile" key={cat + ko}>
-              <div
-                className="word-photo"
-                role="img"
-                aria-label={own ? (hidden ? `Illustration à reconnaître : ${cat}` : fr) : `Ambiance du thème ${cat}`}
-                style={
-                  own
-                    ? { backgroundImage: `url(${photoUrl(own, 640)})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-                    : { backgroundImage: `url(${photo})`, backgroundSize: `${Math.max(3, Math.min(items.length, 6)) * 100}% auto`, backgroundPosition: `${pos}% 50%` }
-                }
-              />
+              {own ? <img className="word-photo" src={photoUrl(own,640)} alt={hidden?'Photo à reconnaître':fr} loading="lazy"/> : <div className="word-lettering" lang="ko">{ko}</div>}
               <div className="word-body">
                 <div className="word-ko">
                   <strong lang="ko">{ko}</strong> <SpeakButton text={ko} />
@@ -154,6 +144,7 @@ export default function Vocabulary() {
 
   const choose = useCallback(
     (card: OrbitCard) => {
+      setQuery('')
       setCategory(card.id)
             setParams({ theme: card.id }, { replace: true })
       requestAnimationFrame(() => document.getElementById('vocab-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
@@ -166,7 +157,7 @@ export default function Vocabulary() {
   )
   const categories = ['Tout', ...new Set(words.map((w) => w[0]))]
   const rows = [...new Set(visible.map((w) => w[0]))].map((theme) => ({ theme, items: visible.filter((w) => w[0] === theme) }))
-  const themeHasPhotos = category === 'Tout' || words.some((w) => w[0] === category && w[6])
+  const themeHasPhotos = category === 'Tout'
 
   return (
     <div className="vocab-page">
@@ -176,10 +167,10 @@ export default function Vocabulary() {
             Vocabulaire en photos · {words.length} mots · {vocabularyThemes.length} thèmes
           </p>
           <h1 className="hc-title">Chaque mot a sa place.</h1>
-          <p className="hc-lead">Mode, couple, maison, émotions, métiers… Fais tourner les thèmes et choisis ton univers.</p>
+          <p className="hc-lead">Mode, couple, maison, émotions, métiers… Parcours les cartes en éventail et choisis ton univers.</p>
         </div>
         <div className="container">
-          <PathOrbit cards={cards} onSelect={choose} />
+          <CardFan cards={cards} onSelect={choose} />
         </div>
         <p className="container hc-level">
           <a href="#photo-quiz">Quiz en photos</a> · <a href="#vocab-quizzes">QCM par thème</a> · <Link to="/couleurs">Les couleurs</Link>
@@ -232,7 +223,7 @@ export default function Vocabulary() {
           </div>
         </div>
         <p className="muted small">
-          {visible.length} mots · fais défiler chaque rangée
+          {visible.length} mots · photos et fiches de mots · fais défiler chaque rangée
         </p>
 
         {rows.map(({ theme, items }) => (

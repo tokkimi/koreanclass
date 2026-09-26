@@ -29,6 +29,7 @@ export interface OrbitControl {
   target: number
   current: number
   dragging: boolean
+  tilt?: number
 }
 
 interface Props {
@@ -70,8 +71,8 @@ function Rig({ radius }: { radius: number }) {
     const aspect = size.width / size.height
     // distance constante à la carte de face, quel que soit le rayon
     const z = radius + (aspect < 0.75 ? 9.3 : aspect < 1.1 ? 8.8 : 6.3)
-    camera.position.set(0, aspect < 0.75 ? 2.4 : 2.1, z)
-    camera.lookAt(0, -1.1, 0)
+    camera.position.set(0, 0, z)
+    camera.lookAt(0, 0, 0)
   }, [camera, size, radius])
   return null
 }
@@ -97,7 +98,10 @@ function Ring({ cards, control, reduced, onFront, onOpen }: Omit<Props, 'active'
     // Légère rotation automatique au repos (désactivée si « réduire les animations »).
     if (!reduced && !c.dragging && hovered === null) c.target -= delta * 0.08
     c.current += (c.target - c.current) * Math.min(1, delta * (reduced ? 12 : 5))
-    if (group.current) group.current.rotation.y = c.current
+    if (group.current) {
+      group.current.rotation.y = c.current
+      group.current.rotation.x += ((c.tilt ?? 0) - group.current.rotation.x) * Math.min(1, delta * 8)
+    }
 
     const front = (((Math.round(-c.current / step) % cards.length) + cards.length) % cards.length)
     if (front !== lastFront.current) {
