@@ -150,10 +150,11 @@ export function usePathCards(
   // Clé stable : les textures 3D ne sont redessinées que si la progression change.
   const key = stats.map((s) => `${s.level.id}:${s.pct}:${s.total}`).join('|') + chapters.join('|')
   return useMemo(() => {
+    // Palette neutre : cartes blanches, teintes très douces, encre sombre.
     const palette = [
-      { accent: '#2858ec', tint: '#e3ebff' },
-      { accent: '#4d6a17', tint: '#eaf6c6' },
-      { accent: '#5845a2', tint: '#ece6ff' },
+      { accent: '#1d1d1f', tint: '#f2efe9' },
+      { accent: '#3d5a2b', tint: '#edf2e6' },
+      { accent: '#8a4b36', tint: '#f6ebe5' },
     ]
     const levels: OrbitCard[] = stats.map(({ level, total, pct }) => ({
       id: level.id,

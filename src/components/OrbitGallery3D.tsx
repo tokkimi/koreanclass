@@ -64,9 +64,9 @@ function Rig() {
   const { camera, size } = useThree()
   useEffect(() => {
     const aspect = size.width / size.height
-    const z = aspect < 0.75 ? 21 : aspect < 1.1 ? 18 : 15
-    camera.position.set(0, aspect < 0.75 ? 3.4 : 2.6, z)
-    camera.lookAt(0, 0.1, 0)
+    const z = aspect < 0.75 ? 15.5 : aspect < 1.1 ? 15 : 12.5
+    camera.position.set(0, aspect < 0.75 ? 2.4 : 2.1, z)
+    camera.lookAt(0, -1.1, 0)
   }, [camera, size])
   return null
 }
@@ -150,7 +150,7 @@ function Particles({ reduced }: { reduced: boolean }) {
       const theta = Math.sqrt(count * Math.PI) * phi
       const r = 9.5 + (Math.random() - 0.5) * 4
       positions.set([r * Math.cos(theta) * Math.sin(phi), r * Math.cos(phi) * 0.7, r * Math.sin(theta) * Math.sin(phi)], i * 3)
-      color.setHSL(0.6 + Math.random() * 0.1, 0.75, 0.45 + Math.random() * 0.2)
+      color.setHSL(0.08, 0.05 + Math.random() * 0.1, 0.35 + Math.random() * 0.25)
       colors.set([color.r, color.g, color.b], i * 3)
     }
     const g = new THREE.BufferGeometry()
@@ -205,7 +205,7 @@ function drawCard(card: OrbitCard): THREE.CanvasTexture {
   // carte, avec une ombre douce pour se détacher du fond clair de la page
   roundRect(ctx, 14, 10, W - 28, H - 30, 44)
   ctx.save()
-  ctx.shadowColor = 'rgba(24, 48, 100, 0.22)'
+  ctx.shadowColor = 'rgba(40, 32, 20, 0.16)'
   ctx.shadowBlur = 18
   ctx.shadowOffsetY = 8
   const bg = ctx.createLinearGradient(0, 0, 0, H)
@@ -215,7 +215,7 @@ function drawCard(card: OrbitCard): THREE.CanvasTexture {
   ctx.fill()
   ctx.restore()
   ctx.lineWidth = 3
-  ctx.strokeStyle = '#d6e0ee'
+  ctx.strokeStyle = '#e4dfd7'
   ctx.stroke()
 
   // pastille
@@ -231,7 +231,7 @@ function drawCard(card: OrbitCard): THREE.CanvasTexture {
   // coréen
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
-  ctx.fillStyle = '#122033'
+  ctx.fillStyle = '#1d1d1f'
   ctx.font = `700 ${card.ko.length > 3 ? 100 : 128}px ${ko}`
   ctx.fillText(card.ko, 40, 270, W - 80)
 
@@ -240,21 +240,21 @@ function drawCard(card: OrbitCard): THREE.CanvasTexture {
   const lines = wrap(ctx, card.title, W - 80).slice(0, 2)
   lines.forEach((l, i) => ctx.fillText(l, 40, 360 + i * 50))
 
-  ctx.fillStyle = '#5b6b80'
+  ctx.fillStyle = '#6e6e73'
   ctx.font = `500 28px ${sans}`
   ctx.fillText(card.subtitle, 40, 360 + lines.length * 50 + 14, W - 80)
 
   // pied : progression ou invitation
   if (card.pct !== undefined) {
     roundRect(ctx, 40, H - 92, W - 80, 16, 8)
-    ctx.fillStyle = '#e3e9f2'
+    ctx.fillStyle = '#ebe7e0'
     ctx.fill()
     if (card.pct > 0) {
       roundRect(ctx, 40, H - 92, Math.max(16, ((W - 80) * card.pct) / 100), 16, 8)
       ctx.fillStyle = card.accent
       ctx.fill()
     }
-    ctx.fillStyle = '#5b6b80'
+    ctx.fillStyle = '#6e6e73'
     ctx.font = `600 24px ${sans}`
     ctx.fillText(card.pct ? `${card.pct} % validé` : 'À découvrir', 40, H - 44)
   } else {

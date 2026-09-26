@@ -2528,3 +2528,203 @@ body { background: radial-gradient(ellipse at 0% 10%,#b4d8ff66,transparent 50%),
   white-space: nowrap;
   border: 0;
 }
+
+/* ------------------------------------------------------------------ */
+/* Accueil épuré (home-clean) : neutre, aéré, sans bleu                */
+/* ------------------------------------------------------------------ */
+body:has(.home-clean) {
+  background: #f7f6f3;
+}
+.home-clean {
+  --ink: #1d1d1f;
+  --ink-soft: #6e6e73;
+  color: var(--ink);
+  outline: none;
+}
+.home-clean .btn {
+  --glass-tint: #1d1d1f;
+  --glass-ink: #fff;
+  --glass-glow: #0000004d;
+}
+.home-clean .btn.ghost {
+  --glass-ink: var(--ink);
+}
+.home-clean .btn.hc-light {
+  --glass-tint: #ffffff;
+  --glass-ink: var(--ink);
+  background: linear-gradient(180deg, #ffffffeb, #ffffffc4);
+  border-color: #fff;
+}
+.hc-section {
+  padding-block: clamp(64px, 10vw, 128px);
+}
+.hc-head {
+  text-align: center;
+  max-width: 760px;
+}
+.hc-eyebrow {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.hc-eyebrow.light {
+  color: #ffffffcc;
+}
+.home-clean h2 {
+  margin: 0 0 14px;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: inherit;
+}
+.hc-lead {
+  margin: 0 0 24px;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  color: var(--ink-soft);
+}
+.hc-path .orbit {
+  margin-top: 8px;
+}
+.hc-path .orbit-stage {
+  height: clamp(400px, 64vh, 640px);
+}
+.hc-next {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 8px;
+  text-align: center;
+}
+.hc-next-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.hc-next-title {
+  font-weight: 650;
+}
+.hc-next-title small {
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+/* Bande photo plein écran, dans l'esprit de la bannière */
+.hc-band {
+  position: relative;
+  min-height: min(82vh, 760px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  color: #fff;
+}
+.hc-band img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hc-band::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #0000 35%, #000000a6 100%);
+}
+.hc-band-copy {
+  position: relative;
+  z-index: 1;
+  padding-bottom: clamp(40px, 8vw, 88px);
+}
+.hc-band h2 {
+  max-width: 14ch;
+  text-shadow: 0 4px 30px #0005;
+}
+
+.hc-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 6vw, 96px);
+}
+.hc-duo > div {
+  padding-top: 28px;
+  border-top: 1px solid #1d1d1f1f;
+}
+.hc-duo h2 {
+  font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+}
+.hc-faq {
+  padding-bottom: 96px;
+}
+.hc-faq details {
+  border-top: 1px solid #1d1d1f1f;
+  border-bottom: 1px solid #1d1d1f1f;
+  padding: 20px 0;
+}
+.hc-faq summary {
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 1.05rem;
+}
+.hc-faq p {
+  margin: 12px 0 0;
+  color: var(--ink-soft);
+}
+.hc-faq a {
+  color: var(--ink);
+  text-decoration: underline;
+}
+.home-clean .orbit-help {
+  color: var(--ink-soft);
+}
+@media (max-width: 760px) {
+  .hc-duo {
+    grid-template-columns: 1fr;
+  }
+  .hc-path .orbit-stage {
+    height: 330px;
+  }
+  .hc-band {
+    min-height: 72vh;
+  }
+  .hc-next .btn {
+    width: 100%;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  body:has(.home-clean) {
+    background: #111113;
+  }
+  .home-clean {
+    --ink: #f5f5f7;
+    --ink-soft: #a1a1a6;
+  }
+  .home-clean .btn {
+    --glass-tint: #f5f5f7;
+    --glass-ink: #1d1d1f;
+  }
+  .home-clean .btn.ghost {
+    --glass-ink: #f5f5f7;
+  }
+  .hc-duo > div,
+  .hc-faq details {
+    border-color: #ffffff24;
+  }
+}
+body:has(.home-clean) .booking-bubble {
+  background: linear-gradient(135deg, #1d1d1fe6, #3a3a3ce6);
+  border-color: #ffffff40;
+  box-shadow: 0 10px 30px #0000003d;
+}
+@media (min-width: 761px) {
+  .hc-path .orbit-stage {
+    height: clamp(380px, 56vh, 560px);
+  }
+}
