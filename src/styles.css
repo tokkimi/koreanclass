@@ -3409,16 +3409,17 @@ body:has(.home-clean) .booking-bubble {
 
 /* Fleurs fournies : elles restent derrière les vantaux et dévoilent Séoul. */
 .scroll-hero__hanok{z-index:1;overflow:visible;}
-.scroll-hero__hanok::before{content:'';position:absolute;inset:0;z-index:0;background:url('/images/hanok-frame.png') center center/100% 100% no-repeat;pointer-events:none;}
+.scroll-hero__hanok::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;}
+.scroll-hero__hanok::after{content:'';position:absolute;inset:0;z-index:3;background:url('/images/hanok-frame.png') center center/100% 100% no-repeat;pointer-events:none;}
 .scroll-hero__blossoms{z-index:2;}.scroll-hero__blossoms i{z-index:1;}
 
 /* Les vantaux sont deux moitiés d'un même PNG transparent : le cadre reste
    fixe et les feuilles coulissent vers l'extérieur au fil du scroll. */
 .scroll-hero__door{z-index:1;width:50%;border:0;background-image:url('/images/hanok-door-leaves.png');background-repeat:no-repeat;background-size:200% 100%;background-color:transparent;box-shadow:0 14px 34px #160c0955;will-change:transform;}
-.scroll-hero__door--left{background-position:left center;transform:translateX(calc(var(--p) * -106%));}
-.scroll-hero__door--right{background-position:right center;transform:translateX(calc(var(--p) * 106%));}
-@media(max-width:760px){.scroll-hero__hanok::before{background-size:auto 100%;background-position:center;}.scroll-hero__door{width:54%;background-size:200% 100%;}.scroll-hero__door--left{transform:translateX(calc(var(--p) * -108%));}.scroll-hero__door--right{transform:translateX(calc(var(--p) * 108%));}}
-@media(prefers-reduced-motion:reduce){.scroll-hero__door--left{transform:translateX(-106%);}.scroll-hero__door--right{transform:translateX(106%);}}
+.scroll-hero__door--left{background-position:left center;transform:translateX(calc(var(--p) * -122%));}
+.scroll-hero__door--right{background-position:right center;transform:translateX(calc(var(--p) * 122%));}
+@media(max-width:760px){.scroll-hero__hanok::after{background-size:auto 100%;background-position:center;}.scroll-hero__door{width:54%;background-size:200% 100%;}.scroll-hero__door--left{transform:translateX(calc(var(--p) * -126%));}.scroll-hero__door--right{transform:translateX(calc(var(--p) * 126%));}}
+@media(prefers-reduced-motion:reduce){.scroll-hero__door--left{transform:translateX(-122%);}.scroll-hero__door--right{transform:translateX(122%);}}
 
 /* Trois liens de cursus ancrés sur la même ligne, quelle que soit la longueur du texte. */
 .course-tools .card{display:flex;flex-direction:column;}.course-tools .card .link{margin-top:auto;padding-top:22px;align-self:flex-start;}
