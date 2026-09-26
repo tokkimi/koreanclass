@@ -56,9 +56,7 @@ export default function Home() {
 
         <LevelCheckBanner questionCount={36} />
 
-        <div className="container">
-          <PracticeVideoInvite />
-        </div>
+        <PracticeVideoInvite />
 
         {/* Les deux offres pour réserver un professeur */}
         <section className="hc-section" id="tarifs">

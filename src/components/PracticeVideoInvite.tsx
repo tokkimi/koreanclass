@@ -18,7 +18,18 @@ export function PracticeVideoInvite() {
       <Link to="/pratique" className="btn hc-light">Tester les mises en situation <span aria-hidden="true">→</span></Link>
     </div>
     <div className="practice-video-cards" aria-hidden="true">
-      <span><b>01</b> Café</span><span><b>02</b> Sortie</span><span><b>03</b> Voyage</span>
+      <article className="practice-scenario-card">
+        <img src="/images/cafe.jpg" alt="" /><div className="practice-scenario-shade" />
+        <div><span>01 · commander</span><strong>Au café</strong><small>Choisis, écoute, réponds.</small></div>
+      </article>
+      <article className="practice-scenario-card">
+        <img src="/images/online-korean-lesson.png" alt="" /><div className="practice-scenario-shade" />
+        <div><span>02 · proposer</span><strong>Entre amis</strong><small>Organise une sortie.</small></div>
+      </article>
+      <article className="practice-scenario-card">
+        <img src="/images/seoul.jpg" alt="" /><div className="practice-scenario-shade" />
+        <div><span>03 · se débrouiller</span><strong>En voyage</strong><small>Trouve ton chemin.</small></div>
+      </article>
     </div>
   </section>
 }
