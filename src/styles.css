@@ -3418,7 +3418,14 @@ body:has(.home-clean) .booking-bubble {
 .scroll-hero__door{z-index:1;width:54%;border:0;background-image:url('/images/hanok-door-leaves.png');background-repeat:no-repeat;background-size:200% 100%;background-color:transparent;box-shadow:0 14px 34px #160c0955;will-change:transform;}
 .scroll-hero__door--left{background-position:left center;transform:translateX(calc(var(--p) * -122%));}
 .scroll-hero__door--right{background-position:right center;transform:translateX(calc(var(--p) * 122%));}
-@media(max-width:760px){.scroll-hero__hanok::after{background-size:auto 100%;background-position:center;}.scroll-hero__door{width:58%;background-size:200% 100%;}.scroll-hero__door--left{transform:translateX(calc(var(--p) * -126%));}.scroll-hero__door--right{transform:translateX(calc(var(--p) * 126%));}}
+@media(max-width:760px){
+  .scroll-hero__hanok::after{background-size:auto 100%;background-position:center;}
+  .scroll-hero__door{width:58%;background-size:200% 100%;}
+  /* On recadre l'alpha transparent des PNG : les vantaux remplissent le mobile
+     jusqu'aux bords au lieu de laisser apparaître le ciel sur les côtés. */
+  .scroll-hero__door--left{background-position:20% center;transform:translateX(calc(var(--p) * -126%));}
+  .scroll-hero__door--right{background-position:81% center;transform:translateX(calc(var(--p) * 126%));}
+}
 @media(prefers-reduced-motion:reduce){.scroll-hero__door--left{transform:translateX(-122%);}.scroll-hero__door--right{transform:translateX(122%);}}
 
 /* Trois liens de cursus ancrés sur la même ligne, quelle que soit la longueur du texte. */
@@ -3431,5 +3438,9 @@ body:has(.home-clean) .booking-bubble {
 .color-tile:hover .color-swatch,.color-tile:focus-within .color-swatch{transform:translateY(-3px) scale(1.015);filter:saturate(1.07) brightness(1.05);box-shadow:0 14px 28px color-mix(in srgb,currentColor 12%,transparent),inset 0 1px 0 #fff8;}
 .color-tile:hover .color-swatch::after,.color-tile:focus-within .color-swatch::after{transform:translateX(74%) rotate(8deg);}
 @media(prefers-reduced-motion:reduce){.color-swatch,.color-swatch::after{transition:none;}.color-tile:hover .color-swatch,.color-tile:focus-within .color-swatch{transform:none;}}
+
+/* Barre fixe : même verre léger que les boutons, sans bande blanche opaque. */
+.header{background:color-mix(in srgb,#ffffff 20%,transparent);border-bottom-color:#ffffff5c;box-shadow:0 8px 28px #10244a12;backdrop-filter:blur(22px) saturate(145%);}
+@media(max-width:760px){.header .nav{background:color-mix(in srgb,#ffffff 58%,transparent);backdrop-filter:blur(24px) saturate(145%);}}
 
 .home-clean .btn,.home-clean .btn.ghost,.btn:hover:not(:disabled),.home-clean .btn:hover:not(:disabled),.btn.ghost:hover:not(:disabled),.home-clean .btn.ghost:hover:not(:disabled){background:linear-gradient(145deg,#ffffffb3,#ffffff45);color:#172844;border-color:#ffffffcc;box-shadow:inset 0 1px 1px #fff,inset 0 -1px 2px #17284420,0 5px 16px #17284412;text-shadow:none;}
