@@ -1457,8 +1457,7 @@ td.ko-text {
   background: none;
   border: 0;
   border-top: 2px solid transparent;
-  /* La scène commence sous le header-verre, sur toutes les tailles d'écran. */
-  margin-top: -78px;
+  margin-top: -1px;
   padding: 0.9rem 0.2rem;
   font: inherit;
   font-weight: 600;
