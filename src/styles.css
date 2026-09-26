@@ -3372,6 +3372,7 @@ body:has(.home-clean) .booking-bubble {
 .word-track {scrollbar-color:#526bd455 transparent;}
 
 .word-lettering {height:150px;display:grid;place-content:center;background:linear-gradient(135deg,#edf2fb,#f5f8fc);color:#334560;font:600 2.1rem var(--font-ko);letter-spacing:-.04em;}
+.word-visual {height:150px;display:grid;place-items:center;background:radial-gradient(circle at 32% 22%,#fff 0 8%,transparent 9%),linear-gradient(135deg,#eaf0ff,#f8fbff);border-radius:16px 16px 0 0;overflow:hidden;}.word-visual img{width:76px;height:76px;filter:drop-shadow(0 10px 10px #334a9933);transition:transform .25s ease;}.word-tile:hover .word-visual img{transform:scale(1.08) rotate(-3deg);}
 
 /* Cursus : une vue rapide de la progression avant le détail de chaque cours. */
 .curriculum-intro {display:grid;grid-template-columns:minmax(0,1fr) minmax(290px,.9fr);gap:30px;margin:30px 0;padding:30px;border:1px solid #ffffffb8;border-radius:28px;background:linear-gradient(135deg,#ffffffb5,#edf2ff99);box-shadow:0 16px 42px #15243c0d;}

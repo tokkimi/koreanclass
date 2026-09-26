@@ -6,6 +6,7 @@ import { words, vocabularyThemes } from '../data/vocabulary'
 import { SavedQuiz } from '../components/SavedQuiz'
 import { SpeakButton } from '../components/Speak'
 import { CardFan } from '../components/CardFan'
+import { WordVisual } from '../components/WordVisual'
 import type { OrbitCard } from '../components/OrbitGallery3D'
 
 /** Mot coréen qui résume chaque thème, affiché en grand sur sa carte. */
@@ -89,9 +90,10 @@ function WordRow(props: {
       <div className="word-track" ref={track}>
         {items.map(([cat, ko, rom, fr, sentence, translation, own]) => {
           const show = !hidden || revealed.includes(ko)
+          const visualIndex = words.filter((word) => word[0] === cat).findIndex((word) => word[1] === ko)
           return (
             <article className="word-tile" key={cat + ko}>
-              {own ? <img className="word-photo" src={photoUrl(own,640)} alt={hidden?'Photo à reconnaître':fr} loading="lazy"/> : <div className="word-lettering" lang="ko">{ko}</div>}
+              {own ? <img className="word-photo" src={photoUrl(own,640)} alt={hidden?'Photo à reconnaître':fr} loading="lazy"/> : <WordVisual theme={cat} index={visualIndex} label={hidden ? 'mot à reconnaître' : fr} />}
               <div className="word-body">
                 <div className="word-ko">
                   <strong lang="ko">{ko}</strong> <SpeakButton text={ko} />

@@ -97,6 +97,7 @@ describe('positionnement', () => {
 
 import { vocabularyLessons } from '../data/vocabularyQuizzes'
 import { words as vocabWords } from '../data/vocabulary'
+import { wordVisuals } from '../data/wordVisuals'
 
 describe('QCM de vocabulaire', () => {
   it('proposent 4 choix distincts, tous issus du thème du QCM', () => {
@@ -110,6 +111,16 @@ describe('QCM de vocabulaire', () => {
         expect(ex.options.length, `${lesson.subtitle}: ${ex.q}`).toBeGreaterThanOrEqual(4)
         for (const o of ex.options) expect(allowed.has(o), `${lesson.subtitle}: « ${o} » hors thème`).toBe(true)
       }
+    }
+  })
+})
+
+describe('visuels de vocabulaire', () => {
+  it('associe un visuel à chaque mot sans photo propre', () => {
+    for (const [theme, ko, , fr, , , ownPhoto] of vocabWords) {
+      if (ownPhoto) continue
+      expect(wordVisuals[theme], `${theme}: ${ko} (${fr})`).toBeDefined()
+      expect(wordVisuals[theme].length, theme).toBeGreaterThanOrEqual(vocabWords.filter((word) => word[0] === theme).length)
     }
   })
 })
