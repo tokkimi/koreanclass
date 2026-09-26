@@ -3113,3 +3113,247 @@ body {
     flex-wrap: wrap;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Petites touches de couleur + boutons « liquid glass » partout       */
+/* Accent : le corail du logo TalkToMe. Le fond reste blanc.           */
+/* ------------------------------------------------------------------ */
+:root {
+  --accent: #ff4f6d;
+  --accent-2: #ff8a4c;
+  --accent-soft: #fff0f2;
+  --accent-ink: #d92f50;
+}
+
+/* Bouton principal : verre liquide teinté corail, reflets blancs, halo */
+.btn,
+.home-clean .btn {
+  --glass-tint: var(--accent);
+  --glass-ink: #fff;
+  --glass-glow: #ff4f6d66;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 78%, #fff) 0%, var(--accent) 48%, var(--accent-2) 100%);
+  border-color: #ffffff80;
+  color: #fff;
+  text-shadow: 0 1px 1px #0000001f;
+  box-shadow: var(--glass-shine), 0 12px 26px -12px var(--glass-glow);
+}
+.btn:hover:not(:disabled),
+.home-clean .btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, #fff) 0%, var(--accent) 45%, var(--accent-2) 100%);
+  box-shadow: var(--glass-shine), 0 16px 32px -12px var(--glass-glow);
+}
+
+/* Bouton secondaire : le verre clair du composant d'origine */
+.btn.ghost,
+.home-clean .btn.ghost,
+.header .burger {
+  --glass-ink: var(--text);
+  background: linear-gradient(180deg, #ffffffcc, #ffffff66);
+  color: var(--text);
+  text-shadow: none;
+  border-color: #ffffffe6;
+  box-shadow: var(--glass-etch);
+}
+.btn.ghost:hover:not(:disabled),
+.home-clean .btn.ghost:hover:not(:disabled),
+.header .burger:hover {
+  background: linear-gradient(180deg, #fff, #fff5f6);
+  color: var(--accent-ink);
+  box-shadow: var(--glass-etch), 0 10px 24px -14px #ff4f6d66;
+}
+.btn.danger {
+  background: linear-gradient(180deg, #ffffffcc, #ffffff66);
+  color: #c62828;
+  text-shadow: none;
+  box-shadow: var(--glass-etch);
+}
+.btn.hero-start,
+.btn.light {
+  background: linear-gradient(135deg, #efffb8, #d9f87a);
+  color: #172033;
+  text-shadow: none;
+  --glass-glow: #b8e04a77;
+}
+.home-clean .btn.hc-light,
+.scroll-hero .btn.scroll-hero__cta {
+  background: linear-gradient(180deg, #ffffffeb, #ffffffc4);
+  color: #1d1d1f;
+  text-shadow: none;
+}
+.btn:focus-visible {
+  outline: 3px solid #ff4f6d66;
+  outline-offset: 3px;
+}
+
+/* Touches d'accent */
+.eyebrow,
+.hc-eyebrow,
+.hc-next-label,
+.word-cat,
+.vocab-page .hc-eyebrow {
+  color: var(--accent-ink);
+}
+.hc-eyebrow.light {
+  color: #ffffffd9;
+}
+.link,
+.hc-level a,
+.hc-faq a,
+.vocab-page .hc-level a {
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+.link:hover,
+.hc-level a:hover {
+  color: var(--accent-ink);
+}
+.progress > div {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.option.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.option.selected .opt-letter {
+  background: var(--accent);
+  color: #fff;
+}
+.mobile-dock a.active,
+.header .nav > a.active {
+  color: var(--accent-ink);
+}
+.pill {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.booking-bubble,
+body:has(.home-clean) .booking-bubble {
+  background: linear-gradient(135deg, #ff6b83e6, #ff8a4ce6);
+  border-color: #ffffff80;
+  box-shadow: 0 12px 30px -8px #ff4f6d73, inset 0 1px 0 #ffffff66;
+}
+.speak {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+/* Vocabulaire : une rangée horizontale par thème */
+.word-row {
+  margin: 28px 0 8px;
+}
+.word-row-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.word-row-head h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+.word-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.row-arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ffffffe6;
+  background: linear-gradient(180deg, #ffffffcc, #ffffff66);
+  box-shadow: var(--glass-etch);
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+.row-arrow:hover {
+  transform: scale(1.08);
+  color: var(--accent-ink);
+}
+.word-track {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px 2px 18px;
+  margin-inline: -2px;
+  scrollbar-width: thin;
+  scrollbar-color: #ff4f6d55 transparent;
+  overscroll-behavior-x: contain;
+}
+.word-track .word-tile {
+  flex: 0 0 232px;
+  scroll-snap-align: start;
+  padding: 0;
+  overflow: hidden;
+  gap: 0;
+}
+.word-photo {
+  position: relative;
+  height: 150px;
+  background-color: #1d1d1f;
+  background-repeat: no-repeat;
+}
+.word-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #0000 40%, #0000008c 100%);
+}
+.word-photo span {
+  position: absolute;
+  left: 14px;
+  bottom: 10px;
+  z-index: 1;
+  color: #fff;
+  font-family: var(--font-ko);
+  font-size: 1.7rem;
+  font-weight: 800;
+  text-shadow: 0 2px 12px #0008;
+}
+.word-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px 16px;
+  flex: 1;
+}
+.word-ko {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-ko);
+  font-size: 1.25rem;
+}
+.word-body p {
+  margin: 0;
+}
+@media (max-width: 760px) {
+  .word-track {
+    margin-inline: -20px;
+    padding-inline: 20px;
+    scroll-padding-inline: 20px;
+  }
+  .word-track .word-tile {
+    flex-basis: 70%;
+  }
+  .row-arrow {
+    display: none;
+  }
+}
+.word-track .word-tile {
+  align-items: stretch;
+  text-align: left;
+}
+.word-track .word-body {
+  align-items: flex-start;
+  text-align: left;
+}
+.word-track .word-sentence {
+  align-self: stretch;
+}

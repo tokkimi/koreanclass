@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { photoQuiz } from '../data/visualQuizzes'
 import { vocabularyLessons } from '../data/vocabularyQuizzes'
@@ -40,9 +40,95 @@ const PALETTE = [
   { accent: '#8a4b36', tint: '#f6ebe5' },
 ]
 
+
+const photoUrl = (photo: string, w = 900) => (photo.startsWith('/') ? photo : `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=${w}&q=75`)
+
+/** Photo du thème (ou, pour les anciens petits thèmes, la photo de leur premier mot). */
+function themePhoto(theme: string): string {
+  const t = vocabularyThemes.find((x) => x.name === theme)
+  if (t) return photoUrl(t.photo, 1400)
+  const w = words.find((x) => x[0] === theme && x[6])
+  return w ? photoUrl(w[6], 1400) : '/images/seoul.jpg'
+}
+
+type Word = (typeof words)[number]
+
+/** Une rangée de mots qui défile horizontalement. Sans photo propre, chaque carte
+ * affiche une portion différente de la photo du thème : la rangée forme un panorama. */
+function WordRow(props: {
+  theme: string
+  items: Word[]
+  photo: string
+  hidden: boolean
+  revealed: string[]
+  onReveal: (ko: string) => void
+  onQuiz: () => void
+}) {
+  const { theme, items, photo, hidden, revealed, onReveal, onQuiz } = props
+  const track = useRef<HTMLDivElement>(null)
+  const scroll = (dir: 1 | -1) => track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.8, behavior: 'smooth' })
+  return (
+    <section className="word-row" aria-label={theme}>
+      <div className="word-row-head">
+        <div>
+          <h3>{theme}</h3>
+          <span className="muted small">{items.length} mots</span>
+        </div>
+        <div className="word-row-actions">
+          <button className="btn ghost small" onClick={onQuiz}>
+            QCM du thème
+          </button>
+          <button className="row-arrow" onClick={() => scroll(-1)} aria-label={`Mots précédents : ${theme}`}>
+            ←
+          </button>
+          <button className="row-arrow" onClick={() => scroll(1)} aria-label={`Mots suivants : ${theme}`}>
+            →
+          </button>
+        </div>
+      </div>
+      <div className="word-track" ref={track}>
+        {items.map(([cat, ko, rom, fr, sentence, translation, own], i) => {
+          const show = !hidden || revealed.includes(ko)
+          const pos = items.length > 1 ? (i / (items.length - 1)) * 100 : 50
+          return (
+            <article className="word-tile" key={cat + ko}>
+              <div
+                className="word-photo"
+                role="img"
+                aria-label={own ? (hidden ? `Illustration à reconnaître : ${cat}` : fr) : `Ambiance du thème ${cat}`}
+                style={
+                  own
+                    ? { backgroundImage: `url(${photoUrl(own, 640)})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                    : { backgroundImage: `url(${photo})`, backgroundSize: `${Math.max(3, Math.min(items.length, 6)) * 100}% auto`, backgroundPosition: `${pos}% 50%` }
+                }
+              />
+              <div className="word-body">
+                <div className="word-ko">
+                  <strong lang="ko">{ko}</strong> <SpeakButton text={ko} />
+                </div>
+                {rom && <p className="muted small">{rom}</p>}
+                {show ? (
+                  <p className="word-fr">{fr}</p>
+                ) : (
+                  <button className="btn ghost small" onClick={() => onReveal(ko)}>
+                    Révéler le sens
+                  </button>
+                )}
+                <p lang="ko" className="word-sentence">
+                  {sentence} <SpeakButton text={sentence} />
+                </p>
+                {show && <p className="muted small">{translation}</p>}
+              </div>
+            </article>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
 export default function Vocabulary() {
   const [params, setParams] = useSearchParams()
-  const [limit, setLimit] = useState(24)
   const [category, setCategory] = useState(() => params.get('theme') ?? 'Tout')
   const [query, setQuery] = useState('')
   const [hidden, setHidden] = useState(false)
@@ -69,8 +155,7 @@ export default function Vocabulary() {
   const choose = useCallback(
     (card: OrbitCard) => {
       setCategory(card.id)
-      setLimit(24)
-      setParams({ theme: card.id }, { replace: true })
+            setParams({ theme: card.id }, { replace: true })
       requestAnimationFrame(() => document.getElementById('vocab-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
     },
     [setParams],
@@ -80,6 +165,8 @@ export default function Vocabulary() {
     (w) => (category === 'Tout' || w[0] === category) && w.slice(1, 4).join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()),
   )
   const categories = ['Tout', ...new Set(words.map((w) => w[0]))]
+  const rows = [...new Set(visible.map((w) => w[0]))].map((theme) => ({ theme, items: visible.filter((w) => w[0] === theme) }))
+  const themeHasPhotos = category === 'Tout' || words.some((w) => w[0] === category && w[6])
 
   return (
     <div className="vocab-page">
@@ -113,8 +200,7 @@ export default function Vocabulary() {
                 value={category}
                 onChange={(e) => {
                   setCategory(e.target.value)
-                  setLimit(24)
-                  setParams(e.target.value === 'Tout' ? {} : { theme: e.target.value }, { replace: true })
+                                    setParams(e.target.value === 'Tout' ? {} : { theme: e.target.value }, { replace: true })
                 }}
               >
                 {categories.map((c) => (
@@ -129,8 +215,7 @@ export default function Vocabulary() {
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value)
-                  setLimit(24)
-                }}
+                                  }}
                 placeholder="Français, coréen…"
               />
             </label>
@@ -146,59 +231,45 @@ export default function Vocabulary() {
             </button>
           </div>
         </div>
-        <p className="muted small">{visible.length} mots</p>
+        <p className="muted small">
+          {visible.length} mots · fais défiler chaque rangée
+        </p>
 
-        <div className="word-grid">
-          {visible.slice(0, limit).map(([cat, ko, rom, fr, sentence, translation, photo]) => (
-            <article className="word-tile" key={cat + ko}>
-              {photo && (
-                <img
-                  src={`https://images.unsplash.com/${photo}?auto=format&fit=crop&w=640&q=80`}
-                  alt={hidden ? `Illustration à reconnaître : ${cat}` : fr}
-                  loading="lazy"
-                />
-              )}
-              <p className="word-cat">{cat}</p>
-              <h3 lang="ko">
-                {ko} <SpeakButton text={ko} />
-              </h3>
-              {rom && <p className="muted small">{rom}</p>}
-              {!hidden || revealed.includes(ko) ? (
-                <p className="word-fr">{fr}</p>
-              ) : (
-                <button className="btn ghost small" onClick={() => setRevealed([...revealed, ko])}>
-                  Révéler le sens
-                </button>
-              )}
-              <p lang="ko" className="word-sentence">
-                {sentence} <SpeakButton text={sentence} />
-              </p>
-              {(!hidden || revealed.includes(ko)) && <p className="muted small">{translation}</p>}
-            </article>
-          ))}
-        </div>
-        {visible.length > limit && (
-          <button className="btn mt" onClick={() => setLimit(limit + 24)}>
-            Voir 24 mots de plus
-          </button>
-        )}
+        {rows.map(({ theme, items }) => (
+          <WordRow
+            key={theme}
+            theme={theme}
+            items={items}
+            photo={themePhoto(theme)}
+            hidden={hidden}
+            revealed={revealed}
+            onReveal={(ko) => setRevealed([...revealed, ko])}
+            onQuiz={() => {
+              setCategory(theme)
+              setParams({ theme }, { replace: true })
+              requestAnimationFrame(() => document.getElementById('vocab-quizzes')?.scrollIntoView({ behavior: 'smooth' }))
+            }}
+          />
+        ))}
         {!visible.length && <p>Aucun mot trouvé. Essaie un autre mot ou un autre thème.</p>}
       </section>
 
+      {themeHasPhotos && (
       <section id="photo-quiz" className="container hc-section">
         <p className="hc-eyebrow">À toi de jouer</p>
         <h2>Une photo, un mot.</h2>
         <SavedQuiz lesson={photoQuiz} />
       </section>
+      )}
 
       <section id="vocab-quizzes" className="container vocab-quizzes">
         <p className="hc-eyebrow">QCM par thème</p>
-        <h2>Teste-toi, thème par thème.</h2>
+        <h2>{category === 'Tout' ? 'Teste-toi, thème par thème.' : `QCM : ${category}`}</h2>
         <p className="muted">Chaque thème a son propre score. Retrouve les mots dans les deux sens.</p>
         {vocabularyLessons
           .filter((l) => category === 'Tout' || l.subtitle === category)
           .map((l) => (
-            <details className="vocab-quiz" key={l.id}>
+            <details className="vocab-quiz" key={l.id} open={category !== 'Tout'}>
               <summary>
                 {l.subtitle} <span className="muted">· {l.exercises.length} questions</span>
               </summary>

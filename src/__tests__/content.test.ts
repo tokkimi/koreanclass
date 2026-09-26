@@ -91,3 +91,22 @@ describe('positionnement', () => {
     expect(recommendLevel([4, 4, 4, 4, 4, 4], [4, 4, 4, 4, 4, 4])).toBe(5)
   })
 })
+
+import { vocabularyLessons } from '../data/vocabularyQuizzes'
+import { words as vocabWords } from '../data/vocabulary'
+
+describe('QCM de vocabulaire', () => {
+  it('proposent 4 choix distincts, tous issus du thème du QCM', () => {
+    for (const lesson of vocabularyLessons) {
+      const near: Record<string, string> = { 'Manger & boire': 'À table', 'Animaux & nature': 'Animaux', 'Au quotidien': 'École & objets' }
+      const theme = vocabWords.filter((w) => w[0] === lesson.subtitle || w[0] === near[lesson.subtitle])
+      const allowed = new Set(theme.flatMap((w) => [w[1], w[3]]))
+      for (const ex of lesson.exercises) {
+        if (ex.type !== 'qcm') continue
+        expect(new Set(ex.options).size, `${lesson.subtitle}: ${ex.q}`).toBe(ex.options.length)
+        expect(ex.options.length, `${lesson.subtitle}: ${ex.q}`).toBeGreaterThanOrEqual(4)
+        for (const o of ex.options) expect(allowed.has(o), `${lesson.subtitle}: « ${o} » hors thème`).toBe(true)
+      }
+    }
+  })
+})
