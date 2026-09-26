@@ -24,7 +24,7 @@ export default function Home() {
 
   return (
     <>
-      <ScrollHero imageSrc="/images/seoul.jpg" skipTargetId="accueil-contenu" />
+      <ScrollHero imageSrc="/images/hanok-seoul-hero.png" skipTargetId="accueil-contenu" />
 
       <div className="home-clean" id="accueil-contenu" tabIndex={-1}>
         {/* 1. Le parcours, en orbite */}
@@ -55,8 +55,6 @@ export default function Home() {
         </div>
 
         <LevelCheckBanner questionCount={36} />
-
-        <PracticeVideoInvite />
 
         {/* Les deux offres pour réserver un professeur */}
         <section className="hc-section" id="tarifs">
@@ -107,6 +105,8 @@ export default function Home() {
             </p>
           </details>
         </section>
+
+        <PracticeVideoInvite />
       </div>
     </>
   )
