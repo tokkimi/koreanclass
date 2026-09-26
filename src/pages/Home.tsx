@@ -54,9 +54,7 @@ export default function Home() {
           <JourneySnapshot levels={levels.length} lessons={totalLessons} guidedHours={GUIDED_HOURS} />
         </div>
 
-        <div className="container">
-          <LevelCheckBanner questionCount={36} />
-        </div>
+        <LevelCheckBanner questionCount={36} />
 
         <div className="container">
           <PracticeVideoInvite />

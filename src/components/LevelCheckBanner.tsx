@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { SplineRobot } from './SplineRobot'
 
 export function LevelCheckBanner({ questionCount }: { questionCount: number }) {
   return <section className="level-check" aria-labelledby="level-check-title">
@@ -9,10 +10,8 @@ export function LevelCheckBanner({ questionCount }: { questionCount: number }) {
       <div className="level-check-meta"><span>{questionCount} questions</span><span>≈ 18 min</span><span>recommandation personnalisée</span></div>
       <Link to="/test-de-niveau" className="btn hc-light">Évaluer mon niveau maintenant <span aria-hidden="true">→</span></Link>
     </div>
-    <div className="assessment-deck" aria-hidden="true">
-      <div className="assessment-card assessment-card-back"><small>structure</small><strong>-거든요</strong><span>expliquer naturellement</span></div>
-      <div className="assessment-card assessment-card-middle"><small>liaison</small><strong>-아서</strong><span>exprimer une cause</span></div>
-      <div className="assessment-card assessment-card-front"><small>ton niveau</small><strong>한글</strong><span>commence par ce que tu sais</span><i>01 / 06</i></div>
+    <div className="level-check-robot" aria-label="Robot 3D interactif">
+      <SplineRobot />
     </div>
   </section>
 }
