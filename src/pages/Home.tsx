@@ -4,6 +4,7 @@ import { globalStats, levelStats, useCurrentUser, useProgress, currentStreak } f
 import { SpeakButton } from '../components/Speak'
 import { ProgressBar } from '../components/ProgressBar'
 import { Icon } from '../components/Icon'
+import { ScrollHero } from '../components/ScrollHero'
 
 const chapters = ['Tes premiers caractères', 'Les bases pour discuter', 'Raconte ton quotidien', 'Trouve les bons mots', 'Affirme ton style', 'À toi les nuances']
 export default function Home() {
@@ -13,9 +14,11 @@ export default function Home() {
   const stats = levelStats(p)
   const next = allLessons.find(({ level, lesson }) => level.index >= (p.placement?.levelIndex ?? 0) && !p.lessons[lesson.id]?.completed)
     ?? allLessons.find(({ lesson }) => !p.lessons[lesson.id]?.completed)
-  return <div className="container page learning-home">
+  return <>
+  <ScrollHero imageSrc="/images/seoul.jpg" skipTargetId="accueil-contenu" />
+  <div className="container page learning-home" id="accueil-contenu" tabIndex={-1}>
     <div className="home-greeting">
-      <div><h1>{user ? `Hello, ${user.displayName}.` : 'Un peu de coréen. Beaucoup de plaisir.'} <span className="greeting-wave">안녕!</span></h1><p className="muted">Des mots aux vraies conversations. À ton rythme.</p></div>
+      <div><h2 className="home-title">{user ? `Hello, ${user.displayName}.` : 'Un peu de coréen. Beaucoup de plaisir.'} <span className="greeting-wave">안녕!</span></h2><p className="muted">Des mots aux vraies conversations. À ton rythme.</p></div>
       <div className="home-counters"><span>🔥 {currentStreak(p)} <small>jours</small></span><span>✦ {p.xp} <small>XP</small></span></div>
     </div>
     <div className="row" style={{marginBottom:24,flexWrap:'wrap'}}><Link to="/structures" className="btn">Phrases & grammaire</Link><Link to="/alphabet" className="btn ghost">Comprendre le hangeul</Link><Link to="/vocabulaire" className="btn ghost">Vocabulaire en photos</Link><Link to="/nombres" className="btn ghost">Chiffres & nombres</Link><Link to="/pratique" className="btn ghost">Mises en situation</Link></div>
@@ -39,4 +42,5 @@ export default function Home() {
     <section id="tarifs" className="home-extra"><h2>Envie de parler avec un professeur ?</h2><p className="muted">Cours particulier : 15 €/h · Pack de 10 heures : 100 €.</p><Link to="/reserver" className="btn ghost">Voir les créneaux</Link></section>
     <details className="card faq" id="faq"><summary>Comment retrouver ma progression ?</summary><p>Connecte-toi à ton profil sur n’importe quel appareil : tes résultats sont sauvegardés en ligne. Les leçons sont validées à partir de 70 % ; tu peux rejouer autant que tu veux.</p></details>
   </div>
+  </>
 }
