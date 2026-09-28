@@ -146,7 +146,7 @@ export const languages: LanguageInfo[] = [
       { code: 'C1-C2', title: 'Advanced & fluent', detail: 'Idioms, registers, DALF' },
     ],
     topics: ['Conversation', 'Grammar', 'DELF / DALF preparation', 'Pronunciation', 'Travel in France', 'Beginner', 'Other'],
-    available: false,
+    available: true,
     taughtIn: 'en',
   },
 ]

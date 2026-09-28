@@ -7,6 +7,9 @@ import { esB1, esB2, esC1 } from './espagnol-2.js'
 import { en0, enA1 } from './anglais-1.js'
 import { enA2, enB1 } from './anglais-2.js'
 import { enB2, enC1 } from './anglais-3.js'
+import { fr0, frA1 } from './francais-1.js'
+import { frA2, frB1 } from './francais-2.js'
+import { frB2, frC1 } from './francais-3.js'
 
 /** Cursus en autonomie des langues autres que le coréen (le coréen reste dans src/data/index.ts). */
 export type CourseLanguage = 'japonais' | 'espagnol' | 'anglais' | 'francais'
@@ -15,6 +18,7 @@ export const courses: Partial<Record<CourseLanguage, Level[]>> = {
   japonais: [jaKana, jaN5, jaN4, jaN3, jaN2, jaN1],
   espagnol: [es0, esA1, esA2, esB1, esB2, esC1],
   anglais: [en0, enA1, enA2, enB1, enB2, enC1],
+  francais: [fr0, frA1, frA2, frB1, frB2, frC1],
 }
 
 export const courseLevels = (lang: string): Level[] => courses[lang as CourseLanguage] ?? []
