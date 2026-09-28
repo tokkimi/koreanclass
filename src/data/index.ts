@@ -20,7 +20,7 @@ import type { Exercise, Lesson, Level } from './types.js'
  * niveau puis on pioche dans ses leçons pour couvrir vocabulaire, grammaire,
  * compréhension et production guidée.
  */
-function comprehensiveAssessment(base: Exercise[], lessons: Lesson[]): Exercise[] {
+export function comprehensiveAssessment(base: Exercise[], lessons: Lesson[]): Exercise[] {
   const seen = new Set<string>()
   const key = (exercise: Exercise) => exercise.q
   const add = (target: Exercise[], exercise: Exercise) => {
