@@ -2,8 +2,11 @@ import type { Lesson } from '../types.js'
 import { qcm } from '../helpers.js'
 import type { VocabContent, Word } from './vocab-types.js'
 import { vocabJaponais } from './vocab-japonais.js'
+import { vocabEspagnol } from './vocab-espagnol.js'
+import { vocabAnglais } from './vocab-anglais.js'
+import { vocabFrancais } from './vocab-francais.js'
 
-export const vocabContent: Partial<Record<string, VocabContent>> = { japonais: vocabJaponais }
+export const vocabContent: Partial<Record<string, VocabContent>> = { japonais: vocabJaponais, espagnol: vocabEspagnol, anglais: vocabAnglais, francais: vocabFrancais }
 const PFX: Record<string, string> = { japonais: 'ja', espagnol: 'es', anglais: 'en', francais: 'fr' }
 
 /** Phrase d'exemple par défaut quand l'élément n'en donne pas (comme « …이에요 » en coréen). */
