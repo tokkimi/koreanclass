@@ -5,6 +5,7 @@ import { type } from './dsl.js'
 import { jaExtra } from './japonais-plus.js'
 import { esExtra } from './espagnol-plus.js'
 import { enExtra } from './anglais-plus.js'
+import { frExtra } from './francais-plus.js'
 import { jaKana, jaN5 } from './japonais-1.js'
 import { jaN4, jaN3 } from './japonais-2.js'
 import { jaN2, jaN1 } from './japonais-3.js'
@@ -27,7 +28,7 @@ const raw: Partial<Record<CourseLanguage, Level[]>> = {
   japonais: [jaKana, jaN5, jaN4, jaN3, jaN2, jaN1].map((l) => withExtra(l, jaExtra)),
   espagnol: [es0, esA1, esA2, esB1, esB2, esC1].map((l) => withExtra(l, esExtra)),
   anglais: [en0, enA1, enA2, enB1, enB2, enC1].map((l) => withExtra(l, enExtra)),
-  francais: [fr0, frA1, frA2, frB1, frB2, frC1],
+  francais: [fr0, frA1, frA2, frB1, frB2, frC1].map((l) => withExtra(l, frExtra)),
 }
 
 const LABEL: Record<CourseLanguage, string> = { japonais: 'en japonais', espagnol: 'en espagnol', anglais: 'en anglais', francais: 'in French' }
