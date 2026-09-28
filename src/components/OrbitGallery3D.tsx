@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate'
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -260,7 +261,7 @@ function drawCard(card: OrbitCard, photo?: HTMLImageElement): THREE.CanvasTextur
   ctx.font = `700 30px ${sans}`
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'center'
-  ctx.fillText(card.badge, 115, 70, 136)
+  ctx.fillText(tr(card.badge), 115, 70, 136)
 
   // coréen
   ctx.textAlign = 'left'
@@ -271,12 +272,12 @@ function drawCard(card: OrbitCard, photo?: HTMLImageElement): THREE.CanvasTextur
 
   // titre (2 lignes max)
   ctx.font = `700 40px ${sans}`
-  const lines = wrap(ctx, card.title, W - 80).slice(0, 2)
+  const lines = wrap(ctx, tr(card.title), W - 80).slice(0, 2)
   lines.forEach((l, i) => ctx.fillText(l, 40, 360 + i * 50))
 
   ctx.fillStyle = '#6e6e73'
   ctx.font = `500 28px ${sans}`
-  ctx.fillText(card.subtitle, 40, 360 + lines.length * 50 + 14, W - 80)
+  ctx.fillText(tr(card.subtitle), 40, 360 + lines.length * 50 + 14, W - 80)
 
   // pied : progression ou invitation
   if (card.pct !== undefined) {
@@ -290,11 +291,11 @@ function drawCard(card: OrbitCard, photo?: HTMLImageElement): THREE.CanvasTextur
     }
     ctx.fillStyle = '#6e6e73'
     ctx.font = `600 24px ${sans}`
-    ctx.fillText(card.pct ? `${card.pct} % validé` : 'À découvrir', 40, H - 44)
+    ctx.fillText(card.pct ? tr(`${card.pct} % validé`) : tr('À découvrir'), 40, H - 44)
   } else {
     ctx.fillStyle = card.accent
     ctx.font = `700 28px ${sans}`
-    ctx.fillText('Explorer ↗', 40, H - 52)
+    ctx.fillText(tr('Explorer ↗'), 40, H - 52)
   }
 
   const texture = new THREE.CanvasTexture(canvas)
@@ -386,7 +387,7 @@ function drawPhotoCard(card: OrbitCard, photo: HTMLImageElement): THREE.CanvasTe
   ctx.font = `700 28px ${SANS}`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(card.badge, 115, 70, 136)
+  ctx.fillText(tr(card.badge), 115, 70, 136)
 
   // textes en bas
   ctx.textAlign = 'left'
@@ -397,14 +398,14 @@ function drawPhotoCard(card: OrbitCard, photo: HTMLImageElement): THREE.CanvasTe
   ctx.font = `700 ${card.ko.length > 3 ? 92 : 116}px ${KO}`
   ctx.fillText(card.ko, 40, H - 250, W - 80)
   ctx.font = `700 40px ${SANS}`
-  const lines = wrap(ctx, card.title, W - 80).slice(0, 2)
+  const lines = wrap(ctx, tr(card.title), W - 80).slice(0, 2)
   lines.forEach((l, i) => ctx.fillText(l, 40, H - 190 + i * 46))
   ctx.fillStyle = 'rgba(255,255,255,0.82)'
   ctx.font = `500 26px ${SANS}`
-  ctx.fillText(card.subtitle, 40, H - 190 + lines.length * 46 + 6, W - 80)
+  ctx.fillText(tr(card.subtitle), 40, H - 190 + lines.length * 46 + 6, W - 80)
   ctx.fillStyle = '#fff'
   ctx.font = `700 26px ${SANS}`
-  ctx.fillText(card.pct !== undefined ? (card.pct ? `${card.pct} % validé` : 'À découvrir') : 'Explorer ↗', 40, H - 52)
+  ctx.fillText(card.pct !== undefined ? (card.pct ? tr(`${card.pct} % validé`) : tr('À découvrir')) : tr('Explorer ↗'), 40, H - 52)
   ctx.shadowBlur = 0
 
   const texture = new THREE.CanvasTexture(canvas)

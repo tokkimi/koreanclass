@@ -252,14 +252,14 @@ function Order({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
       <div className="order-answer">
         {picked.length === 0 && <span className="muted small">{t('Cliquez sur les mots dans le bon ordre…', 'Tap the words in the right order…')}</span>}
         {picked.map((i) => (
-          <button key={i} className="chip ko-text" disabled={disabled} onClick={() => setPicked(picked.filter((x) => x !== i))}>
+          <button key={i} className="chip ko-text" translate="no" disabled={disabled} onClick={() => setPicked(picked.filter((x) => x !== i))}>
             {ex.words[i]}
           </button>
         ))}
       </div>
       <div className="order-bank">
         {bank.map(({ w, i }) => (
-          <button key={i} className="chip ko-text" disabled={disabled || picked.includes(i)} onClick={() => setPicked([...picked, i])}>
+          <button key={i} className="chip ko-text" translate="no" disabled={disabled || picked.includes(i)} onClick={() => setPicked([...picked, i])}>
             {w}
           </button>
         ))}
@@ -309,7 +309,7 @@ function Match({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
             if (disabled) cls += chosen[l] === expected[l] ? ' correct' : ' wrong'
             return (
               <button key={l} className={cls} disabled={disabled} onClick={() => setActive(active === l ? null : l)}>
-                <span className={sc(l)}>{l}</span>
+                <span className={sc(l)} translate="no">{l}</span>
                 {chosen[l] && <span className="match-tag">→ {chosen[l]}</span>}
               </button>
             )

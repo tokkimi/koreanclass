@@ -48,7 +48,7 @@ export function LangStructures({ lang }: { lang: LanguageInfo }) {
           <div className="row">
             <label>
               {en ? 'Search a structure' : 'Rechercher une structure'}
-              <input className="input" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={en ? 'passé composé, subjunctive…' : 'passé, condition, politesse…'} />
+              <input className="input" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={en ? (lang.id === 'francais' ? 'passé composé, subjonctif…' : 'past tense, conditions, politeness…') : 'passé, condition, politesse…'} />
             </label>
             <label>
               {en ? 'Level' : 'Niveau'}

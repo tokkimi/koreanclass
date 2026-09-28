@@ -29,7 +29,8 @@ function attrs(el: Element) {
     const v = el.getAttribute(a)
     if (v && /\p{L}/u.test(v)) {
       const t = tr(v)
-      if (t !== v && !skipped(el)) el.setAttribute(a, t)
+      // Un champ de saisie garde son contenu, mais son placeholder se traduit
+      if (t !== v && !skipped(el.tagName === 'TEXTAREA' ? el.parentElement : el)) el.setAttribute(a, t)
     }
   }
 }
@@ -37,10 +38,11 @@ function deep(root: Node) {
   if (root.nodeType === Node.TEXT_NODE) return textNode(root as Text)
   if (root.nodeType !== Node.ELEMENT_NODE) return
   const el = root as Element
+  if (el.tagName === 'TEXTAREA') attrs(el)
   if (skipped(el)) return
   attrs(el)
   const w = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-    acceptNode: (n) => (n.nodeType === Node.ELEMENT_NODE && (SKIP_TAGS.has((n as Element).tagName) || (n as Element).getAttribute('translate') === 'no' || ((n as Element).getAttribute('lang') ?? 'fr').match(/^(fr|en)$/) === null) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+    acceptNode: (n) => (n.nodeType === Node.ELEMENT_NODE && (n as Element).tagName === 'TEXTAREA' && attrs(n as Element), n.nodeType === Node.ELEMENT_NODE && (SKIP_TAGS.has((n as Element).tagName) || (n as Element).getAttribute('translate') === 'no' || ((n as Element).getAttribute('lang') ?? 'fr').match(/^(fr|en)$/) === null) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
   })
   for (let n = w.nextNode(); n; n = w.nextNode()) {
     if (n.nodeType === Node.TEXT_NODE) {

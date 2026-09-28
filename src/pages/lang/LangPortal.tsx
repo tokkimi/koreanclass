@@ -52,7 +52,7 @@ export function LangShell({ lang, children }: { lang: LanguageInfo; children: Re
   const ui = useEn(lang) ? 'en' : 'fr'
   return (
     <CourseLangContext.Provider value={{ id: lang.id, speech: lang.speech, ui, keyboard: (ui === 'en' ? KEYBOARD_EN : KEYBOARD)[lang.id] ?? '' }}>
-      <div lang={ui}>{children}</div>
+      <div lang={ui} translate={lang.taughtIn === 'en' ? 'no' : undefined}>{children}</div>
     </CourseLangContext.Provider>
   )
 }

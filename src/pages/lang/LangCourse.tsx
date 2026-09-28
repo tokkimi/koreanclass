@@ -12,6 +12,7 @@ import { ProgressBar } from '../../components/ProgressBar'
 import { PASS_MARK } from '../../lib/grading'
 import { useEn } from './LangPortal'
 import NotFound from '../NotFound'
+import { tr } from '../../i18n/translate'
 
 /** Pages de cours communes au japonais, à l'espagnol, à l'anglais et au français. */
 
@@ -135,7 +136,7 @@ function CourseShell({ lang, children }: { lang: LanguageInfo; children: ReactNo
   const value: CourseLang = { id: lang.id, speech: lang.speech, ui, keyboard: (ui === 'en' ? KEYBOARD_EN : KEYBOARD)[lang.id] ?? '' }
   return (
     <CourseLangContext.Provider value={value}>
-      <div lang={ui} style={{ ['--lang' as string]: lang.accent }}>{children}</div>
+      <div lang={ui} translate={lang.taughtIn === 'en' ? 'no' : undefined} style={{ ['--lang' as string]: lang.accent }}>{children}</div>
     </CourseLangContext.Provider>
   )
 }
@@ -463,7 +464,7 @@ function TestView({ lang }: { lang: LanguageInfo }) {
         <Link to={`${root}/${level.id}`} className="link small">← {level.name}</Link>
         <div className="card test-head" style={{ ['--accent' as string]: level.color }}>
           <h1>{t.testTitle(level.name)}</h1>
-          <p className="muted">{t.testLead(level.test.length, level.cefr, level.topik)}</p>
+          <p className="muted">{t.testLead(level.test.length, level.cefr, tr(level.topik))}</p>
           {record && (
             <p className="small">
               {t.best} : <strong>{record.best} %</strong> · {t.attempts(record.attempts)} {record.passed && `· ${t.validated}`}

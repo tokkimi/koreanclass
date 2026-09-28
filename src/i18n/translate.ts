@@ -26,7 +26,28 @@ const LANG: Dict = {
 };
 
 /** [modèle français, modèle anglais] — (.+) devient {1}, {2}… ; chaque morceau est traduit à son tour s'il est en français. */
+/** Écritures coréenne et japonaise (avec leur ponctuation) dans les modèles. */
+const K = '[\\p{Script=Hangul}\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}ー〜・0-9 ~.,?!…/()、「」-]'
+const re = (s: string) => new RegExp(s, 'u')
+
 export const TEMPLATES: [RegExp, string][] = [
+  [/^Niveau (\d)$/i, 'Level {1}'],
+  [/^Niveau (\d) validé$/, 'Level {1} passed'],
+  [/^Réussir le test « (.+) »$/, 'Pass the “{1}” test'],
+  [/^· (\d+) avant « (.+) »$/, '· {1} to go to “{2}”'],
+  [/^Hello, (.+) · (\d+) % du parcours$/, 'Hello, {=1} · {2}% of the course'],
+  [/^(\d+) % validé$/, '{1}% passed'],
+  [/^(\d+) % du parcours$/, '{1}% of the course'],
+  [/^Niveau (\d) — (.+)$/, 'Level {1} — {2}'],
+  [/^Avant (le |l’)?(.+)$/, 'Before {2}'],
+  [/^(\d+) niveaux · (\d+) leçons · accès libre$/, '{1} levels · {2} lessons · free access'],
+  [/^(\d+) mots$/, '{1} words'],
+  [/^(\d+) leçons$/, '{1} lessons'],
+  [/^Mots précédents : (.+)$/, 'Previous words: {1}'],
+  [/^Mots suivants : (.+)$/, 'Next words: {1}'],
+  [/^(Show|Listen|Illustration|Previous words|Next words) ?: (.+)$/, '{=1}: {2}'],
+  [/^Écouter : (.+)$/, 'Listen: {1}'],
+  [/^Show (.+)$/, 'Show {1}'],
   [
     /^Dans le thème « (.+?) », que signifie (.+) \?$/,
     "In the “{1}” theme, what does {2} mean?",
@@ -100,25 +121,35 @@ export const TEMPLATES: [RegExp, string][] = [
     /^Subjonctif imparfait de « (.+) » \((.+)\) :$/,
     "Imperfect subjunctive of “{1}” ({2}):",
   ],
-  [/^([\p{Script=Hangul}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー〜・0-9 ~.,?!…/()-]+?) : (.+?)\. ([\p{Script=Hangul}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー〜・0-9 ~.,?!…/()-]+?)\. — C’est : (.+)\.$/u, '{1}: {2}. {3}. — It’s: {4}.'],
-  [/^([\p{Script=Hangul}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー〜・0-9 ~.,?!…/()-]+?) : ([^:]+)\.$/u, '{1}: {2}.'],
-  [/^([\p{Script=Hangul}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー〜・0-9 ~.,?!…/()-]+?) : ([^:]+)$/u, '{1}: {2}'],
+  [re(`^(${K}+?) : (.+?)\\. (${K}+?[。.！？!?]) — C’est : (.+)\\.$`), '{1}: {2}. {3} — It’s: {4}.'],
+  [re(`^(${K}+?) : ([^:]+)\\.$`), '{1}: {2}.'],
+  [re(`^(${K}+?) : ([^:]+)$`), '{1}: {2}'],
+  [/^(.+?) : (.+?)\. ((?:Es|Son|It’s|They’re|It is|They are) .+?\.) — C’est : (.+)\.$/, '{=1}: {2}. {=3} — It’s: {4}.'],
+  [/^((?:el|la|los|las|un|una|the|a|an|to) [^:]+) : ([^:]+)\.$/, '{=1}: {2}.'],
+  [/^((?:el|la|los|las|un|una|the|a|an|to) [^:]+) : ([^:]+)$/, '{=1}: {2}'],
+  [/^([^ ]+(?: [^ ]+){0,3}) signifie (.+)\.$/, '{=1} means {2}.'],
+  [/^([a-záéíóúñü][^:]*) : (.+?)\. ([¡¿A-ZÁÉÍÓÚ].+?[.!?]) — (.+)$/, '{=1}: {2}. {=3} — {4}'],
+  [/^([a-záéíóúñü][^:.]*) : ([^:]+)\.$/, '{=1}: {2}.'],
+  [/^([a-záéíóúñü][^:.]*) : ([^:]+)$/, '{=1}: {2}'],
   [/^C’est : (.+)\.$/, 'It’s: {1}.'],
-  [/^([\p{Script=Hangul}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han} ]+) signifie (.+)\.$/u, '{1} means {2}.'],
+  [re(`^(${K}+) signifie (.+)\\.$`), '{1} means {2}.'],
+  [re(`^([^.«»]+)\\. (${K}+[。.！？!?]?) — (.+)$`), '{1}. {2} — {3}'],
   [/^Il est (\d+) h (\d+)\.$/, "It is {1}:{2}."],
   [/^(\d+) ans \?$/, "{1} years old?"],
   [/^De (\d+) à (\d+)$/, "From {1} to {2}"],
   [/^([^«»:]{1,30}) : « (.+) » — (.+)$/, "{1}: “{2}” — {3}"],
   [/^([^«»:]{1,30}) : « (.+) »$/, "{1}: “{2}”"],
   [/^À retenir : (.+?)\. (.+)$/s, "Remember: {1}. {2}"],
+  [/^À retenir : (.+)\.$/, 'Remember: {1}.'],
 ];
 
 const WS = /^(\s*)([\s\S]*?)(\s*)$/;
 const norm = (s: string) => s.replace(/\s+/g, " ").trim();
 
 function fill(tpl: string, m: RegExpMatchArray) {
-  return tpl.replace(/\{(L?)(\d)\}/g, (_, l: string, i: string) => {
+  return tpl.replace(/\{(L|=)?(\d)\}/g, (_, l: string | undefined, i: string) => {
     const v = m[Number(i)] ?? "";
+    if (l === '=') return v;
     return l ? (LANG[v] ?? v) : quotes(trCore(v));
   });
 }
@@ -129,11 +160,20 @@ function trCore(s: string): string {
   if (!key) return s;
   const hit = dict[key];
   if (hit !== undefined) return hit;
+  // Même phrase avec ou sans point final
+  if (/[^.!?…]$/.test(key) && dict[key + '.'] !== undefined) return dict[key + '.'].replace(/\.$/, '');
+  if (/\.$/.test(key) && dict[key.slice(0, -1)] !== undefined) return dict[key.slice(0, -1)] + '.';
   if (key.includes("\n") || /\n/.test(s))
     return s
       .split("\n")
       .map((l) => trLine(l))
       .join("\n");
+  // Puce ou numéro de liste devant la phrase : « • … », « 1. … »
+  const bullet = key.match(/^((?:•|\d+\.)\s+)(.+)$/s);
+  if (bullet) {
+    const rest = trCore(bullet[2]);
+    if (rest !== bullet[2]) return bullet[1] + rest;
+  }
   for (const [re, tpl] of TEMPLATES) {
     const m = key.match(re);
     if (m) return fill(tpl, m);
