@@ -21,7 +21,12 @@ function read(): UiLang {
 }
 let current: UiLang = typeof window === 'undefined' ? 'fr' : read()
 
+/** Langue du site au chargement de la page. */
+export const siteLangAtStart = () => current
+
+/** Change la langue du site. La page est rechargée pour traduire (ou retrouver) tout le contenu. */
 export function setUiLang(lang: UiLang) {
+  const changed = lang !== current
   current = lang
   try {
     localStorage.setItem(KEY, lang)
@@ -30,6 +35,7 @@ export function setUiLang(lang: UiLang) {
   }
   if (typeof document !== 'undefined') document.documentElement.lang = lang
   listeners.forEach((l) => l())
+  if (changed && typeof location !== 'undefined') location.reload()
 }
 const subscribe = (l: () => void) => {
   listeners.add(l)

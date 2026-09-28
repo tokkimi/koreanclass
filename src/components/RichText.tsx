@@ -1,9 +1,10 @@
 import { Fragment } from 'react'
+import { tr } from '../i18n/translate'
 
 const HANGUL = /([가-힣ㄱ-ㆎ][가-힣ㄱ-ㆎ0-9]*)/
 
 function inline(text: string) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
+  return tr(text).split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{wrapKo(part.slice(2, -2))}</strong>
     return <Fragment key={i}>{wrapKo(part)}</Fragment>
   })
