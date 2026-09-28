@@ -1,6 +1,6 @@
 import { BookingBubble } from './BookingBubble'
 import { languages, type LanguageInfo } from '../data/languages'
-import { builtPages, portals, type PortalPage } from '../data/portal'
+import { isBuilt, portals, type PortalPage } from '../data/portal'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { logout, useCurrentUser, useSyncStatus } from '../lib/store'
@@ -28,7 +28,7 @@ export function Layout() {
   const current = section && section !== 'coreen' ? section : null
   const en = current?.taughtIn === 'en'
   const portal = current?.available ? portals[current.id] : undefined
-  const built = (page: PortalPage) => builtPages.includes(page)
+  const built = (page: PortalPage) => !!current && isBuilt(current.id, page)
 
   useEffect(() => {
     setOpen(false)

@@ -11,6 +11,7 @@ import LanguagePage from './pages/LanguagePage'
 import { languages } from './data/languages'
 import { LangCourses, LangLesson, LangLevel, LangTest } from './pages/lang/LangCourse'
 import { LangHome, LangPlacement, LangTests } from './pages/lang/LangPortal'
+import { LangColors, LangNumbers, LangWriting } from './pages/lang/LangAnnex'
 import Practice from './pages/Practice'
 import Admin from './pages/Admin'
 import Structures from './pages/Structures'
@@ -50,6 +51,9 @@ export default function App() {
           .flatMap((l) => [
             <Route key={l.id} path={l.path.slice(1)} element={l.available ? <LangHome lang={l} /> : <LanguagePage lang={l} />} />,
             <Route key={`${l.id}-tests`} path={`${l.path.slice(1)}/tests`} element={<LangTests lang={l} />} />,
+            <Route key={`${l.id}-ecriture`} path={`${l.path.slice(1)}/ecriture`} element={<LangWriting lang={l} />} />,
+            <Route key={`${l.id}-nombres`} path={`${l.path.slice(1)}/nombres`} element={<LangNumbers lang={l} />} />,
+            <Route key={`${l.id}-couleurs`} path={`${l.path.slice(1)}/couleurs`} element={<LangColors lang={l} />} />,
             <Route key={`${l.id}-positionnement`} path={`${l.path.slice(1)}/test-de-niveau`} element={<LangPlacement lang={l} />} />,
             <Route key={`${l.id}-cours`} path={`${l.path.slice(1)}/cours`} element={<LangCourses lang={l} />} />,
             <Route key={`${l.id}-niveau`} path={`${l.path.slice(1)}/cours/:levelId`} element={<LangLevel lang={l} />} />,

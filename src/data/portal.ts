@@ -66,7 +66,10 @@ const frFaq = {
 
 /** Pages déjà construites pour les autres langues (le menu et l'accueil n'affichent qu'elles). */
 export type PortalPage = 'ecriture' | 'nombres' | 'vocabulaire' | 'couleurs' | 'structures' | 'tests' | 'pratique'
-export const builtPages: PortalPage[] = ['tests']
+const ALWAYS: PortalPage[] = ['tests']
+/** Pages annexes dont le contenu est prêt, langue par langue. */
+export const readyPages: Record<string, PortalPage[]> = { japonais: ['ecriture', 'nombres', 'couleurs'] }
+export const isBuilt = (lang: string, page: PortalPage) => ALWAYS.includes(page) || (readyPages[lang] ?? []).includes(page)
 
 export const portals: Record<string, PortalCopy> = {
   japonais: {

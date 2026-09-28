@@ -1,5 +1,6 @@
 import type { Exercise, Level, Lesson } from '../types.js'
 import { comprehensiveAssessment } from '../index.js'
+import { portalLessons } from '../portal-content/index.js'
 import { qcm } from '../helpers.js'
 import { type } from './dsl.js'
 import { jaExtra } from './japonais-plus.js'
@@ -63,7 +64,10 @@ function enrich(lang: CourseLanguage, level: Level): Level {
       ),
     ],
   }))
-  return { ...level, lessons, test: comprehensiveAssessment(level.test, level.lessons) }
+  // Comme pour le coréen : reconnaissance de l'écriture au niveau 0, couleurs et nombres au niveau 1.
+  const extra = portalLessons(lang)
+  const annexes = level.index === 0 ? extra.level0 : level.index === 1 ? extra.level1 : []
+  return { ...level, lessons: [...annexes, ...lessons], test: comprehensiveAssessment(level.test, [...annexes, ...level.lessons]) }
 }
 
 export const courses: Partial<Record<CourseLanguage, Level[]>> = Object.fromEntries(

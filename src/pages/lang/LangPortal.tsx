@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { LanguageInfo } from '../../data/languages'
 import { coursePlacement, courseLevels, placementRef } from '../../data/courses'
-import { builtPages, portals } from '../../data/portal'
+import { isBuilt, portals, type PortalPage } from '../../data/portal'
 import { recordCoursePlacement, useCurrentUser, useProgress } from '../../lib/store'
 import { CourseLangContext } from '../../lib/courseLang'
 import { ScrollHero } from '../../components/ScrollHero'
@@ -61,9 +61,9 @@ export function LangHome({ lang }: { lang: LanguageInfo }) {
             { id: 'structures', to: `${base}/structures`, badge: c.extras.structures[0], ko: c.extras.structures[1], title: c.nav.structures, subtitle: c.extras.structures[2] },
             { id: 'tests', to: `${base}/tests`, badge: c.extras.tests[0], ko: c.extras.tests[1], title: c.nav.tests, subtitle: c.extras.tests[2] },
             { id: 'pratique', to: `${base}/pratique`, badge: c.extras.practice[0], ko: c.extras.practice[1], title: c.nav.practice, subtitle: c.extras.practice[2] },
-          ].filter((x) => builtPages.includes(x.id as (typeof builtPages)[number]))
+          ].filter((x) => isBuilt(lang.id, x.id as PortalPage))
         : [],
-    [c, base],
+    [c, base, lang.id],
   )
   const pathCards = usePathCards(s.stats, c?.chapters ?? [], { courseBase: `${base}/cours`, extras, lessonsLabel: lang.taughtIn === 'en' ? 'lessons' : 'leçons' })
   if (!c) return <NotFound />
