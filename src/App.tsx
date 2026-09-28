@@ -6,6 +6,9 @@ import type { ReactNode } from 'react'
 import { Layout } from './components/Layout'
 import { useCurrentUser, useReady } from './lib/store'
 import Home from './pages/Home'
+import LanguagesHome from './pages/LanguagesHome'
+import LanguagePage from './pages/LanguagePage'
+import { languages } from './data/languages'
 import Practice from './pages/Practice'
 import Admin from './pages/Admin'
 import Structures from './pages/Structures'
@@ -38,7 +41,13 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<Home />} />
+        <Route index element={<LanguagesHome />} />
+        <Route path="coreen" element={<Home />} />
+        {languages
+          .filter((l) => l.id !== 'coreen')
+          .map((l) => (
+            <Route key={l.id} path={l.path.slice(1)} element={<LanguagePage lang={l} />} />
+          ))}
         <Route path="cours" element={<Courses />} />
         <Route path="cours/:levelId" element={<LevelPage />} />
         <Route path="cours/:levelId/:lessonId" element={<LessonPage />} />

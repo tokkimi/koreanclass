@@ -5,7 +5,7 @@ import { addBooking, bookWithCredit, useCurrentUser, useProgress, type Booking a
 
 type Choice = 'single' | 'pack10' | 'credit'
 
-const TOPICS = ['Conversation', 'Grammaire', 'Préparation TOPIK', 'Prononciation', 'Voyage en Corée', 'Hangeul (débutant)', 'Autre']
+import { getLanguage, languages, type LanguageId } from '../data/languages'
 
 function nextDays(n: number) {
   const out: Date[] = []
@@ -26,6 +26,7 @@ export function bookingMailto(user: User, b: BookingT) {
     `• Formule : ${formula}`,
     `• Date : ${new Date(b.date + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`,
     `• Heure : ${b.time} (heure de Paris)`,
+    `• Langue : ${getLanguage(b.language ?? 'coreen')!.name}`,
     `• Thème : ${b.topic}`,
     b.message ? `• Message : ${b.message}` : '',
     ``,
@@ -46,6 +47,8 @@ export default function Booking() {
   const [choice, setChoice] = useState<Choice>(initial)
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
+  const [language, setLanguage] = useState<LanguageId>(() => getLanguage(params.get('langue'))?.id ?? 'coreen')
+  const TOPICS = getLanguage(language)!.topics
   const [topic, setTopic] = useState(TOPICS[0])
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -61,8 +64,8 @@ export default function Booking() {
     try {
       const b =
         choice === 'credit'
-          ? await bookWithCredit({ date, time, topic, message })
-          : await addBooking({ formula: choice, date, time, topic, message })
+          ? await bookWithCredit({ language, date, time, topic, message })
+          : await addBooking({ language, formula: choice, date, time, topic, message })
       setConfirmed(b)
       window.scrollTo(0, 0)
     } catch (err) {
@@ -78,7 +81,7 @@ export default function Booking() {
           <div className="feature-icon">📅</div>
           <h1>Demande de réservation enregistrée</h1>
           <p>
-            {new Date(confirmed.date + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} à <strong>{confirmed.time}</strong> — {confirmed.topic}
+            {new Date(confirmed.date + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} à <strong>{confirmed.time}</strong> — {getLanguage(confirmed.language ?? 'coreen')!.name} · {confirmed.topic}
           </p>
           <p className="muted small">
             {choice === 'pack10'
@@ -125,6 +128,29 @@ export default function Booking() {
 
       <form className="booking-layout" onSubmit={submit}>
         <div className="stack">
+          <div className="card">
+            <h2>Langue du cours</h2>
+            <div className="lang-choice" role="radiogroup" aria-label="Langue du cours">
+              {languages.map((l) => (
+                <button
+                  type="button"
+                  key={l.id}
+                  role="radio"
+                  aria-checked={language === l.id}
+                  className={`lang-chip ${language === l.id ? 'active' : ''}`}
+                  style={{ ['--lang' as string]: l.accent }}
+                  onClick={() => {
+                    setLanguage(l.id)
+                    setTopic(l.topics[0])
+                  }}
+                >
+                  <span lang={l.speech}>{l.native}</span>
+                  <small>{l.name}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="card">
             <h2>1. Formule</h2>
             <div className="formulas">

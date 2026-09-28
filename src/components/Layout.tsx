@@ -1,4 +1,5 @@
 import { BookingBubble } from './BookingBubble'
+import { languages } from '../data/languages'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { logout, useCurrentUser, useSyncStatus } from '../lib/store'
@@ -31,7 +32,9 @@ export function Layout() {
             {open ? "✕ Fermer" : "☰ Menu"}
           </button>
           <nav id="main-menu" className={`nav ${open ? 'open' : ''}`} aria-label="Menu principal" onKeyDown={e=>{if(e.key==='Escape'){setOpen(false);document.querySelector<HTMLButtonElement>('.burger')?.focus()}}}>
-            <NavLink to="/" end>Accueil</NavLink>
+            <NavLink to="/" end>Accueil · toutes les langues</NavLink>
+            <span className="nav-group">Coréen</span>
+            <NavLink to="/coreen">Accueil coréen</NavLink>
             <NavLink to="/cours">Cours</NavLink>
             <NavLink to="/alphabet">Hangeul</NavLink>
             <NavLink to="/nombres">Nombres</NavLink>
@@ -40,6 +43,12 @@ export function Layout() {
             <NavLink to="/structures">Phrases & grammaire</NavLink>
             <NavLink to="/tests">Tests & QCM</NavLink>
             <NavLink to="/pratique">En situation</NavLink>
+            <span className="nav-group">Autres langues</span>
+            {languages.filter((l) => l.id !== 'coreen').map((l) => (
+              <NavLink key={l.id} to={l.path}>
+                {l.name}
+              </NavLink>
+            ))}
             <NavLink to="/reserver" className="nav-cta">
               Cours privé
             </NavLink>

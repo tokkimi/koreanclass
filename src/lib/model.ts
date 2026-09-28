@@ -46,6 +46,8 @@ export interface ResultEntry {
 export type Formula = 'single' | 'pack10'
 
 export interface Booking {
+  /** Langue du cours ; absente sur les anciennes réservations (= coréen). */
+  language?: 'coreen' | 'japonais' | 'espagnol' | 'anglais' | 'francais'
   paymentId?: string
   usedCredit?: boolean
   id: string

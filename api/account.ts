@@ -158,7 +158,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
           account.progress.packCredits--
         }
         // A request is not a paid purchase: credits require payment confirmation.
-        const booking: Booking = { id: operationId, formula: b.formula === 'single' ? 'single' : 'pack10', date: str(b.date), time: str(b.time), topic: str(b.topic,100), message: str(b.message,500), status: 'demandée', createdAt: new Date().toISOString() }
+        const language = (['coreen','japonais','espagnol','anglais','francais'] as const).find(l => l === b.language) ?? 'coreen'
+        const booking: Booking = { id: operationId, language, formula: b.formula === 'single' ? 'single' : 'pack10', date: str(b.date), time: str(b.time), topic: str(b.topic,100), message: str(b.message,500), status: 'demandée', createdAt: new Date().toISOString() }
         account.progress.bookings.unshift(booking)
         booking.usedCredit=b.formula==='credit'&&!account.user.isDemo
         if(b.formula!=='credit'&&!account.user.isDemo){
