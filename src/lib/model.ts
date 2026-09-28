@@ -75,6 +75,23 @@ export interface Booking {
   createdAt: string
 }
 
+/** Notification affichée dans la cloche (rendez-vous, badges, paiements…). */
+export interface AppNotification {
+  id: string
+  date: string
+  kind: 'booking' | 'badge' | 'payment' | 'info'
+  title: string
+  body?: string
+  link?: string
+  read?: boolean
+}
+/** Ajoute une notification (les 60 plus récentes sont gardées). */
+export function pushNotification(p: Progress, n: Omit<AppNotification, 'id' | 'date' | 'read'> & { id?: string }) {
+  const id = n.id ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+  if ((p.notifications ?? []).some((x) => x.id === id)) return
+  p.notifications = [{ ...n, id, date: new Date().toISOString(), read: false }, ...(p.notifications ?? [])].slice(0, 60)
+}
+
 export interface PracticeEntry { id:string; refId:string; kind:'scene'|'oral'; date:string; score:number|null; total:number; mode?:'repeat'|'free'; transcript?:string }
 export interface Progress {
   practice?: PracticeEntry[]
@@ -88,6 +105,7 @@ export interface Progress {
   streak: { count: number; lastDay: string }
   bookings: Booking[]
   packCredits: number
+  notifications?: AppNotification[]
 }
 
 

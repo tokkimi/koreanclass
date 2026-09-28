@@ -7,6 +7,7 @@ import { compareSpeech } from '../src/lib/oral.js'
 import { recordAttempt } from '../server/progress.js'
 import { emptyProgress, shouldPromote, type User, type Booking } from '../src/lib/model.js'
 import { adminAction, adminSnapshot, AdminError } from '../server/admin.js'
+import { achievements, bookingWhen, notifyAchievements, notifyAdmins } from '../server/notify.js'
 
 const usernameRE = /^[a-z0-9._]{3,20}$/
 class HttpError extends Error { constructor(public status: number, message: string) { super(message) } }
@@ -112,7 +113,9 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       if (account.operations.includes(operationId)) return snapshot(account)
       if (action === 'attempt') {
         if (!Array.isArray(body.answers)) fail('Réponses manquantes.')
+        const before = achievements(account.progress)
         recordAttempt(account.progress, { kind: body.kind, refId: str(body.refId), answers: body.answers, id: operationId })
+        notifyAchievements(account, before)
       } else if (action === 'scene' || action === 'oral') {
         // Scènes coréennes, puis scènes des autres langues (mêmes champs utiles : turns[].answer, speech.model).
         const w=workshops.find(x=>x.id===body.refId) ?? courseScenes().find(x=>x.id===body.refId)
@@ -123,7 +126,9 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
           if(!Array.isArray(body.answers)||body.answers.length!==w!.turns.length||body.answers.some((x:unknown)=>typeof x!=='string'||x.length>3000))fail('Réponses incomplètes.')
           entry.score=w!.turns.filter((t,i)=>body.answers[i]===t.answer).length;entry.total=w!.turns.length
           const previous=Math.max(0,...practice.filter(x=>x.refId===w!.id&&x.kind==='scene').map(x=>x.score??0))
+          const before = achievements(account.progress)
           account.progress.xp+=Math.max(0,entry.score-previous)*10
+          notifyAchievements(account, before)
         } else {
           if(!['repeat','free'].includes(body.mode))fail('Mode oral invalide.')
           const transcript=str(body.transcript,5000)
@@ -168,6 +173,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         const language = (['coreen','japonais','espagnol','anglais','francais'] as const).find(l => l === b.language) ?? 'coreen'
         const booking: Booking = { id: operationId, language, formula: b.formula === 'single' ? 'single' : 'pack10', date: str(b.date), time: str(b.time), topic: str(b.topic,100), message: str(b.message,500), status: 'demandée', createdAt: new Date().toISOString() }
         account.progress.bookings.unshift(booking)
+        notifyAdmins(db, account.user.id, { id: `req-${booking.id}`, kind: 'booking', title: `📅 Nouvelle demande de cours · ${account.user.displayName}`, body: `${bookingWhen(booking)} · ${booking.topic || 'cours particulier'}`, link: '/admin?tab=agenda&filter=demandée' })
         booking.usedCredit=b.formula==='credit'&&!account.user.isDemo
         if(b.formula!=='credit'&&!account.user.isDemo){
           booking.paymentId=operationId
@@ -184,12 +190,19 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
             booking!.usedCredit = true
           }
           booking!.status = 'confirmée'
-        } else booking!.status = 'annulée'
+          notifyAdmins(db, account.user.id, { kind: 'booking', title: `✅ ${account.user.displayName} a accepté ton créneau`, body: bookingWhen(booking!), link: '/admin?tab=agenda&filter=confirmée' })
+        } else {
+          booking!.status = 'annulée'
+          notifyAdmins(db, account.user.id, { kind: 'booking', title: `❌ ${account.user.displayName} a refusé ton créneau`, body: `${bookingWhen(booking!)} · propose-lui un autre horaire`, link: '/admin?tab=users' })
+        }
+      } else if (action === 'readNotifications') {
+        for (const n of account.progress.notifications ?? []) n.read = true
       } else if (action === 'cancelBooking') {
         const booking = account.progress.bookings.find(x => x.id === body.id)
         if (booking && booking.status !== 'annulée') {
           if(new Date(`${booking.date}T${booking.time}:00Z`).getTime()-Date.now()<26*3600000)fail('Pour annuler à moins de 24 h du cours (heure de Paris), contacte le professeur.')
           booking.status = 'annulée'
+          notifyAdmins(db, account.user.id, { kind: 'booking', title: `🚫 Cours annulé par ${account.user.displayName}`, body: bookingWhen(booking), link: '/admin?tab=agenda' })
           if(booking.usedCredit){account.progress.packCredits++;booking.usedCredit=false}
           const payment=db.payments?.find(p=>p.id===booking.paymentId)
           if(payment?.status==='pending')payment.status='cancelled'

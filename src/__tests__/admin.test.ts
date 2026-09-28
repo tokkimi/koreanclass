@@ -59,4 +59,14 @@ describe('administration and payment accounting',()=>{
   const id=student.progress.bookings.find(b=>b.status==='proposée')!.id
   await expect(adminAction(db,admin,op('adminBooking',{id,status:'confirmée'}))).rejects.toThrow('crédit')
  })
+ it('notifies the student of proposals, confirmations and validated payments',async()=>{
+  const {db,admin,student}=setup()
+  await adminAction(db,admin,op('adminPayment',{id:'payment',reference:'PAYPAL12345',fee:0}))
+  await adminAction(db,admin,op('adminPropose',{id:'student',date:'2026-10-12',time:'09:00'}))
+  const id=student.progress.bookings.find(b=>b.status==='proposée')!.id
+  await adminAction(db,admin,op('adminBooking',{id,status:'confirmée'}))
+  const titles=(student.progress.notifications??[]).map(n=>n.title).join(' | ')
+  expect(titles).toContain('Paiement reçu');expect(titles).toContain('Nouveau créneau proposé');expect(titles).toContain('Cours confirmé')
+  expect(student.progress.notifications!.every(n=>n.read===false)).toBe(true)
+ })
 })

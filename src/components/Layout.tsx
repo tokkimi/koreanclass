@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { logout, useCurrentUser, useSyncStatus } from '../lib/store'
 import { Avatar } from './Avatar'
+import { NotificationBell } from './NotificationBell'
 import { SITE_NAME } from '../config'
 import { Icon } from './Icon'
 import { setUiLang, useSiteLang } from '../lib/i18n'
@@ -68,6 +69,7 @@ export function Layout() {
           <Link to="/" className="logo">
             <img className="logo-full" src="/talktome-club-logo.png" alt="TalkToMe Club" />
           </Link>
+          {user && <NotificationBell />}
           <button className="burger" aria-label={open ? t("Fermer le menu", "Close the menu") : t("Ouvrir le menu", "Open the menu")} aria-controls="main-menu" aria-expanded={open} onClick={() => setOpen(!open)}>
             {open ? t("✕ Fermer", "✕ Close") : "☰ Menu"}
           </button>

@@ -48,8 +48,11 @@ export async function addBooking(b:Omit<Booking,'id'|'status'|'createdAt'>) { co
 export async function bookWithCredit(b:Omit<Booking,'id'|'status'|'createdAt'|'formula'>) { const id=crypto.randomUUID(); const r=await mutate('booking',{booking:{...b,formula:'credit'}},id); return r.progress.bookings.find(x=>x.id===id)! }
 export async function cancelBooking(id:string) { await mutate('cancelBooking',{id}) }
 export async function respondProposal(id:string,accept:boolean) { await mutate('respondProposal',{id,accept}) }
+export async function readNotifications() { await mutate('readNotifications') }
 if (typeof window !== 'undefined') {
   void refreshSession()
   window.addEventListener('focus',()=>void refreshSession())
+  // Nouvelles notifications (rendez-vous, paiements) : vérification régulière tant que la page est ouverte.
+  setInterval(()=>{if(document.visibilityState==='visible'&&state.user)void refreshSession()},120000)
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible') void refreshSession()})
 }

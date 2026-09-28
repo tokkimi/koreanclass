@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
-import { emptyProgress, type Booking } from '../src/lib/model.js'
+import { emptyProgress, pushNotification, type Booking } from '../src/lib/model.js'
+import { bookingWhen } from './notify.js'
 import type { Account, Database } from './database.js'
 import { passwordHash, randomToken } from './database.js'
 
@@ -45,6 +46,7 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   requireValue(!Object.values(db.accounts).some(a=>a.user.id!==id&&(a.user.email===email||a.user.username===username)),'E-mail ou pseudo déjà utilisé.')
   requireValue(credits<=10000,'Crédit trop élevé.')
   detail=`Crédits ${target.progress.packCredits} → ${credits}; illimité ${patch.isDemo}; suspendu ${patch.suspended}`
+  if(credits>target.progress.packCredits)pushNotification(target.progress,{kind:'payment',title:'🎟️ Heures de cours ajoutées',body:`Tu as maintenant ${credits} h à planifier.`,link:'/reservations'})
   target.user.displayName=text(patch.displayName,40);target.user.isDemo=patch.isDemo;target.user.suspended=patch.suspended;target.progress.packCredits=credits
   target.user.email=email;target.user.username=username
   if(patch.suspended)target.sessions={}
@@ -60,6 +62,7 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   requireValue(['demandée','confirmée','annulée'].includes(body.status)||(body.status==='proposée'&&b!.status==='proposée'),'Statut invalide.')
   requireValue(b!.status!=='annulée','Une réservation annulée ne peut pas être réactivée.')
   // Déplacer le créneau (optionnel) et laisser une note à l'élève
+  const previous=`${b!.date} ${b!.time}`,previousStatus=b!.status
   if(body.date!==undefined||body.time!==undefined){
    const date=text(body.date,10),time=text(body.time,5)
    requireValue(/^\d{4}-\d{2}-\d{2}$/.test(date)&&!Number.isNaN(Date.parse(date))&&/^([01]\d|2[0-3]):(00|30)$/.test(time),'Date ou heure invalide.')
@@ -74,6 +77,12 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   if(body.status==='annulée'&&b!.usedCredit){account!.progress.packCredits++;b!.usedCredit=false}
   if(body.status==='annulée'){const p=db.payments?.find(x=>x.id===b!.paymentId);if(p?.status==='pending')p.status='cancelled'}
   b!.status=body.status;detail=body.status
+  const moved=previous!==`${b!.date} ${b!.time}`
+  const link='/reservations'
+  if(body.status==='annulée')pushNotification(account!.progress,{kind:'booking',title:'🚫 Cours annulé par le professeur',body:bookingWhen(b!),link})
+  else if(body.status==='confirmée'&&previousStatus!=='confirmée')pushNotification(account!.progress,{kind:'booking',title:'✅ Cours confirmé',body:`${bookingWhen(b!)}${b!.teacherNote?` · ${b!.teacherNote}`:''}`,link})
+  else if(moved)pushNotification(account!.progress,{kind:'booking',title:'🔁 Cours déplacé',body:`Nouvel horaire : ${bookingWhen(b!)}`,link})
+  else if(typeof body.note==='string'&&body.note.trim())pushNotification(account!.progress,{kind:'info',title:'💬 Message du professeur',body:text(body.note,200),link})
  } else if(action==='adminPropose') {
   requireValue(target&&!target.user.archived,'Profil introuvable.')
   const date=text(body.date,10),time=text(body.time,5)
@@ -83,6 +92,7 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   const language=(['coreen','japonais','espagnol','anglais','francais'] as const).find(l=>l===body.language)??'coreen'
   const booking:Booking={id:op,language,formula:'pack10',date,time,topic:text(body.topic,100)||'Cours particulier',message:'',teacherNote:text(body.note,500),status:'proposée',proposedBy:'teacher',createdAt:now}
   target.progress.bookings.unshift(booking)
+  pushNotification(target.progress,{id:`prop-${op}`,kind:'booking',title:'📩 Nouveau créneau proposé',body:`${bookingWhen(booking)} · à accepter dans Mes réservations`,link:'/reservations'})
   detail=`Proposition ${date} ${time}`
  } else if(action==='adminPayment') {
   const p=(db.payments??[]).find(p=>p.id===id)
@@ -95,6 +105,7 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   requireValue(account&&booking&&booking.status!=='annulée','Réservation annulée ou introuvable : ne pas valider ce paiement.')
   p!.status='paid';p!.reference=reference;p!.fee=fee;p!.paidAt=now
   if(booking!.formula==='pack10')account.progress.packCredits+=9
+  pushNotification(account.progress,{kind:'payment',title:'💶 Paiement reçu, merci !',body:booking!.formula==='pack10'?'Ton pack de 10 heures est activé : propose tes créneaux.':'Ton cours est réglé.',link:'/reservations'})
   ;(db.ledger??=[]).push({id:op,date:now,kind:'income',amount:p!.amount,fee,label:booking!.formula==='pack10'?'Pack 10 heures':'Cours 1 heure',reference,paymentId:id,actor:actor.user.id})
   detail=`PayPal ${reference}; ${p!.amount} centimes; crédits activés`
  } else if(action==='adminRefund') {
