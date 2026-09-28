@@ -5,6 +5,7 @@ import { currentStreak, globalStats, levelStats, useCurrentUser, useProgressOf, 
 import { computeBadges } from '../lib/badges'
 import { Avatar } from '../components/Avatar'
 import { ProgressBar } from '../components/ProgressBar'
+import { AccountTabs } from '../components/AccountTabs'
 import NotFound from './NotFound'
 
 type Tab = 'progression' | 'resultats' | 'badges'
@@ -27,6 +28,7 @@ export default function Profile() {
 
   return (
     <div className="container page narrow">
+      {isMe && !username && <AccountTabs />}
       <div className="profile-head">
         <Avatar user={user} size={132} />
         <div className="profile-info">

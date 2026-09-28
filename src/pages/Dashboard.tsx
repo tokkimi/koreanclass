@@ -4,6 +4,7 @@ import { currentStreak, globalStats, levelStats, useCurrentUser, useProgress } f
 import { computeBadges } from '../lib/badges'
 import { ProgressBar } from '../components/ProgressBar'
 import { Avatar } from '../components/Avatar'
+import { AccountTabs } from '../components/AccountTabs'
 
 export default function Dashboard() {
   const user = useCurrentUser()!
@@ -20,6 +21,7 @@ export default function Dashboard() {
 
   return (
     <div className="container page">
+      <AccountTabs />
       <div className="dash-head">
         <Avatar user={user} size={64} />
         <div>

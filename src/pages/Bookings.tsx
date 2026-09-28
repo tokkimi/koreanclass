@@ -5,6 +5,7 @@ import type { Payment } from '../../server/database'
 import { CONTACT_EMAIL, PRICING, PAYMENT_LINK_PACK, PAYMENT_LINK_SINGLE } from '../config'
 import { cancelBooking, useCurrentUser, useProgress } from '../lib/store'
 import { bookingMailto } from './Booking'
+import { AccountTabs } from '../components/AccountTabs'
 
 export default function Bookings() {
   const user = useCurrentUser()!
@@ -50,6 +51,7 @@ export default function Bookings() {
 
   return (
     <div className="container page narrow">
+      <AccountTabs />
       <div className="page-head">
         <h1>Mes réservations</h1>
         <p className="muted">

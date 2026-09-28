@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { changePassword, deleteAccount, resetProgress, updateProfile, useCurrentUser } from '../lib/store'
 import { resizeImage } from '../lib/image'
 import { Avatar } from '../components/Avatar'
+import { AccountTabs } from '../components/AccountTabs'
 
 export default function EditProfile() {
   const user = useCurrentUser()!
@@ -57,6 +58,7 @@ export default function EditProfile() {
 
   return (
     <div className="container page narrow">
+      <AccountTabs />
       {welcome && (
         <div className="card notice-card">
           <strong>🎉 Bienvenue {user.displayName} !</strong>

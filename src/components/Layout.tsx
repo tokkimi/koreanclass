@@ -11,6 +11,8 @@ import { setUiLang, useSiteLang } from '../lib/i18n'
 
 /** Pages du parcours coréen (le coréen garde ses adresses historiques). */
 const KOREAN_PATHS = ['/coreen', '/cours', '/tests', '/test-de-niveau', '/pratique', '/structures', '/alphabet', '/couleurs', '/vocabulaire', '/nombres']
+/** Espace personnel : les 4 onglets du haut remplacent la bulle de réservation. */
+const ACCOUNT_PATHS = ['/tableau-de-bord', '/profil', '/profil/modifier', '/reservations']
 /** Langue de la page affichée : le menu ne montre que cette langue. */
 function sectionOf(pathname: string): LanguageInfo | 'coreen' | null {
   const inPath = (p: string) => pathname === p || pathname.startsWith(`${p}/`)
@@ -22,7 +24,7 @@ export function Layout() {
   const user = useCurrentUser()
   const sync = useSyncStatus()
   const [open, setOpen] = useState(false)
-  const [menu, setMenu] = useState(false)
+  const [langs, setLangs] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   const section = sectionOf(location.pathname)
@@ -37,7 +39,7 @@ export function Layout() {
 
   useEffect(() => {
     setOpen(false)
-    setMenu(false)
+    setLangs(false)
     window.scrollTo(0, 0)
   }, [location.pathname])
 
@@ -83,39 +85,39 @@ export function Layout() {
             ) : (
               <>
                 <NavLink to="/" end>{t('Accueil', 'Home')}</NavLink>
-                <span className="nav-group">{t('Nos langues', 'Our languages')}</span>
-                {languages.map((l) => (
-                  <NavLink key={l.id} to={l.path}>
-                    {name(l)}
-                  </NavLink>
-                ))}
+                <button type="button" className="nav-group nav-toggle" aria-expanded={langs} aria-controls="nav-langs" onClick={() => setLangs(!langs)}>
+                  {t('Nos langues', 'Our languages')} <span aria-hidden="true">{langs ? '▴' : '▾'}</span>
+                </button>
+                {langs && (
+                  <div id="nav-langs" className="nav-langs">
+                    {languages.map((l) => (
+                      <NavLink key={l.id} to={l.path}>
+                        {name(l)}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
               </>
             )}
             <NavLink to={current ? `/reserver?langue=${current.id}` : section === 'coreen' ? '/reserver?langue=coreen' : '/reserver'} className="nav-cta">
               {portal?.nav.teacher ?? t('Cours privé', 'Private lesson')}
             </NavLink>
             {user ? (
-              <div className="user-menu">
-                <button className="user-btn" onClick={() => setMenu(!menu)} aria-haspopup="menu" aria-expanded={menu}>
-                  <Avatar user={user} size={34} />
-                  <span className="hide-sm">{user.displayName}</span>
+              <div className="nav-account">
+                <NavLink to="/tableau-de-bord" className="nav-account-link">
+                  <Avatar user={user} size={30} />
+                  <span>{t('Mon espace', 'My account')}</span>
+                </NavLink>
+                {user.role === 'admin' && <NavLink to="/admin">{t('Administration', 'Admin')}</NavLink>}
+                <button
+                  type="button"
+                  className="nav-logout"
+                  onClick={async () => {
+                    try { await logout(); navigate('/') } catch { /* error displayed globally */ }
+                  }}
+                >
+                  {t('Déconnexion', 'Log out')}
                 </button>
-                {menu && (
-                  <div className="dropdown" role="menu">
-                    <Link to="/tableau-de-bord">📊 {t('Mon parcours', 'My progress')}</Link>
-                    {user.role==='admin'&&<Link to="/admin">{t('Administration', 'Admin')}</Link>}
-                    <Link to="/profil">👤 {t('Mon profil', 'My profile')}</Link>
-                    <Link to="/profil/modifier">✏️ {t('Modifier le profil', 'Edit profile')}</Link>
-                    <Link to="/reservations">📅 {t('Mes réservations', 'My bookings')}</Link>
-                    <button
-                      onClick={async () => {
-                        try { await logout(); navigate('/') } catch { /* error displayed globally */ }
-                      }}
-                    >
-                      🚪 {t('Déconnexion', 'Log out')}
-                    </button>
-                  </div>
-                )}
               </div>
             ) : (
               <>
@@ -138,7 +140,7 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      <BookingBubble />
+      {!open && !ACCOUNT_PATHS.includes(location.pathname) && <BookingBubble />}
       <main>
         {sync && sync !== 'Progression sauvegardée en ligne' && sync !== 'Sauvegarde en cours…' && <div className="container sync-status" role="status">{sync}</div>}
         <Outlet />

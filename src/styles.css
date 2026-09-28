@@ -3941,3 +3941,24 @@ main:has(.scroll-hero) .sync-status{position:fixed;z-index:60;top:78px;left:50%;
   color: var(--ink, #111);
   box-shadow: 0 1px 4px #0002;
 }
+
+/* Espace personnel : 4 onglets fixes en haut de page */
+.account-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin:0 0 22px; padding:4px; border:1px solid var(--border); border-radius:16px; background:var(--card); }
+.account-tabs a { display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 4px; border-radius:12px; font-size:.8125rem; font-weight:600; color:var(--muted); text-align:center; min-width:0; }
+.account-tabs a span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+.account-tabs a.active { background:var(--accent-soft, var(--primary-soft)); color:var(--accent-ink, var(--primary)); }
+@media (min-width:761px) { .account-tabs { max-width:620px; } .account-tabs a { flex-direction:row; justify-content:center; gap:8px; font-size:.9rem; } }
+/* Le tableau de bord ne doit jamais dépasser la largeur de l'écran */
+.dash-grid > *, .stat-grid > *, .stack > * { min-width:0; }
+.app { overflow-x:clip; }
+@media (max-width:760px) { .stat-grid { grid-template-columns:1fr 1fr; } }
+/* Menu : langues repliées, compte simplifié */
+.header .nav .nav-toggle { display:flex; justify-content:space-between; align-items:center; width:100%; background:none; border:0; font:inherit; font-weight:700; cursor:pointer; padding:10px 16px; border-radius:10px; color:var(--primary); text-transform:uppercase; letter-spacing:.08em; font-size:.8rem; }
+.header .nav .nav-langs { display:flex; flex-direction:column; gap:2px; padding-left:12px; }
+.header .nav .nav-langs a { padding:8px 16px; border-radius:10px; color:var(--muted); }
+.header .nav .nav-langs a.active { color:var(--text); }
+.header .nav .nav-account { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding-top:8px; border-top:1px solid var(--border); }
+.header .nav .nav-account-link { display:flex; align-items:center; gap:10px; flex:1; padding:8px 12px; border-radius:10px; font-weight:600; color:var(--text); }
+.header .nav .nav-account > a:not(.nav-account-link) { padding:8px 12px; color:var(--muted); }
+.header .nav .nav-logout { background:none; border:0; font:inherit; color:var(--muted); cursor:pointer; padding:8px 12px; }
+@media (max-width:760px) { .account-tabs a { font-size:.72rem; padding:8px 2px; } }
