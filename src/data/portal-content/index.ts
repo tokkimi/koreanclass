@@ -2,9 +2,12 @@ import type { Lesson } from '../types.js'
 import { qcm } from '../helpers.js'
 import type { PortalContent, Q } from './types.js'
 import { japonais } from './japonais.js'
+import { espagnol } from './espagnol.js'
+import { anglais } from './anglais.js'
+import { francais } from './francais.js'
 
 /** Contenu des pages annexes, par langue (rempli langue par langue). */
-export const portalContent: Partial<Record<string, PortalContent>> = { japonais }
+export const portalContent: Partial<Record<string, PortalContent>> = { japonais, espagnol, anglais, francais }
 
 const PFX: Record<string, string> = { japonais: 'ja', espagnol: 'es', anglais: 'en', francais: 'fr' }
 const toQcm = (q: Q, explain?: string) => qcm(q[0], q[1], q.slice(2), explain)
