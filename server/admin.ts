@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { emptyProgress } from '../src/lib/model.js'
+import { emptyProgress, type Booking } from '../src/lib/model.js'
 import type { Account, Database } from './database.js'
 import { passwordHash, randomToken } from './database.js'
 
@@ -57,12 +57,33 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
  } else if(action==='adminBooking') {
   const account=Object.values(db.accounts).find(a=>a.progress.bookings.some(b=>b.id===id)), b=account?.progress.bookings.find(b=>b.id===id)
   requireValue(b&&account,'Réservation introuvable.')
-  requireValue(['demandée','confirmée','annulée'].includes(body.status),'Statut invalide.')
+  requireValue(['demandée','confirmée','annulée'].includes(body.status)||(body.status==='proposée'&&b!.status==='proposée'),'Statut invalide.')
   requireValue(b!.status!=='annulée','Une réservation annulée ne peut pas être réactivée.')
+  // Déplacer le créneau (optionnel) et laisser une note à l'élève
+  if(body.date!==undefined||body.time!==undefined){
+   const date=text(body.date,10),time=text(body.time,5)
+   requireValue(/^\d{4}-\d{2}-\d{2}$/.test(date)&&!Number.isNaN(Date.parse(date))&&/^([01]\d|2[0-3]):(00|30)$/.test(time),'Date ou heure invalide.')
+   b!.date=date;b!.time=time
+  }
+  if(typeof body.note==='string')b!.teacherNote=text(body.note,500)
+  if(body.status==='confirmée'&&b!.status==='proposée'&&!account!.user.isDemo){
+   requireValue(account!.progress.packCredits>0,'Cet élève n’a plus de crédit : valide d’abord son paiement.')
+   account!.progress.packCredits--;b!.usedCredit=true
+  }
   if(body.status==='confirmée')requireValue(!Object.values(db.accounts).some(a=>a.progress.bookings.some(x=>x.id!==id&&x.status==='confirmée'&&x.date===b!.date&&x.time===b!.time)),'Ce créneau est déjà confirmé pour un autre élève.')
   if(body.status==='annulée'&&b!.usedCredit){account!.progress.packCredits++;b!.usedCredit=false}
   if(body.status==='annulée'){const p=db.payments?.find(x=>x.id===b!.paymentId);if(p?.status==='pending')p.status='cancelled'}
   b!.status=body.status;detail=body.status
+ } else if(action==='adminPropose') {
+  requireValue(target&&!target.user.archived,'Profil introuvable.')
+  const date=text(body.date,10),time=text(body.time,5)
+  requireValue(/^\d{4}-\d{2}-\d{2}$/.test(date)&&!Number.isNaN(Date.parse(date))&&/^([01]\d|2[0-3]):(00|30)$/.test(time),'Date ou heure invalide.')
+  requireValue(!Object.values(db.accounts).some(a=>a.progress.bookings.some(x=>x.status==='confirmée'&&x.date===date&&x.time===time)),'Ce créneau est déjà confirmé pour un élève.')
+  requireValue(!target.progress.bookings.some(x=>x.status!=='annulée'&&x.date===date&&x.time===time),'Cet élève a déjà un cours à cet horaire.')
+  const language=(['coreen','japonais','espagnol','anglais','francais'] as const).find(l=>l===body.language)??'coreen'
+  const booking:Booking={id:op,language,formula:'pack10',date,time,topic:text(body.topic,100)||'Cours particulier',message:'',teacherNote:text(body.note,500),status:'proposée',proposedBy:'teacher',createdAt:now}
+  target.progress.bookings.unshift(booking)
+  detail=`Proposition ${date} ${time}`
  } else if(action==='adminPayment') {
   const p=(db.payments??[]).find(p=>p.id===id)
   requireValue(p&&p.status==='pending','Paiement introuvable ou déjà traité.')

@@ -46,6 +46,15 @@ export interface ResultEntry {
 
 export type Formula = 'single' | 'pack10'
 
+/** Référence courte et lisible à indiquer dans PayPal (ex. TTM-5886688B). */
+export const shortRef = (id: string) => 'TTM-' + id.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8).toUpperCase()
+
+/** Comptes promus administrateur : pseudo + date de création antérieure à la mise en place (un nouveau compte qui reprendrait ce pseudo ne l'est pas). */
+export const ADMIN_BOOTSTRAP: { username: string; createdBefore: string }[] = [{ username: 'sia', createdBefore: '2026-09-28T19:35:00Z' }]
+export function shouldPromote(user: User) {
+  return user.role !== 'admin' && ADMIN_BOOTSTRAP.some((a) => a.username === user.username && user.createdAt < a.createdBefore)
+}
+
 export interface Booking {
   /** Langue du cours ; absente sur les anciennes réservations (= coréen). */
   language?: 'coreen' | 'japonais' | 'espagnol' | 'anglais' | 'francais'
@@ -57,7 +66,12 @@ export interface Booking {
   time: string
   topic: string
   message: string
-  status: 'demandée' | 'confirmée' | 'annulée'
+  /** proposée : créneau proposé par le professeur, en attente de l'accord de l'élève. */
+  status: 'demandée' | 'proposée' | 'confirmée' | 'annulée'
+  /** Qui a créé la réservation (élève par défaut). */
+  proposedBy?: 'student' | 'teacher'
+  /** Note du professeur visible par l'élève. */
+  teacherNote?: string
   createdAt: string
 }
 

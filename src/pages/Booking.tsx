@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CONTACT_EMAIL, PAYMENT_LINK_PACK, PAYMENT_LINK_SINGLE, PRICING, TIME_SLOTS } from '../config'
-import { addBooking, bookWithCredit, useCurrentUser, useProgress, type Booking as BookingT, type User } from '../lib/store'
+import { addBooking, bookWithCredit, shortRef, useCurrentUser, useProgress, type Booking as BookingT, type User } from '../lib/store'
 
 type Choice = 'single' | 'pack10' | 'credit'
 
@@ -32,7 +32,7 @@ export function bookingMailto(user: User, b: BookingT) {
     ``,
     `Nom : ${user.displayName} (@${user.username})`,
     `E-mail : ${user.email}`,
-    `Référence : ${b.id}`,
+    `Référence : ${shortRef(b.id)}`,
   ]
     .filter((l) => l !== '')
     .join('\n')
@@ -100,7 +100,7 @@ export default function Booking() {
           )}
           {payLink && !user.isDemo && (
             <>
-            <p className="small"><Link className="link" to="/cgv" target="_blank">Conditions de vente et remboursement</Link></p><p className="small">Sur PayPal, règle en EUR pour un achat de service et indique la référence <strong>{confirmed.id}</strong>. Le paiement sera vérifié par le professeur avant activation des crédits.</p>
+            <p className="small"><Link className="link" to="/cgv" target="_blank">Conditions de vente et remboursement</Link></p><p className="small">Sur PayPal, règle en EUR pour un achat de service et indique la référence <strong>{shortRef(confirmed.id)}</strong>. Le paiement sera vérifié par le professeur avant activation des crédits.</p>
             <a className="btn big ghost" href={payLink} target="_blank" rel="noreferrer noopener">
               Payer avec PayPal ({choice === 'pack10' ? PRICING.pack10.price : PRICING.single.price} €)
             </a>

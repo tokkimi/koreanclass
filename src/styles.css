@@ -3976,3 +3976,42 @@ main:has(.scroll-hero) .sync-status{position:fixed;z-index:60;top:78px;left:50%;
 .dock-picker button { display:flex; align-items:center; gap:14px; padding:12px 14px; border:0; border-radius:14px; background:none; font:inherit; font-weight:600; color:var(--text); text-align:left; cursor:pointer; }
 .dock-picker button.active { background:var(--primary-soft, #eef2ff); color:var(--primary); }
 @media (min-width:761px) { .dock-picker-backdrop { display:none; } }
+/* Agenda mensuel (réservations et administration) */
+.calendar { padding:16px; }
+.calendar-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.calendar-head strong { text-transform:capitalize; }
+.calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.calendar-wd { text-align:center; font-size:.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; padding:4px 0; }
+.calendar-day { aspect-ratio:1; min-height:40px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; border:0; border-radius:12px; background:var(--bg-alt, #f5f5f7); font:inherit; font-size:.85rem; font-weight:600; color:var(--text); cursor:pointer; }
+.calendar-day.out { opacity:.35; }
+.calendar-day.today { box-shadow:inset 0 0 0 2px var(--primary); }
+.calendar-day.selected { background:var(--text); color:var(--card); }
+.calendar-dots { display:flex; gap:3px; }
+.calendar-dots i, .calendar-legend i { display:inline-block; width:7px; height:7px; border-radius:50%; }
+.dot-confirmed { background:#16a34a; } .dot-requested { background:#f59e0b; } .dot-proposed { background:#6366f1; } .dot-cancelled { background:#9ca3af; }
+.calendar-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:12px; }
+.calendar-legend span { display:inline-flex; align-items:center; gap:6px; }
+.booking-status { display:inline-block; padding:2px 10px; border-radius:999px; font-size:.75rem; font-weight:700; }
+.booking-status.confirmed { background:#dcfce7; color:#166534; } .booking-status.requested { background:#fef3c7; color:#92400e; } .booking-status.proposed { background:#e0e7ff; color:#3730a3; } .booking-status.cancelled { background:#f3f4f6; color:#6b7280; }
+.proposal-card { border:2px solid #c7d2fe; background:#eef2ff; }
+/* Administration : indicateurs et graphiques */
+.admin-kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px; }
+.admin-kpi { display:flex; flex-direction:column; gap:4px; padding:16px; }
+.admin-kpi strong { font-size:1.5rem; font-weight:800; }
+.admin-kpi span { font-size:.85rem; font-weight:600; }
+.admin-charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+.admin-chart { margin:0; padding:16px; }
+.admin-chart figcaption { margin-bottom:10px; }
+.bars { display:flex; align-items:stretch; gap:2px; height:160px; }
+.bar-col { flex:1; min-width:0; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; cursor:default; }
+.bar-col:hover .bar { filter:brightness(.85); }
+.bar { width:100%; max-width:28px; min-height:2px; background:var(--primary); border-radius:4px 4px 0 0; }
+.bar-value { font-size:.65rem; font-weight:700; color:var(--text); white-space:nowrap; }
+.bar-label { font-size:.65rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.admin-line { display:flex; justify-content:space-between; gap:10px; width:100%; padding:10px 0; border:0; border-bottom:1px solid var(--border); background:none; font:inherit; color:var(--text); text-align:left; cursor:pointer; }
+.admin-line span { color:var(--muted); font-size:.9rem; }
+.admin-agenda { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:16px; align-items:start; }
+@media (max-width:900px) { .admin-agenda { grid-template-columns:1fr; } }
+.admin-booking { padding:14px; }
+.admin-booking .row { flex-wrap:wrap; gap:8px; }
+@media (max-width:760px) { .booking-row { flex-direction:column; align-items:stretch; gap:12px; } .booking-row .row { justify-content:flex-start; } }

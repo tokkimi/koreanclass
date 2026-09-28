@@ -43,4 +43,20 @@ describe('administration and payment accounting',()=>{
   await adminAction(db,admin,op('adminBooking',{id:'booking',status:'annulée'}));expect(student.progress.packCredits).toBe(1);expect(db.payments![0].status).toBe('cancelled')
   await expect(adminAction(db,admin,op('adminBooking',{id:'booking',status:'annulée'}))).rejects.toThrow();expect(student.progress.packCredits).toBe(1)
  })
+ it('proposes a lesson to a student, reschedules it and consumes one credit on confirmation',async()=>{
+  const {db,admin,student}=setup();student.progress.packCredits=2
+  const body=op('adminPropose',{id:'student',date:'2026-10-12',time:'18:30',language:'japonais',topic:'Conversation',note:'Lien envoyé par e-mail'})
+  await adminAction(db,admin,body);await adminAction(db,admin,body)
+  const proposal=student.progress.bookings.filter(b=>b.status==='proposée');expect(proposal).toHaveLength(1);expect(proposal[0]).toMatchObject({language:'japonais',proposedBy:'teacher',time:'18:30'})
+  await expect(adminAction(db,admin,op('adminPropose',{id:'student',date:'2026-10-12',time:'18:30'}))).rejects.toThrow('déjà')
+  await expect(adminAction(db,admin,op('adminPropose',{id:'student',date:'2026-10-12',time:'18:15'}))).rejects.toThrow('invalide')
+  await adminAction(db,admin,op('adminBooking',{id:proposal[0].id,status:'confirmée',date:'2026-10-13',time:'10:00'}))
+  expect(proposal[0]).toMatchObject({status:'confirmée',date:'2026-10-13',time:'10:00',usedCredit:true});expect(student.progress.packCredits).toBe(1)
+ })
+ it('refuses to confirm a teacher proposal when the student has no credit',async()=>{
+  const {db,admin,student}=setup()
+  await adminAction(db,admin,op('adminPropose',{id:'student',date:'2026-10-12',time:'09:00'}))
+  const id=student.progress.bookings.find(b=>b.status==='proposée')!.id
+  await expect(adminAction(db,admin,op('adminBooking',{id,status:'confirmée'}))).rejects.toThrow('crédit')
+ })
 })

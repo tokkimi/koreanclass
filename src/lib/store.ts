@@ -47,6 +47,7 @@ export async function recordCoursePlacement(refId:string,answers:string[],operat
 export async function addBooking(b:Omit<Booking,'id'|'status'|'createdAt'>) { const id=crypto.randomUUID(); const r=await mutate('booking',{booking:b},id); return r.progress.bookings.find(x=>x.id===id)! }
 export async function bookWithCredit(b:Omit<Booking,'id'|'status'|'createdAt'|'formula'>) { const id=crypto.randomUUID(); const r=await mutate('booking',{booking:{...b,formula:'credit'}},id); return r.progress.bookings.find(x=>x.id===id)! }
 export async function cancelBooking(id:string) { await mutate('cancelBooking',{id}) }
+export async function respondProposal(id:string,accept:boolean) { await mutate('respondProposal',{id,accept}) }
 if (typeof window !== 'undefined') {
   void refreshSession()
   window.addEventListener('focus',()=>void refreshSession())

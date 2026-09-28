@@ -155,7 +155,7 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      {!open && !picker && !inAccount && <BookingBubble />}
+      {!open && !picker && !inAccount && location.pathname !== '/admin' && <BookingBubble />}
       <main>
         {sync && sync !== 'Progression sauvegardée en ligne' && sync !== 'Sauvegarde en cours…' && <div className="container sync-status" role="status">{sync}</div>}
         <Outlet />

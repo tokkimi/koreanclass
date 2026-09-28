@@ -5,7 +5,7 @@ import { workshops } from '../src/data/workshops.js'
 import { courseScenes } from '../src/data/portal-content/index.js'
 import { compareSpeech } from '../src/lib/oral.js'
 import { recordAttempt } from '../server/progress.js'
-import { emptyProgress, type User, type Booking } from '../src/lib/model.js'
+import { emptyProgress, shouldPromote, type User, type Booking } from '../src/lib/model.js'
 import { adminAction, adminSnapshot, AdminError } from '../server/admin.js'
 
 const usernameRE = /^[a-z0-9._]{3,20}$/
@@ -25,7 +25,11 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     const token = sessionToken(req)
     if (req.method === 'GET') {
       const { db } = await readDatabase()
-      const a = findSession(db, token)
+      let a = findSession(db, token)
+      if (a && shouldPromote(a.user)) {
+        const id = a.user.id
+        a = await transaction(latest => { const x = latest.accounts[id]; if (x && shouldPromote(x.user)) x.user.role = 'admin'; return x })
+      }
       if(req.url?.includes('view=admin')) {
         if(!a || a.user.role!=='admin')fail('Accès administrateur requis.',403)
         res.end(JSON.stringify(adminSnapshot(db)));return
@@ -63,6 +67,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
           const a = latest.accounts[account!.user.id]
           if (!a || a.password !== account!.password || a.user.suspended || a.user.archived) fail('Compte indisponible. Contacte l’administrateur.', 401)
           startSession(a, newToken)
+          if (shouldPromote(a.user)) a.user.role = 'admin'
           return snapshot(a)
         })
         cookie(res, newToken, secure); res.end(JSON.stringify(data)); return
@@ -168,6 +173,18 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
           booking.paymentId=operationId
           ;(db.payments??=[]).push({id:operationId,userId:account.user.id,customer:account.user.displayName,bookingId:booking.id,amount:b.formula==='single'?1500:10000,currency:'EUR',status:'pending',createdAt:booking.createdAt})
         }
+      } else if (action === 'respondProposal') {
+        const booking = account.progress.bookings.find(x => x.id === body.id)
+        if (!booking || booking.status !== 'proposée') fail('Proposition introuvable ou déjà traitée.')
+        if (body.accept === true) {
+          if (Object.values(db.accounts).some(a => a.progress.bookings.some(x => x.id !== booking!.id && x.status === 'confirmée' && x.date === booking!.date && x.time === booking!.time))) fail('Ce créneau vient d’être pris. Demande un autre horaire au professeur.')
+          if (!account.user.isDemo) {
+            if (account.progress.packCredits <= 0) fail('Plus de crédit disponible : règle un cours ou un pack pour accepter ce créneau.')
+            account.progress.packCredits--
+            booking!.usedCredit = true
+          }
+          booking!.status = 'confirmée'
+        } else booking!.status = 'annulée'
       } else if (action === 'cancelBooking') {
         const booking = account.progress.bookings.find(x => x.id === body.id)
         if (booking && booking.status !== 'annulée') {
