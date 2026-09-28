@@ -3962,3 +3962,7 @@ main:has(.scroll-hero) .sync-status{position:fixed;z-index:60;top:78px;left:50%;
 .header .nav .nav-account > a:not(.nav-account-link) { padding:8px 12px; color:var(--muted); }
 .header .nav .nav-logout { background:none; border:0; font:inherit; color:var(--muted); cursor:pointer; padding:8px 12px; }
 @media (max-width:760px) { .account-tabs a { font-size:.72rem; padding:8px 2px; } }
+/* Choix du cours dans l'espace personnel */
+.course-switch { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px; }
+.course-switch button { padding:7px 14px; border-radius:999px; border:1px solid var(--border); background:var(--card); font:inherit; font-size:.875rem; font-weight:600; color:var(--muted); cursor:pointer; }
+.course-switch button.active { background:var(--text); border-color:var(--text); color:var(--card); }

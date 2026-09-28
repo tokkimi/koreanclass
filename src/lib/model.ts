@@ -1,4 +1,5 @@
 import { levels, totalLessons } from '../data/index.js'
+import type { Level } from '../data/types.js'
 
 export interface User {
   id: string
@@ -90,8 +91,8 @@ export function emptyProgress(): Progress {
 }
 
 
-export function levelStats(p: Progress) {
-  return levels.map((level) => {
+export function levelStats(p: Progress, list: Level[] = levels) {
+  return list.map((level) => {
     const done = level.lessons.filter((l) => p.lessons[l.id]?.completed).length
     const scores = level.lessons.map((l) => p.lessons[l.id]?.bestScore).filter((x): x is number => x !== undefined)
     return {
@@ -105,18 +106,22 @@ export function levelStats(p: Progress) {
   })
 }
 
-export function globalStats(p: Progress) {
-  const completed = Object.values(p.lessons).filter((l) => l.completed).length
+/** Sans `list` : parcours coréen historique. Avec `list` : statistiques limitées à ces niveaux (une langue). */
+export function globalStats(p: Progress, list?: Level[]) {
+  const lv = list ?? levels
+  const inList = list ? new Set(list.flatMap((l) => l.lessons.map((x) => x.id))) : null
+  const lessonTotal = list ? inList!.size : totalLessons
+  const completed = Object.entries(p.lessons).filter(([id, l]) => l.completed && (!inList || inList.has(id))).length
   const scored = p.history.filter((h) => h.total > 0)
   const avg = scored.length ? Math.round(scored.reduce((a, h) => a + (h.score / h.total) * 100, 0) / scored.length) : null
-  const passedLevels = levels.filter((l) => p.tests[l.id]?.passed)
-  const stats = levelStats(p)
+  const passedLevels = lv.filter((l) => p.tests[l.id]?.passed)
+  const stats = levelStats(p, lv)
   const current = stats.find((s) => s.done < s.total || !s.test?.passed) ?? stats[stats.length - 1]
   const rank = RANKS.filter((r) => p.xp >= r.xp).pop() ?? RANKS[0]
   return {
     completed,
-    total: totalLessons,
-    pct: Math.round((completed / totalLessons) * 100),
+    total: lessonTotal,
+    pct: Math.round((completed / lessonTotal) * 100),
     avg,
     passedLevels: passedLevels.length,
     currentLevel: current.level,

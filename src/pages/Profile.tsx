@@ -5,7 +5,8 @@ import { currentStreak, globalStats, levelStats, useCurrentUser, useProgressOf, 
 import { computeBadges } from '../lib/badges'
 import { Avatar } from '../components/Avatar'
 import { ProgressBar } from '../components/ProgressBar'
-import { AccountTabs } from '../components/AccountTabs'
+import { AccountTabs, CourseSwitch } from '../components/AccountTabs'
+import { levelsOf, useLastLang } from '../lib/lastLang'
 import NotFound from './NotFound'
 
 type Tab = 'progression' | 'resultats' | 'badges'
@@ -17,12 +18,14 @@ export default function Profile() {
   const user = username ? other : me
   const p = useProgressOf(user?.id)
   const [tab, setTab] = useState<Tab>('progression')
+  const lang = useLastLang()
 
 
   if (!user) return <NotFound />
   const isMe = me?.id === user.id
-  const g = globalStats(p)
-  const stats = levelStats(p)
+  const list = levelsOf(lang)
+  const g = globalStats(p, list)
+  const stats = levelStats(p, list)
   const badges = computeBadges(p)
   const earned = badges.filter((b) => b.earned)
 
@@ -99,6 +102,7 @@ export default function Profile() {
         </button>
       </div>
 
+      {tab === 'progression' && isMe && <CourseSwitch />}
       {tab === 'progression' && (
         <div className="profile-levels">
           {stats.map((s) => (

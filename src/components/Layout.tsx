@@ -8,6 +8,7 @@ import { Avatar } from './Avatar'
 import { SITE_NAME } from '../config'
 import { Icon } from './Icon'
 import { setUiLang, useSiteLang } from '../lib/i18n'
+import { setLastLang, useLastLang } from '../lib/lastLang'
 
 /** Pages du parcours coréen (le coréen garde ses adresses historiques). */
 const KOREAN_PATHS = ['/coreen', '/cours', '/tests', '/test-de-niveau', '/pratique', '/structures', '/alphabet', '/couleurs', '/vocabulaire', '/nombres']
@@ -27,7 +28,10 @@ export function Layout() {
   const [langs, setLangs] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const section = sectionOf(location.pathname)
+  const last = useLastLang()
+  const inAccount = ACCOUNT_PATHS.includes(location.pathname)
+  // Dans l'espace personnel, le menu reste celui de la dernière langue étudiée.
+  const section = sectionOf(location.pathname) ?? (inAccount ? (last.id === 'coreen' ? 'coreen' : last) : null)
   const current = section && section !== 'coreen' ? section : null
   const site = useSiteLang()
   // Le cours de français est toujours en anglais ; ailleurs, on suit le choix FR / EN du visiteur.
@@ -36,6 +40,11 @@ export function Layout() {
   const portal = current?.available ? portalFor(current.id, en ? 'en' : 'fr') : undefined
   const name = (l: LanguageInfo) => (en ? l.nameEn : l.name)
   const built = (page: PortalPage) => !!current && isBuilt(current.id, page)
+
+  const visited = sectionOf(location.pathname)
+  useEffect(() => {
+    if (visited) setLastLang(visited === 'coreen' ? 'coreen' : visited.id)
+  }, [visited])
 
   useEffect(() => {
     setOpen(false)
@@ -56,7 +65,7 @@ export function Layout() {
           <nav id="main-menu" className={`nav ${open ? 'open' : ''}`} aria-label={t("Menu principal", "Main menu")} onKeyDown={e=>{if(e.key==='Escape'){setOpen(false);document.querySelector<HTMLButtonElement>('.burger')?.focus()}}}>
             {section === 'coreen' ? (
               <>
-                <NavLink to="/" end className="nav-back">{t('← Toutes les langues', '← All languages')}</NavLink>
+                {!inAccount && <NavLink to="/" end className="nav-back">{t('← Toutes les langues', '← All languages')}</NavLink>}
                 <span className="nav-group">{t('Coréen', 'Korean')}</span>
                 <NavLink to="/coreen">{t('Accueil coréen', 'Korean home')}</NavLink>
                 <NavLink to="/cours">{t('Cours', 'Lessons')}</NavLink>
@@ -70,7 +79,7 @@ export function Layout() {
               </>
             ) : current ? (
               <>
-                <NavLink to="/" end className="nav-back">{portal?.nav.back ?? '← Toutes les langues'}</NavLink>
+                {!inAccount && <NavLink to="/" end className="nav-back">{portal?.nav.back ?? '← Toutes les langues'}</NavLink>}
                 <span className="nav-group">{name(current)}</span>
                 <NavLink to={current.path} end>{portal?.nav.home ?? name(current)}</NavLink>
                 {current.available && <NavLink to={`${current.path}/cours`}>{portal?.nav.courses ?? 'Cours'}</NavLink>}
@@ -140,7 +149,7 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      {!open && !ACCOUNT_PATHS.includes(location.pathname) && <BookingBubble />}
+      {!open && !inAccount && <BookingBubble />}
       <main>
         {sync && sync !== 'Progression sauvegardée en ligne' && sync !== 'Sauvegarde en cours…' && <div className="container sync-status" role="status">{sync}</div>}
         <Outlet />

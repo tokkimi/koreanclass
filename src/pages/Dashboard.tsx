@@ -1,19 +1,25 @@
 import { Link } from 'react-router-dom'
-import { allLessons, levels } from '../data'
+import { levels } from '../data'
 import { currentStreak, globalStats, levelStats, useCurrentUser, useProgress } from '../lib/store'
 import { computeBadges } from '../lib/badges'
 import { ProgressBar } from '../components/ProgressBar'
 import { Avatar } from '../components/Avatar'
-import { AccountTabs } from '../components/AccountTabs'
+import { AccountTabs, CourseSwitch } from '../components/AccountTabs'
+import { baseOf, levelsOf, useLastLang } from '../lib/lastLang'
 
 export default function Dashboard() {
   const user = useCurrentUser()!
   const p = useProgress()
-  const g = globalStats(p)
-  const stats = levelStats(p)
+  const lang = useLastLang()
+  const list = levelsOf(lang)
+  const base = baseOf(lang)
+  const korean = lang.id === 'coreen'
+  const g = globalStats(p, list)
+  const stats = levelStats(p, list)
+  const allLessons = list.flatMap((level) => level.lessons.map((lesson) => ({ level, lesson })))
   const badges = computeBadges(p)
 
-  const startLevel = p.placement ? p.placement.levelIndex : 0
+  const startLevel = korean && p.placement ? p.placement.levelIndex : 0
   const next =
     allLessons.find(({ level, lesson }) => level.index >= startLevel && !p.lessons[lesson.id]?.completed) ?? allLessons.find(({ lesson }) => !p.lessons[lesson.id]?.completed)
   const inProgress = stats.filter((s) => s.done > 0 && (s.done < s.total || !s.test?.passed))
@@ -22,10 +28,11 @@ export default function Dashboard() {
   return (
     <div className="container page">
       <AccountTabs />
+      <CourseSwitch />
       <div className="dash-head">
         <Avatar user={user} size={64} />
         <div>
-          <h1>안녕하세요, {user.displayName} !</h1>
+          <h1><span lang={lang.speech}>{lang.hello.replace(/[!！]$/, '')}</span>, {user.displayName} !</h1>
           <p className="muted">
             Rang : <strong className="ko-text">{g.rank.name}</strong> ({g.rank.fr}) · niveau actuel : <strong>{g.currentLevel.name}</strong>
           </p>
@@ -33,8 +40,8 @@ export default function Dashboard() {
       </div>
 
       <div className="stat-grid">
-        <Link to="/pratique" className="card"><h2>Mises en situation</h2><p>Commande au café, joue un dialogue et entraîne-toi à parler.</p><span className="link">Jouer une scène →</span></Link>
-        <Link to="/structures" className="card"><h2>Phrases & grammaire</h2><p>Comprends les structures et construis tes propres phrases.</p><span className="link">Choisir un atelier →</span></Link>
+        <Link to={`${base}/pratique`} className="card"><h2>Mises en situation</h2><p>Commande au café, joue un dialogue et entraîne-toi à parler.</p><span className="link">Jouer une scène →</span></Link>
+        <Link to={`${base}/structures`} className="card"><h2>Phrases & grammaire</h2><p>Comprends les structures et construis tes propres phrases.</p><span className="link">Choisir un atelier →</span></Link>
         <div className="card stat">
           <span className="stat-icon">⭐</span>
           <strong>{p.xp}</strong>
@@ -75,7 +82,7 @@ export default function Dashboard() {
               <p className="muted">
                 {next.level.name} · <span className="ko-text">{next.lesson.subtitle}</span> · {next.lesson.duration} min
               </p>
-              <Link to={`/cours/${next.level.id}/${next.lesson.id}`} className="btn">
+              <Link to={`${base}/cours/${next.level.id}/${next.lesson.id}`} className="btn">
                 Continuer
               </Link>
             </div>
@@ -89,11 +96,11 @@ export default function Dashboard() {
             </div>
           )}
 
-          {!p.placement && (
+          {!(korean && p.placement) && (
             <div className="card notice-card">
               <strong>🎯 Vous ne savez pas par où commencer ?</strong>
               <p className="small muted">Passez le test de positionnement (10 min) : nous adapterons votre parcours.</p>
-              <Link to="/test-de-niveau" className="btn small ghost">
+              <Link to={`${base}/test-de-niveau`} className="btn small ghost">
                 Faire le test
               </Link>
             </div>
@@ -103,7 +110,7 @@ export default function Dashboard() {
             <h2>Progression par niveau</h2>
             <div className="level-progress">
               {stats.map((s) => (
-                <Link to={`/cours/${s.level.id}`} key={s.level.id} className="lp-row">
+                <Link to={`${base}/cours/${s.level.id}`} key={s.level.id} className="lp-row">
                   <div className="row between small">
                     <strong>{s.level.name}</strong>
                     <span className="muted">
@@ -127,7 +134,7 @@ export default function Dashboard() {
                       const lp = p.lessons[l.id]
                       return (
                         <li key={l.id} className={lp?.completed ? 'done' : ''}>
-                          <Link to={`/cours/${s.level.id}/${l.id}`}>
+                          <Link to={`${base}/cours/${s.level.id}/${l.id}`}>
                             {lp?.completed ? '✓' : '○'} {l.title}
                           </Link>
                           {lp && <span className="muted"> — {lp.bestScore} %</span>}
@@ -142,7 +149,7 @@ export default function Dashboard() {
 
           <div className="card">
             <h2>Mes résultats</h2>
-            <Link to="/pratique" className="link">Jeux et prises de parole : {p.practice?.length ?? 0} activités enregistrées →</Link>
+            <Link to={`${base}/pratique`} className="link">Jeux et prises de parole : {p.practice?.length ?? 0} activités enregistrées →</Link>
             {p.history.length === 0 ? (
               <p className="muted">Aucun résultat pour l'instant. Terminez une leçon ou un test pour voir vos scores ici.</p>
             ) : (
@@ -209,7 +216,7 @@ export default function Dashboard() {
               <p className="muted small">Aucun cours à venir.</p>
             )}
             <div className="row">
-              <Link to="/reserver" className="btn small">
+              <Link to={`/reserver?langue=${lang.id}`} className="btn small">
                 Réserver
               </Link>
               <Link to="/reservations" className="btn small ghost">
@@ -218,7 +225,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {p.placement && (
+          {korean && p.placement && (
             <div className="card">
               <h2>Test de positionnement</h2>
               <p className="small">
