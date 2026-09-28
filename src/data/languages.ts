@@ -74,7 +74,7 @@ export const languages: LanguageInfo[] = [
       { code: 'N1', title: 'Avancé & courant', detail: 'Presse, expressions, JLPT N1' },
     ],
     topics: ['Conversation', 'Grammaire', 'Préparation JLPT', 'Kanji', 'Prononciation', 'Voyage au Japon', 'Kana (débutant)', 'Autre'],
-    available: false,
+    available: true,
     taughtIn: 'fr',
   },
   {

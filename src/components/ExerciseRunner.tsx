@@ -3,6 +3,7 @@ import { useMemo, useState, useRef } from 'react'
 import type { Exercise } from '../data/types'
 import { checkFill, checkMatch, checkOrder, scoreLabel, seededShuffle, shuffleDifferent } from '../lib/grading'
 import { SpeakButton } from './Speak'
+import { isTargetScript, spokenPart, useCourseLang } from '../lib/courseLang'
 
 interface Props {
   exercises: Exercise[]
@@ -20,8 +21,16 @@ interface Answer {
 
 const hasHangul = (s: string) => /[가-힣ㄱ-ㆎ]/.test(s)
 const koreanOnly = (s: string) => (s.match(/[가-힣ㄱ-ㆎ][가-힣ㄱ-ㆎ\s]*/g) ?? []).join(", ")
+/** Textes de l'interface : français par défaut, anglais pour le cours de français. */
+function useT() {
+  const c = useCourseLang()
+  return (fr: string, en: string) => (c?.ui === 'en' ? en : fr)
+}
+const otherLabel = (pct: number, en: boolean) => (pct >= 90 ? (en ? 'Excellent!' : 'Excellent !') : pct >= 70 ? (en ? 'Well done!' : 'Très bien !') : pct >= 50 ? (en ? 'Not bad, keep going!' : 'Pas mal, continue !') : en ? 'Needs more practice' : 'À retravailler')
 
 export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passMark }: Props) {
+  const course = useCourseLang()
+  const t = useT()
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [checked, setChecked] = useState<Answer | null>(null)
@@ -61,7 +70,7 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
     onRestart?.()
   }
 
-  if (!exercises.length) return <p>Aucun exercice disponible.</p>
+  if (!exercises.length) return <p>{t('Aucun exercice disponible.', 'No exercises available.')}</p>
   if (done) {
     const pct = Math.round((score / exercises.length) * 100)
     const passed = passMark === undefined || pct >= passMark
@@ -70,21 +79,21 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
         <div className={`score-ring ${passed ? 'ok' : 'ko'}`} style={{ ['--pct' as string]: pct }}>
           <span>{pct}%</span>
         </div>
-        <h3>{scoreLabel(pct)}</h3>
+        <h3>{course ? otherLabel(pct, course.ui === 'en') : scoreLabel(pct)}</h3>
         <p className="muted">
-          {score} bonne{score > 1 ? 's' : ''} réponse{score > 1 ? 's' : ''} sur {exercises.length}
-          {passMark !== undefined && (passed ? ' — niveau validé ✅' : ` — il faut ${passMark} % pour valider`)}
+          {course?.ui === 'en' ? `${score} correct answer${score > 1 ? 's' : ''} out of ${exercises.length}` : `${score} bonne${score > 1 ? 's' : ''} réponse${score > 1 ? 's' : ''} sur ${exercises.length}`}
+          {passMark !== undefined && (passed ? t(' — niveau validé ✅', ' — passed ✅') : t(` — il faut ${passMark} % pour valider`, ` — you need ${passMark}% to pass`))}
         </p>
-        <div className="card mt"><h3>On le travaille ensemble ?</h3><p>Reprends ces notions et pratique à l’oral avec ton professeur. Cours particulier : 15 € / heure.</p><Link className="btn" to="/reserver?formule=single">Réserver mon cours · 15 €</Link><p className="small"><Link className="link" to="/reserver?formule=pack10">Ou choisir 10 heures à 100 € →</Link></p></div>
+        {course ? <div className="card mt"><h3>{t('On le travaille ensemble ?', 'Want to practise it together?')}</h3><p>{t('Reprends ces notions et pratique à l’oral avec ton professeur. Cours particulier : 15 € / heure.', 'Go over these points and practise speaking with your teacher. Private lesson: €15 / hour.')}</p><Link className="btn" to={`/reserver?langue=${course.id}&formule=single`}>{t('Réserver mon cours · 15 €', 'Book my lesson · €15')}</Link><p className="small"><Link className="link" to={`/reserver?langue=${course.id}&formule=pack10`}>{t('Ou choisir 10 heures à 100 € →', 'Or take 10 hours for €100 →')}</Link></p></div> : <div className="card mt"><h3>On le travaille ensemble ?</h3><p>Reprends ces notions et pratique à l’oral avec ton professeur. Cours particulier : 15 € / heure.</p><Link className="btn" to="/reserver?formule=single">Réserver mon cours · 15 €</Link><p className="small"><Link className="link" to="/reserver?formule=pack10">Ou choisir 10 heures à 100 € →</Link></p></div>}
         <details className="recap">
-          <summary>Voir le détail des réponses</summary>
+          <summary>{t('Voir le détail des réponses', 'See all answers')}</summary>
           <ol>
             {exercises.map((e, i) => (
               <li key={i} className={answers[i]?.correct ? 'ok' : 'ko'}>
                 <strong>{answers[i]?.correct ? '✓' : '✗'}</strong> {e.q}
                 {!answers[i]?.correct && (
                   <div className="muted small">
-                    Votre réponse : {answers[i]?.given || '—'} · Bonne réponse : {correctAnswer(e)}
+                    {t('Votre réponse', 'Your answer')} : {answers[i]?.given || '—'} · {t('Bonne réponse', 'Correct answer')} : {correctAnswer(e)}
                   </div>
                 )}
               </li>
@@ -92,7 +101,7 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
           </ol>
         </details>
         <button className="btn" onClick={restart}>
-          Recommencer
+          {t('Recommencer', 'Try again')}
         </button>
       </div>
     )
@@ -102,9 +111,9 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
     <div className="card runner">
       <div className="runner-head">
         <span className="pill">
-          Question {index + 1} / {exercises.length}
+          {t('Question', 'Question')} {index + 1} / {exercises.length}
         </span>
-        <span className="muted small">Score : {score}</span>
+        <span className="muted small">{t('Score', 'Score')} : {score}</span>
       </div>
       <div className="progress thin">
         <div style={{ width: `${(index / exercises.length) * 100}%` }} />
@@ -112,12 +121,12 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
       <ExerciseView key={`${seed}-${index}`} ex={ex} seed={seed * 100 + index} disabled={!!checked} onSubmit={submit} />
       {checked && (
         <div role="status" aria-live="polite" className={`feedback ${checked.correct ? 'ok' : 'ko'}`}>
-          <strong>{checked.correct ? 'Bonne réponse ! 👏' : 'Pas tout à fait…'}</strong>
-          {!checked.correct && <div>Réponse attendue : <span className="ko-text">{correctAnswer(ex)}</span></div>}
+          <strong>{checked.correct ? t('Bonne réponse ! 👏', 'Correct! 👏') : t('Pas tout à fait…', 'Not quite…')}</strong>
+          {!checked.correct && <div>{t('Réponse attendue', 'Expected answer')} : <span className="ko-text">{correctAnswer(ex)}</span></div>}
           {'explain' in ex && ex.explain && <div className="small">{ex.explain}</div>}
           {error && <p role="alert" className="error">{error}</p>}
           <button className="btn" onClick={next} disabled={saving} autoFocus>
-            {saving ? 'Sauvegarde…' : error ? 'Réessayer la sauvegarde' : index + 1 >= exercises.length ? 'Voir mon résultat' : 'Question suivante →'}
+            {saving ? t('Sauvegarde…', 'Saving…') : error ? t('Réessayer la sauvegarde', 'Retry saving') : index + 1 >= exercises.length ? t('Voir mon résultat', 'See my result') : t('Question suivante →', 'Next question →')}
           </button>
         </div>
       )}
@@ -152,15 +161,31 @@ function ExerciseView({ ex, seed, disabled, onSubmit }: { ex: Exercise; seed: nu
 }
 
 function Question({ text }: { text: string }) {
+  const course = useCourseLang()
+  if (course) {
+    const spoken = spokenPart(text, course)
+    return (
+      <h3 className="question">
+        {text} {spoken && <SpeakButton text={spoken} lang={course.speech} />}
+      </h3>
+    )
+  }
   return (
     <h3 className="question">
       {text} {hasHangul(text) && <SpeakButton text={koreanOnly(text)} />}
     </h3>
   )
 }
+/** Classe du texte dans la langue étudiée (police coréenne ou japonaise). */
+function useScriptClass() {
+  const course = useCourseLang()
+  return (s: string) => (course ? (isTargetScript(s, course) ? 'ko-text' : '') : hasHangul(s) ? 'ko-text' : '')
+}
 
 function Qcm({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'qcm' }>; disabled: boolean; onSubmit: (a: Answer) => void }) {
   const [sel, setSel] = useState<number | null>(null)
+  const t = useT()
+  const sc = useScriptClass()
   return (
     <div>
       <Question text={ex.q} />
@@ -174,14 +199,14 @@ function Qcm({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'qcm' }
           if (disabled && sel === i && i !== ex.answer) cls += ' wrong'
           return (
             <button key={i} className={cls} aria-pressed={sel === i} disabled={disabled} onClick={() => setSel(i)}>
-              <span className="opt-letter">{String.fromCharCode(65 + i)}</span> <span className={hasHangul(o) ? 'ko-text' : ''}>{o}</span>
+              <span className="opt-letter">{String.fromCharCode(65 + i)}</span> <span className={sc(o)}>{o}</span>
             </button>
           )
         })}
       </div>
       {!disabled && (
         <button className="btn" disabled={sel === null} onClick={() => sel !== null && onSubmit({ correct: sel === ex.answer, given: ex.options[sel] })}>
-          Vérifier
+          {t('Vérifier', 'Check')}
         </button>
       )}
     </div>
@@ -190,11 +215,13 @@ function Qcm({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'qcm' }
 
 function Fill({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'fill' }>; disabled: boolean; onSubmit: (a: Answer) => void }) {
   const [v, setV] = useState('')
+  const course = useCourseLang()
+  const t = useT()
   const submit = () => v.trim() && onSubmit({ correct: checkFill(ex, v), given: v })
   return (
     <div>
       <Question text={ex.q} />
-      {ex.hint && <p className="muted small">Indice : {ex.hint}</p>}
+      {ex.hint && <p className="muted small">{t('Indice', 'Hint')} : {ex.hint}</p>}
       <form
         className="fill-row"
         onSubmit={(e) => {
@@ -202,15 +229,15 @@ function Fill({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'fill'
           submit()
         }}
       >
-        <input className="input ko-text" value={v} onChange={(e) => setV(e.target.value)} disabled={disabled} placeholder="Tapez votre réponse (clavier coréen conseillé)" autoFocus lang="ko" />
+        <input className="input ko-text" value={v} onChange={(e) => setV(e.target.value)} disabled={disabled} placeholder={course ? t('Tape ta réponse', 'Type your answer') : 'Tapez votre réponse (clavier coréen conseillé)'} autoFocus lang={course ? course.speech : 'ko'} />
         {!disabled && (
           <button className="btn" type="submit" disabled={!v.trim()}>
-            Vérifier
+            {t('Vérifier', 'Check')}
           </button>
         )}
       </form>
       <p className="muted small">
-        Astuce : activez le clavier coréen (2-set / 두벌식) sur votre ordinateur ou téléphone.
+        {course ? course.keyboard : 'Astuce : activez le clavier coréen (2-set / 두벌식) sur votre ordinateur ou téléphone.'}
       </p>
     </div>
   )
@@ -220,12 +247,13 @@ function Order({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
   const bank = useMemo(() => shuffleDifferent(ex.words.map((w, i) => ({ w, i })), seed), [ex, seed])
   const [picked, setPicked] = useState<number[]>([])
   const words = picked.map((i) => ex.words[i])
+  const t = useT()
   return (
     <div>
       <Question text={ex.q} />
       {ex.fr && <p className="muted">« {ex.fr} »</p>}
       <div className="order-answer">
-        {picked.length === 0 && <span className="muted small">Cliquez sur les mots dans le bon ordre…</span>}
+        {picked.length === 0 && <span className="muted small">{t('Cliquez sur les mots dans le bon ordre…', 'Tap the words in the right order…')}</span>}
         {picked.map((i) => (
           <button key={i} className="chip ko-text" disabled={disabled} onClick={() => setPicked(picked.filter((x) => x !== i))}>
             {ex.words[i]}
@@ -242,10 +270,10 @@ function Order({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
       {!disabled && (
         <div className="row">
           <button className="btn ghost" onClick={() => setPicked([])} disabled={!picked.length}>
-            Effacer
+            {t('Effacer', 'Clear')}
           </button>
           <button className="btn" disabled={picked.length !== ex.words.length} onClick={() => onSubmit({ correct: checkOrder(ex, words), given: words.join(' ') })}>
-            Vérifier
+            {t('Vérifier', 'Check')}
           </button>
         </div>
       )}
@@ -260,6 +288,8 @@ function Match({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
   const [chosen, setChosen] = useState<Record<string, string>>({})
   const usedRights = new Set(Object.values(chosen))
   const expected = Object.fromEntries(ex.pairs)
+  const t = useT()
+  const sc = useScriptClass()
 
   function pickRight(r: string) {
     if (!active) return
@@ -273,7 +303,7 @@ function Match({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
   return (
     <div>
       <Question text={ex.q} />
-      <p className="muted small">Cliquez sur un élément à gauche, puis sur sa correspondance à droite.</p>
+      <p className="muted small">{t('Cliquez sur un élément à gauche, puis sur sa correspondance à droite.', 'Tap an item on the left, then its match on the right.')}</p>
       <div className="match-grid">
         <div className="match-col">
           {lefts.map((l) => {
@@ -282,7 +312,7 @@ function Match({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
             if (disabled) cls += chosen[l] === expected[l] ? ' correct' : ' wrong'
             return (
               <button key={l} className={cls} disabled={disabled} onClick={() => setActive(active === l ? null : l)}>
-                <span className={hasHangul(l) ? 'ko-text' : ''}>{l}</span>
+                <span className={sc(l)}>{l}</span>
                 {chosen[l] && <span className="match-tag">→ {chosen[l]}</span>}
               </button>
             )
@@ -291,7 +321,7 @@ function Match({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
         <div className="match-col">
           {rights.map((r) => (
             <button key={r} className={`option ${usedRights.has(r) ? 'used' : ''}`} disabled={disabled || !active} onClick={() => pickRight(r)}>
-              <span className={hasHangul(r) ? 'ko-text' : ''}>{r}</span>
+              <span className={sc(r)}>{r}</span>
             </button>
           ))}
         </div>
@@ -299,7 +329,7 @@ function Match({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
       {!disabled && (
         <div className="row">
           <button className="btn ghost" onClick={() => setChosen({})} disabled={!Object.keys(chosen).length}>
-            Effacer
+            {t('Effacer', 'Clear')}
           </button>
           <button
             className="btn"
@@ -313,7 +343,7 @@ function Match({ ex, seed, disabled, onSubmit }: { ex: Extract<Exercise, { type:
               })
             }
           >
-            Vérifier
+            {t('Vérifier', 'Check')}
           </button>
         </div>
       )}

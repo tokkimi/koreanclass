@@ -1,4 +1,6 @@
 import { allLessons, levels, placementTest } from '../src/data/index.js'
+import { allCourseLessons, allCourseLevels } from '../src/data/courses/index.js'
+import { languageName } from '../src/data/languages.js'
 import type { Exercise } from '../src/data/types.js'
 import { checkFill, PASS_MARK } from '../src/lib/grading.js'
 import { localDay, type Progress, type ResultEntry } from '../src/lib/model.js'
@@ -15,9 +17,15 @@ export function grade(ex: Exercise, answer: string) {
     }
   }
 }
+/** « Japonais · » devant les résultats des autres langues ; rien pour le coréen. */
+function langPrefix(refId: string) {
+  const c = allCourseLevels.find(x => x.level.id === refId || x.level.lessons.some(l => l.id === refId))
+  return c ? `${languageName(c.lang)} · ` : ''
+}
 export function recordAttempt(p: Progress, input: { kind: ResultEntry['kind']; refId: string; answers: string[]; id: string }) {
-  const lesson = allLessons.find(x => x.lesson.id === input.refId)
-  const level = levels.find(x => x.id === input.refId)
+  // Le coréen d'abord (inchangé), puis les autres langues dont les identifiants sont préfixés (ja-, es-, en-, fr-).
+  const lesson = allLessons.find(x => x.lesson.id === input.refId) ?? allCourseLessons.find(x => x.lesson.id === input.refId)
+  const level = levels.find(x => x.id === input.refId) ?? allCourseLevels.find(x => x.level.id === input.refId)?.level
   const exercises = input.kind === 'lesson' ? lesson?.lesson.exercises : input.kind === 'test' ? level?.test : input.kind === 'placement' ? placementTest.map(x => x.exercise) : undefined
   if (!exercises || input.answers.length !== exercises.length || input.answers.some(x => typeof x !== 'string' || x.length > 3000)) throw new Error('Les réponses du quiz sont incomplètes.')
   const results = exercises.map((ex, i) => grade(ex, input.answers[i]))
@@ -32,14 +40,14 @@ export function recordAttempt(p: Progress, input: { kind: ResultEntry['kind']; r
     const improvement = Math.max(0, score - Math.round((prev?.bestScore ?? 0) * total / 100))
     p.xp += improvement * 10 + (completed && !prev?.completed ? 50 : 0)
     p.lessons[input.refId] = { completed, bestScore: Math.max(prev?.bestScore ?? 0, pct), lastScore: pct, attempts: (prev?.attempts ?? 0) + 1, lastAt: date }
-    title = `${lesson!.level.name.split(' —')[0]} · ${lesson!.lesson.title}`
+    title = `${langPrefix(input.refId)}${lesson!.level.name.split(' —')[0]} · ${lesson!.lesson.title}`
   } else if (input.kind === 'test') {
     const prev = p.tests[input.refId]
     const passed = (prev?.passed ?? false) || pct >= PASS_MARK
     const improvement = Math.max(0, score - Math.round((prev?.best ?? 0) * total / 100))
     p.xp += improvement * 15 + (passed && !prev?.passed ? 200 : 0)
     p.tests[input.refId] = { passed, best: Math.max(prev?.best ?? 0, pct), last: pct, attempts: (prev?.attempts ?? 0) + 1, lastAt: date }
-    title = `Test ${level!.name}`
+    title = `${langPrefix(input.refId)}Test ${level!.name}`
   } else {
     let levelIndex = levels.length - 1
     for (const l of levels) {

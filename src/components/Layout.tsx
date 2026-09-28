@@ -1,11 +1,21 @@
 import { BookingBubble } from './BookingBubble'
-import { languages } from '../data/languages'
+import { languages, type LanguageInfo } from '../data/languages'
+import { courseLevels } from '../data/courses'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { logout, useCurrentUser, useSyncStatus } from '../lib/store'
 import { Avatar } from './Avatar'
 import { SITE_NAME } from '../config'
 import { Icon } from './Icon'
+
+/** Pages du parcours coréen (le coréen garde ses adresses historiques). */
+const KOREAN_PATHS = ['/coreen', '/cours', '/tests', '/test-de-niveau', '/pratique', '/structures', '/alphabet', '/couleurs', '/vocabulaire', '/nombres']
+/** Langue de la page affichée : le menu ne montre que cette langue. */
+function sectionOf(pathname: string): LanguageInfo | 'coreen' | null {
+  const inPath = (p: string) => pathname === p || pathname.startsWith(`${p}/`)
+  if (KOREAN_PATHS.some(inPath)) return 'coreen'
+  return languages.find((l) => l.id !== 'coreen' && inPath(l.path)) ?? null
+}
 
 export function Layout() {
   const user = useCurrentUser()
@@ -14,6 +24,10 @@ export function Layout() {
   const [menu, setMenu] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
+  const section = sectionOf(location.pathname)
+  const current = section && section !== 'coreen' ? section : null
+  const en = current?.taughtIn === 'en'
+  const levelsOf = current ? courseLevels(current.id) : []
 
   useEffect(() => {
     setOpen(false)
@@ -32,25 +46,45 @@ export function Layout() {
             {open ? "✕ Fermer" : "☰ Menu"}
           </button>
           <nav id="main-menu" className={`nav ${open ? 'open' : ''}`} aria-label="Menu principal" onKeyDown={e=>{if(e.key==='Escape'){setOpen(false);document.querySelector<HTMLButtonElement>('.burger')?.focus()}}}>
-            <NavLink to="/" end>Accueil · toutes les langues</NavLink>
-            <span className="nav-group">Coréen</span>
-            <NavLink to="/coreen">Accueil coréen</NavLink>
-            <NavLink to="/cours">Cours</NavLink>
-            <NavLink to="/alphabet">Hangeul</NavLink>
-            <NavLink to="/nombres">Nombres</NavLink>
-            <NavLink to="/vocabulaire">Vocabulaire</NavLink>
-            <NavLink to="/couleurs">Couleurs</NavLink>
-            <NavLink to="/structures">Phrases & grammaire</NavLink>
-            <NavLink to="/tests">Tests & QCM</NavLink>
-            <NavLink to="/pratique">En situation</NavLink>
-            <span className="nav-group">Autres langues</span>
-            {languages.filter((l) => l.id !== 'coreen').map((l) => (
-              <NavLink key={l.id} to={l.path}>
-                {l.name}
-              </NavLink>
-            ))}
-            <NavLink to="/reserver" className="nav-cta">
-              Cours privé
+            {section === 'coreen' ? (
+              <>
+                <NavLink to="/" end className="nav-back">← Toutes les langues</NavLink>
+                <span className="nav-group">Coréen</span>
+                <NavLink to="/coreen">Accueil coréen</NavLink>
+                <NavLink to="/cours">Cours</NavLink>
+                <NavLink to="/alphabet">Hangeul</NavLink>
+                <NavLink to="/nombres">Nombres</NavLink>
+                <NavLink to="/vocabulaire">Vocabulaire</NavLink>
+                <NavLink to="/couleurs">Couleurs</NavLink>
+                <NavLink to="/structures">Phrases & grammaire</NavLink>
+                <NavLink to="/tests">Tests & QCM</NavLink>
+                <NavLink to="/pratique">En situation</NavLink>
+              </>
+            ) : current ? (
+              <>
+                <NavLink to="/" end className="nav-back">{en ? '← All languages' : '← Toutes les langues'}</NavLink>
+                <span className="nav-group">{current.name}</span>
+                <NavLink to={current.path} end>{en ? 'French home' : `Accueil ${current.name.toLowerCase()}`}</NavLink>
+                {current.available && <NavLink to={`${current.path}/cours`} end>{en ? 'All lessons' : 'Tous les cours'}</NavLink>}
+                {current.available && levelsOf.map((lv) => (
+                  <NavLink key={lv.id} to={`${current.path}/cours/${lv.id}`} className={({ isActive }) => `nav-sub ${isActive || location.pathname === `${current.path}/tests/${lv.id}` ? 'active' : ''}`}>
+                    {lv.cefr} · {lv.name.split('— ')[1] ?? lv.name}
+                  </NavLink>
+                ))}
+              </>
+            ) : (
+              <>
+                <NavLink to="/" end>Accueil</NavLink>
+                <span className="nav-group">Nos langues</span>
+                {languages.map((l) => (
+                  <NavLink key={l.id} to={l.path}>
+                    {l.name}
+                  </NavLink>
+                ))}
+              </>
+            )}
+            <NavLink to={current ? `/reserver?langue=${current.id}` : section === 'coreen' ? '/reserver?langue=coreen' : '/reserver'} className="nav-cta">
+              {en ? 'Private lesson' : 'Cours privé'}
             </NavLink>
             {user ? (
               <div className="user-menu">
@@ -93,7 +127,7 @@ export function Layout() {
       </main>
       <nav className="mobile-dock" aria-label="Navigation principale">
         <NavLink to="/" end><Icon name="home" /><span>Accueil</span></NavLink>
-        <NavLink to="/cours"><Icon name="book" /><span>Apprendre</span></NavLink>
+        <NavLink to={current?.available ? `${current.path}/cours` : '/cours'}><Icon name="book" /><span>{en ? 'Learn' : 'Apprendre'}</span></NavLink>
         <NavLink to="/pratique"><Icon name="quiz" /><span>Jouer</span></NavLink>
         <NavLink to="/tableau-de-bord"><Icon name="chart" /><span>Progrès</span></NavLink>
         <NavLink to={user ? '/profil' : '/connexion'}><Icon name="user" /><span>{user ? 'Profil' : 'Connexion'}</span></NavLink>

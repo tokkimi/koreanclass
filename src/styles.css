@@ -3827,3 +3827,12 @@ main:has(.scroll-hero) .sync-status{position:fixed;z-index:60;top:78px;left:50%;
     -webkit-backdrop-filter: none;
   }
 }
+
+/* Menu propre à une langue */
+.nav .nav-back {
+  font-size: 0.86rem;
+}
+.nav .nav-sub {
+  padding-left: 30px;
+  font-size: 0.92rem;
+}

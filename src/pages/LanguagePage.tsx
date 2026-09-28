@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom'
 import type { LanguageInfo } from '../data/languages'
 import { PRICING } from '../config'
+import { courseLevels } from '../data/courses'
 
 /** Textes de la page, en français ou en anglais selon la langue d'explication du cours. */
 const T = {
   fr: {
     back: '← Toutes les langues',
+    start: 'Commencer les cours →',
+    lessons: 'leçons',
     path: 'Ton parcours',
     pathTitle: 'Du premier cours au niveau courant.',
     exam: 'Examen visé',
@@ -23,6 +26,8 @@ const T = {
   },
   en: {
     back: '← All languages',
+    start: 'Start the lessons →',
+    lessons: 'lessons',
     path: 'Your path',
     pathTitle: 'From your first lesson to fluency.',
     exam: 'Target exam',
@@ -42,6 +47,8 @@ const T = {
 
 export default function LanguagePage({ lang }: { lang: LanguageInfo }) {
   const t = T[lang.taughtIn]
+  const levels = courseLevels(lang.id)
+  const open = lang.available && levels.length > 0
   return (
     <div className="lp" style={{ ['--lang' as string]: lang.accent, ['--lang-tint' as string]: lang.tint }} lang={lang.taughtIn}>
       <section className="lp-hero">
@@ -59,6 +66,13 @@ export default function LanguagePage({ lang }: { lang: LanguageInfo }) {
           <p className="small muted">
             {t.exam} : <strong>{lang.exam}</strong>
           </p>
+          {open && (
+            <div className="row">
+              <Link className="btn" to={`${lang.path}/cours`}>
+                {t.start}
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
@@ -72,11 +86,16 @@ export default function LanguagePage({ lang }: { lang: LanguageInfo }) {
               <div>
                 <strong>{l.title}</strong> <span className="lp-code">{l.code}</span>
                 <p className="muted small">{l.detail}</p>
+                {open && levels[i] && (
+                  <Link className="link small" to={`${lang.path}/cours/${levels[i].id}`}>
+                    {levels[i].lessons.length} {t.lessons} →
+                  </Link>
+                )}
               </div>
             </li>
           ))}
         </ol>
-        {!lang.available && (
+        {!open && (
           <div className="lp-soon">
             <strong>{t.soonTitle}</strong>
             <p>{t.soon}</p>

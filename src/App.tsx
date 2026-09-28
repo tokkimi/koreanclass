@@ -9,6 +9,7 @@ import Home from './pages/Home'
 import LanguagesHome from './pages/LanguagesHome'
 import LanguagePage from './pages/LanguagePage'
 import { languages } from './data/languages'
+import { LangCourses, LangLesson, LangLevel, LangTest } from './pages/lang/LangCourse'
 import Practice from './pages/Practice'
 import Admin from './pages/Admin'
 import Structures from './pages/Structures'
@@ -45,9 +46,13 @@ export default function App() {
         <Route path="coreen" element={<Home />} />
         {languages
           .filter((l) => l.id !== 'coreen')
-          .map((l) => (
-            <Route key={l.id} path={l.path.slice(1)} element={<LanguagePage lang={l} />} />
-          ))}
+          .flatMap((l) => [
+            <Route key={l.id} path={l.path.slice(1)} element={<LanguagePage lang={l} />} />,
+            <Route key={`${l.id}-cours`} path={`${l.path.slice(1)}/cours`} element={<LangCourses lang={l} />} />,
+            <Route key={`${l.id}-niveau`} path={`${l.path.slice(1)}/cours/:levelId`} element={<LangLevel lang={l} />} />,
+            <Route key={`${l.id}-lecon`} path={`${l.path.slice(1)}/cours/:levelId/:lessonId`} element={<LangLesson lang={l} />} />,
+            <Route key={`${l.id}-test`} path={`${l.path.slice(1)}/tests/:levelId`} element={<LangTest lang={l} />} />,
+          ])}
         <Route path="cours" element={<Courses />} />
         <Route path="cours/:levelId" element={<LevelPage />} />
         <Route path="cours/:levelId/:lessonId" element={<LessonPage />} />

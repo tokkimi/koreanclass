@@ -1,0 +1,23 @@
+import type { Level, Lesson } from '../types.js'
+import { jaKana, jaN5 } from './japonais-1.js'
+import { jaN4, jaN3 } from './japonais-2.js'
+import { jaN2, jaN1 } from './japonais-3.js'
+
+/** Cursus en autonomie des langues autres que le coréen (le coréen reste dans src/data/index.ts). */
+export type CourseLanguage = 'japonais' | 'espagnol' | 'anglais' | 'francais'
+
+export const courses: Partial<Record<CourseLanguage, Level[]>> = {
+  japonais: [jaKana, jaN5, jaN4, jaN3, jaN2, jaN1],
+}
+
+export const courseLevels = (lang: string): Level[] => courses[lang as CourseLanguage] ?? []
+export const getCourseLevel = (lang: string, levelId?: string) => courseLevels(lang).find((l) => l.id === levelId)
+export function getCourseLesson(lang: string, levelId?: string, lessonId?: string) {
+  const level = getCourseLevel(lang, levelId)
+  const index = level?.lessons.findIndex((l) => l.id === lessonId) ?? -1
+  return level && index >= 0 ? { level, lesson: level.lessons[index], index } : undefined
+}
+
+/** Toutes les leçons et tous les niveaux, pour la correction côté serveur. */
+export const allCourseLevels: { lang: CourseLanguage; level: Level }[] = Object.entries(courses).flatMap(([lang, levels]) => levels!.map((level) => ({ lang: lang as CourseLanguage, level })))
+export const allCourseLessons: { lang: CourseLanguage; level: Level; lesson: Lesson }[] = allCourseLevels.flatMap(({ lang, level }) => level.lessons.map((lesson) => ({ lang, level, lesson })))
