@@ -86,9 +86,9 @@ export function AdminBookingCard({ b, owner, payment, request }: { b: Booking; o
   )
 }
 
-export function AdminAgenda({ users, payments, request }: { users: Row[]; payments: Payment[]; request: Request }) {
+export function AdminAgenda({ users, payments, request, initialFilter }: { users: Row[]; payments: Payment[]; request: Request; initialFilter?: string }) {
   const [day, setDay] = useState(new Date().toISOString().slice(0, 10))
-  const [filter, setFilter] = useState('actifs')
+  const [filter, setFilter] = useState(initialFilter ?? 'actifs')
   const all = users.flatMap((u) => u.progress.bookings.map((b) => ({ b, owner: u.user })))
   const shown = all.filter(({ b }) => (filter === 'tous' ? true : filter === 'actifs' ? b.status !== 'annulée' : b.status === filter))
   const ofDay = shown.filter(({ b }) => b.date === day).sort((x, y) => x.b.time.localeCompare(y.b.time))
@@ -96,11 +96,18 @@ export function AdminAgenda({ users, payments, request }: { users: Row[]; paymen
   return (
     <div className="admin-agenda">
       <div className="stack">
-        <div className="row">
-          {[['actifs', 'Tous les cours actifs'], ['demandée', 'À valider'], ['proposée', 'Proposés'], ['confirmée', 'Confirmés'], ['tous', 'Y compris annulés']].map(([id, label]) => (
-            <button key={id} className={`btn small ${filter === id ? '' : 'ghost'}`} onClick={() => setFilter(id)}>{label}</button>
+        <div className="course-switch" role="group" aria-label="Filtrer les cours">
+          {[['actifs', 'Tous'], ['demandée', `À valider (${all.filter(({ b }) => b.status === 'demandée').length})`], ['proposée', 'Proposés'], ['confirmée', 'Confirmés'], ['tous', '+ annulés']].map(([id, label]) => (
+            <button key={id} type="button" className={filter === id ? 'active' : ''} aria-pressed={filter === id} onClick={() => setFilter(id)}>{label}</button>
           ))}
         </div>
+        {filter !== 'actifs' && filter !== 'tous' && (
+          <section className="stack">
+            <h2>{filter === 'demandée' ? 'À valider' : filter === 'proposée' ? 'Proposés, en attente de l’élève' : 'Confirmés à venir'}</h2>
+            {shown.filter(({ b }) => filter !== 'confirmée' || b.date >= new Date().toISOString().slice(0, 10)).sort((x, y) => (x.b.date + x.b.time).localeCompare(y.b.date + y.b.time)).map(({ b, owner }) => <AdminBookingCard key={b.id} b={b} owner={owner} payment={payments.find((p) => p.id === b.paymentId)} request={request} />)}
+            {!shown.length && <p className="muted">Rien pour le moment.</p>}
+          </section>
+        )}
         <MonthCalendar events={shown.map(({ b, owner }) => ({ id: b.id, date: b.date, time: b.time, status: b.status, label: owner.displayName }))} selected={day} onSelect={setDay} />
         <h2>{new Date(day + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</h2>
         {ofDay.length ? ofDay.map(({ b, owner }) => <AdminBookingCard key={b.id} b={b} owner={owner} payment={payments.find((p) => p.id === b.paymentId)} request={request} />) : <p className="muted">Aucun cours ce jour-là.</p>}

@@ -31,7 +31,7 @@ function Bars({ title, data, format }: { title: string; data: { label: string; v
   )
 }
 
-export function AdminStats({ users, payments, ledger, onOpenUser }: { users: Row[]; payments: Payment[]; ledger: LedgerEntry[]; onOpenUser: (id: string) => void }) {
+export function AdminStats({ users, payments, ledger, onOpenUser, onGo }: { users: Row[]; payments: Payment[]; ledger: LedgerEntry[]; onOpenUser: (id: string) => void; onGo: (tab: string, extra?: Record<string, string>) => void }) {
   const now = new Date()
   const today = now.toISOString().slice(0, 10)
   const thisMonth = monthKey(today)
@@ -74,34 +74,37 @@ export function AdminStats({ users, payments, ledger, onOpenUser }: { users: Row
   const upcoming = live.filter((b) => b.date >= today).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)).slice(0, 8)
   const name = (id: string) => users.find((u) => u.user.id === id)?.user.displayName ?? 'Compte clôturé'
 
-  const kpis: [string, string, string?][] = [
-    [money(gross - refunds), 'Chiffre d’affaires encaissé', `${money(gross)} brut · ${money(refunds)} remboursés`],
-    [money(sum(income.filter((x) => monthKey(x.date) === thisMonth))), 'CA ce mois-ci'],
-    [money(sum(income.filter((x) => x.date >= daysAgo(30)))), 'CA 30 derniers jours'],
-    [money(gross - refunds - fees - expenses), 'Résultat net', `${money(fees)} frais PayPal · ${money(expenses)} dépenses`],
-    [paid.length ? money(Math.round(gross / paid.length)) : '—', 'Panier moyen'],
-    [`${pending.length}`, 'Paiements à vérifier', money(pending.reduce((n, p) => n + p.amount, 0))],
-    [`${hoursSold} h`, 'Heures vendues'],
-    [`${credits} h`, 'Heures payées à planifier'],
-    [`${live.filter((b) => b.status === 'confirmée' && b.date >= today).length}`, 'Cours confirmés à venir'],
-    [`${live.filter((b) => b.status === 'demandée').length}`, 'Demandes à valider'],
-    [`${live.filter((b) => b.status === 'proposée').length}`, 'Propositions en attente élève'],
-    [`${live.filter((b) => b.status === 'confirmée' && b.date < today).length}`, 'Cours donnés'],
-    [`${students.length}`, 'Élèves inscrits', `${students.filter((u) => u.user.createdAt >= daysAgo(30)).length} nouveaux sur 30 j`],
-    [`${active7} / ${active30}`, 'Actifs 7 j / 30 j'],
-    [students.length ? `${Math.round((payers.size / students.length) * 100)} %` : '—', 'Taux de clients payants', `${payers.size} client(s)`],
-    [`${lessonsDone}`, 'Leçons terminées', `${testsPassed} niveaux validés`],
+  type Kpi = { value: string; label: string; sub?: string; go: [string, Record<string, string>?]; alert?: boolean }
+  const toValidate = live.filter((b) => b.status === 'demandée').length
+  // Les cases sont cliquables : chacune ouvre la rubrique qui permet d'agir.
+  const kpis: Kpi[] = [
+    { value: `${toValidate}`, label: 'Cours à valider', go: ['agenda', { filter: 'demandée' }], alert: toValidate > 0 },
+    { value: `${pending.length}`, label: 'Paiements à vérifier', sub: money(pending.reduce((n, p) => n + p.amount, 0)), go: ['payments'], alert: pending.length > 0 },
+    { value: `${live.filter((b) => b.status === 'confirmée' && b.date >= today).length}`, label: 'Cours à venir', go: ['agenda', { filter: 'confirmée' }] },
+    { value: `${live.filter((b) => b.status === 'proposée').length}`, label: 'Propositions en attente', go: ['agenda', { filter: 'proposée' }] },
+    { value: money(sum(income.filter((x) => monthKey(x.date) === thisMonth))), label: 'CA ce mois-ci', go: ['ledger'] },
+    { value: money(gross - refunds), label: 'CA total encaissé', sub: `${money(refunds)} remboursés`, go: ['ledger'] },
+    { value: money(gross - refunds - fees - expenses), label: 'Résultat net', sub: `${money(fees)} frais · ${money(expenses)} dépenses`, go: ['ledger'] },
+    { value: money(sum(income.filter((x) => x.date >= daysAgo(30)))), label: 'CA 30 jours', go: ['ledger'] },
+    { value: `${students.length}`, label: 'Élèves', sub: `${students.filter((u) => u.user.createdAt >= daysAgo(30)).length} nouveaux / 30 j`, go: ['users'] },
+    { value: `${active7} / ${active30}`, label: 'Actifs 7 j / 30 j', go: ['users'] },
+    { value: `${credits} h`, label: 'Heures à planifier', go: ['users'] },
+    { value: `${hoursSold} h`, label: 'Heures vendues', go: ['payments'] },
+    { value: paid.length ? money(Math.round(gross / paid.length)) : '—', label: 'Panier moyen', go: ['payments'] },
+    { value: students.length ? `${Math.round((payers.size / students.length) * 100)} %` : '—', label: 'Clients payants', sub: `${payers.size} client(s)`, go: ['users'] },
+    { value: `${live.filter((b) => b.status === 'confirmée' && b.date < today).length}`, label: 'Cours donnés', go: ['bookings'] },
+    { value: `${lessonsDone}`, label: 'Leçons terminées', sub: `${testsPassed} niveaux validés`, go: ['users'] },
   ]
 
   return (
     <div className="stack">
       <div className="admin-kpis">
-        {kpis.map(([value, label, sub]) => (
-          <div className="card admin-kpi" key={label}>
-            <strong>{value}</strong>
-            <span>{label}</span>
-            {sub && <small className="muted">{sub}</small>}
-          </div>
+        {kpis.map((k) => (
+          <button type="button" className={`card admin-kpi ${k.alert ? 'alert' : ''}`} key={k.label} onClick={() => onGo(...k.go)}>
+            <strong>{k.value}</strong>
+            <span>{k.label}</span>
+            {k.sub && <small className="muted">{k.sub}</small>}
+          </button>
         ))}
       </div>
       <div className="admin-charts">

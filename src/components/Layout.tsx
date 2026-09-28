@@ -29,6 +29,7 @@ export function Layout() {
   const [open, setOpen] = useState(false)
   const [langs, setLangs] = useState(false)
   const [picker, setPicker] = useState(false)
+  const [adminMore, setAdminMore] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   const last = useLastLang()
@@ -45,6 +46,7 @@ export function Layout() {
   const built = (page: PortalPage) => !!current && isBuilt(current.id, page)
 
   const visited = sectionOf(location.pathname)
+  const adminTab = new URLSearchParams(location.search).get('tab') ?? 'stats'
   // Langue du bouton en bas à gauche : celle de la page, sinon la dernière étudiée.
   const dockLang = inAccount ? last : visited === 'coreen' ? languages[0] : visited ?? last
   useEffect(() => {
@@ -55,6 +57,7 @@ export function Layout() {
     setOpen(false)
     setLangs(false)
     setPicker(false)
+    setAdminMore(false)
     window.scrollTo(0, 0)
   }, [location.pathname])
 
@@ -173,16 +176,38 @@ export function Layout() {
           </div>
         </div>
       )}
+      {location.pathname === '/admin' && user?.role === 'admin' ? (
+        <>
+          {adminMore && (
+            <div className="dock-picker-backdrop" onClick={() => setAdminMore(false)}>
+              <div className="dock-picker" role="group" aria-label="Autres rubriques" onClick={(e) => e.stopPropagation()}>
+                <p className="dock-picker-title">Administration</p>
+                {[['bookings', '📋 Toutes les réservations'], ['ledger', '📒 Comptabilité'], ['audit', '🕘 Historique des actions']].map(([id, label]) => (
+                  <button key={id} type="button" className={adminTab === id ? 'active' : ''} onClick={() => { setAdminMore(false); navigate(`/admin?tab=${id}`); window.scrollTo(0, 0) }}>{label}</button>
+                ))}
+                <button type="button" onClick={() => navigate('/')}>← Quitter l’administration</button>
+              </div>
+            </div>
+          )}
+          <nav className="mobile-dock admin-dock" aria-label="Navigation administrateur">
+            {([['stats', 'chart', 'Stats'], ['agenda', 'calendar', 'Agenda'], ['users', 'users', 'Clients'], ['payments', 'euro', 'Paiements']] as const).map(([id, icon, label]) => (
+              <Link key={id} to={`/admin?tab=${id}`} className={adminTab === id ? 'active' : ''} onClick={() => window.scrollTo(0, 0)}><Icon name={icon} /><span>{label}</span></Link>
+            ))}
+            <button type="button" className={`dock-lang ${adminMore || ['bookings', 'ledger', 'audit'].includes(adminTab) ? 'active' : ''}`} aria-expanded={adminMore} onClick={() => setAdminMore(!adminMore)}><Icon name="more" /><span>Plus</span></button>
+          </nav>
+        </>
+      ) : (
       <nav className="mobile-dock" aria-label={t("Navigation principale", "Main navigation")}>
-        <button type="button" className={`dock-lang ${picker ? 'active' : ''}`} aria-haspopup="true" aria-expanded={picker} aria-controls="dock-langs" onClick={() => setPicker(!picker)}>
-          <span className="dock-flag" aria-hidden="true">{FLAGS[dockLang.id]}</span>
-          <span>{name(dockLang)}</span>
-        </button>
-        <NavLink to={`${baseOf(dockLang)}/cours`}><Icon name="book" /><span>{t('Apprendre', 'Learn')}</span></NavLink>
-        <NavLink to={`${baseOf(dockLang)}/pratique`}><Icon name="quiz" /><span>{t('Jouer', 'Play')}</span></NavLink>
-        <NavLink to="/tableau-de-bord"><Icon name="chart" /><span>{t('Progrès', 'Progress')}</span></NavLink>
-        <NavLink to={user ? '/profil' : '/connexion'}><Icon name="user" /><span>{user ? t('Profil', 'Profile') : t('Connexion', 'Log in')}</span></NavLink>
-      </nav>
+          <button type="button" className={`dock-lang ${picker ? 'active' : ''}`} aria-haspopup="true" aria-expanded={picker} aria-controls="dock-langs" onClick={() => setPicker(!picker)}>
+            <span className="dock-flag" aria-hidden="true">{FLAGS[dockLang.id]}</span>
+            <span>{name(dockLang)}</span>
+          </button>
+          <NavLink to={`${baseOf(dockLang)}/cours`}><Icon name="book" /><span>{t('Apprendre', 'Learn')}</span></NavLink>
+          <NavLink to={`${baseOf(dockLang)}/pratique`}><Icon name="quiz" /><span>{t('Jouer', 'Play')}</span></NavLink>
+          <NavLink to="/tableau-de-bord"><Icon name="chart" /><span>{t('Progrès', 'Progress')}</span></NavLink>
+          <NavLink to={user ? '/profil' : '/connexion'}><Icon name="user" /><span>{user ? t('Profil', 'Profile') : t('Connexion', 'Log in')}</span></NavLink>
+        </nav>
+      )}
       <footer className="footer">
         <div className="container footer-grid">
           <div>
