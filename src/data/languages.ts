@@ -98,7 +98,7 @@ export const languages: LanguageInfo[] = [
       { code: 'C1-C2', title: 'Avancé & courant', detail: 'Expressions, registres, DELE' },
     ],
     topics: ['Conversation', 'Grammaire', 'Préparation DELE', 'Prononciation', 'Voyage en Espagne / Amérique latine', 'Débutant', 'Autre'],
-    available: false,
+    available: true,
     taughtIn: 'fr',
   },
   {
