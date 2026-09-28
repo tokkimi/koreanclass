@@ -43,6 +43,7 @@ export async function deleteAccount() { await mutate('delete') }
 export async function recordLesson(refId:string,_title:string,_score:number,_total:number,answers:string[],operationId:string) { await mutate('attempt',{kind:'lesson',refId,answers},operationId) }
 export async function recordTest(refId:string,_title:string,_score:number,_total:number,_passMark:number,answers:string[],operationId:string) { await mutate('attempt',{kind:'test',refId,answers},operationId) }
 export async function recordPlacement(_levelIndex:number,_score:number,_total:number,answers:string[],operationId:string) { await mutate('attempt',{kind:'placement',refId:'placement',answers},operationId) }
+export async function recordCoursePlacement(refId:string,answers:string[],operationId:string) { await mutate('attempt',{kind:'placement',refId,answers},operationId) }
 export async function addBooking(b:Omit<Booking,'id'|'status'|'createdAt'>) { const id=crypto.randomUUID(); const r=await mutate('booking',{booking:b},id); return r.progress.bookings.find(x=>x.id===id)! }
 export async function bookWithCredit(b:Omit<Booking,'id'|'status'|'createdAt'|'formula'>) { const id=crypto.randomUUID(); const r=await mutate('booking',{booking:{...b,formula:'credit'}},id); return r.progress.bookings.find(x=>x.id===id)! }
 export async function cancelBooking(id:string) { await mutate('cancelBooking',{id}) }

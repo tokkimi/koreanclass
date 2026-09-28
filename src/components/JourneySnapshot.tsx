@@ -10,30 +10,55 @@ const stages = [
   { level: '05', name: 'C1+', detail: 'Parler naturellement', tone: 'ink' },
 ]
 
-export function JourneySnapshot({ levels, lessons, guidedHours }: { levels: number; lessons: number; guidedHours: number }) {
+/** Textes modifiables pour les autres langues ; sans eux, la version coréenne reste identique. */
+export interface JourneyCopy {
+  eyebrow: string
+  title: string
+  text: string
+  stages: { level: string; name: string; detail: string; tone: string }[]
+  goal: string
+  start: string
+  startTo: string
+  teacher: string
+  teacherTo: string
+  labels: [string, string, string, string, string, string]
+}
+export function JourneySnapshot({ levels, lessons, guidedHours, copy }: { levels: number; lessons: number; guidedHours: number; copy?: JourneyCopy }) {
+  const c: JourneyCopy = copy ?? {
+    eyebrow: 'UN VRAI CHEMIN, PAS UNE LISTE DE COURS',
+    title: 'Un parcours lisible, du hangeul au TOPIK.',
+    text: 'Construis les bases, relie tes idées, puis prends la parole avec précision. Tu avances à ton rythme, avec un point clair à chaque étape.',
+    stages,
+    goal: 'TOPIK',
+    start: 'Commencer mon parcours',
+    startTo: '/cours',
+    teacher: 'Être accompagnée par ton prof',
+    teacherTo: '/reserver',
+    labels: ['niveaux progressifs', 'leçons et ateliers', 'de parcours guidé', '6 étapes', 'Un cap à la fois', 'objectif final'],
+  }
   return <section className="journey-snapshot" aria-labelledby="journey-title">
     <div className="journey-copy">
-      <p className="hc-eyebrow">UN VRAI CHEMIN, PAS UNE LISTE DE COURS</p>
-      <h2 id="journey-title">Un parcours lisible, du hangeul au TOPIK.</h2>
-      <p>Construis les bases, relie tes idées, puis prends la parole avec précision. Tu avances à ton rythme, avec un point clair à chaque étape.</p>
+      <p className="hc-eyebrow">{c.eyebrow}</p>
+      <h2 id="journey-title">{c.title}</h2>
+      <p>{c.text}</p>
       <dl className="journey-stats">
-        <div><dt>{levels}</dt><dd>niveaux progressifs</dd></div>
-        <div><dt>{lessons}</dt><dd>leçons et ateliers</dd></div>
-        <div><dt>≈ {guidedHours} h</dt><dd>de parcours guidé</dd></div>
+        <div><dt>{levels}</dt><dd>{c.labels[0]}</dd></div>
+        <div><dt>{lessons}</dt><dd>{c.labels[1]}</dd></div>
+        <div><dt>≈ {guidedHours} h</dt><dd>{c.labels[2]}</dd></div>
       </dl>
       <div className="journey-actions">
-        <Link to="/cours" className="btn">Commencer mon parcours <span aria-hidden="true">→</span></Link>
-        <Link to="/reserver" className="btn ghost">Être accompagnée par ton prof</Link>
+        <Link to={c.startTo} className="btn">{c.start} <span aria-hidden="true">→</span></Link>
+        <Link to={c.teacherTo} className="btn ghost">{c.teacher}</Link>
       </div>
     </div>
     <div className="journey-visual" aria-label="Les six étapes du parcours">
-      <div className="journey-visual-heading"><span>6 étapes</span><strong>Un cap à la fois</strong></div>
+      <div className="journey-visual-heading"><span>{c.labels[3]}</span><strong>{c.labels[4]}</strong></div>
       <div className="journey-track">
-        {stages.map((stage, index) => <article className={`journey-stage ${stage.tone}`} style={{ ['--delay' as string]: `${index * -0.45}s` } as CSSProperties} key={stage.level}>
+        {c.stages.map((stage, index) => <article className={`journey-stage ${stage.tone}`} style={{ ['--delay' as string]: `${index * -0.45}s` } as CSSProperties} key={stage.level}>
           <span>{stage.level}</span><strong>{stage.name}</strong><small>{stage.detail}</small>
         </article>)}
       </div>
-      <div className="journey-finish"><span>objectif final</span><strong>TOPIK</strong></div>
+      <div className="journey-finish"><span>{c.labels[5]}</span><strong>{c.goal}</strong></div>
     </div>
   </section>
 }

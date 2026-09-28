@@ -1,6 +1,6 @@
 import { BookingBubble } from './BookingBubble'
 import { languages, type LanguageInfo } from '../data/languages'
-import { courseLevels } from '../data/courses'
+import { builtPages, portals, type PortalPage } from '../data/portal'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { logout, useCurrentUser, useSyncStatus } from '../lib/store'
@@ -27,7 +27,8 @@ export function Layout() {
   const section = sectionOf(location.pathname)
   const current = section && section !== 'coreen' ? section : null
   const en = current?.taughtIn === 'en'
-  const levelsOf = current ? courseLevels(current.id) : []
+  const portal = current?.available ? portals[current.id] : undefined
+  const built = (page: PortalPage) => builtPages.includes(page)
 
   useEffect(() => {
     setOpen(false)
@@ -62,15 +63,17 @@ export function Layout() {
               </>
             ) : current ? (
               <>
-                <NavLink to="/" end className="nav-back">{en ? '← All languages' : '← Toutes les langues'}</NavLink>
+                <NavLink to="/" end className="nav-back">{portal?.nav.back ?? '← Toutes les langues'}</NavLink>
                 <span className="nav-group">{current.name}</span>
-                <NavLink to={current.path} end>{en ? 'French home' : `Accueil ${current.name.toLowerCase()}`}</NavLink>
-                {current.available && <NavLink to={`${current.path}/cours`} end>{en ? 'All lessons' : 'Tous les cours'}</NavLink>}
-                {current.available && levelsOf.map((lv) => (
-                  <NavLink key={lv.id} to={`${current.path}/cours/${lv.id}`} className={({ isActive }) => `nav-sub ${isActive || location.pathname === `${current.path}/tests/${lv.id}` ? 'active' : ''}`}>
-                    {lv.cefr} · {lv.name.split('— ')[1] ?? lv.name}
-                  </NavLink>
-                ))}
+                <NavLink to={current.path} end>{portal?.nav.home ?? current.name}</NavLink>
+                {current.available && <NavLink to={`${current.path}/cours`}>{portal?.nav.courses ?? 'Cours'}</NavLink>}
+                {portal && built('ecriture') && <NavLink to={`${current.path}/ecriture`}>{portal.writing.menu}</NavLink>}
+                {portal && built('nombres') && <NavLink to={`${current.path}/nombres`}>{portal.nav.numbers}</NavLink>}
+                {portal && built('vocabulaire') && <NavLink to={`${current.path}/vocabulaire`}>{portal.nav.vocabulary}</NavLink>}
+                {portal && built('couleurs') && <NavLink to={`${current.path}/couleurs`}>{portal.nav.colors}</NavLink>}
+                {portal && built('structures') && <NavLink to={`${current.path}/structures`}>{portal.nav.structures}</NavLink>}
+                {portal && built('tests') && <NavLink to={`${current.path}/tests`}>{portal.nav.tests}</NavLink>}
+                {portal && built('pratique') && <NavLink to={`${current.path}/pratique`}>{portal.nav.practice}</NavLink>}
               </>
             ) : (
               <>
@@ -84,7 +87,7 @@ export function Layout() {
               </>
             )}
             <NavLink to={current ? `/reserver?langue=${current.id}` : section === 'coreen' ? '/reserver?langue=coreen' : '/reserver'} className="nav-cta">
-              {en ? 'Private lesson' : 'Cours privé'}
+              {portal?.nav.teacher ?? 'Cours privé'}
             </NavLink>
             {user ? (
               <div className="user-menu">

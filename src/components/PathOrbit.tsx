@@ -159,9 +159,11 @@ export function PathOrbit({ cards, onSelect }: { cards: OrbitCard[]; onSelect?: 
 export function usePathCards(
   stats: { level: { id: string; index: number; name: string; korean: string; cefr: string }; total: number; pct: number }[],
   chapters: string[],
+  /** Pour les autres langues : adresse des cours et cartes des ateliers. Sans ces valeurs, version coréenne. */
+  options?: { courseBase: string; extras: Omit<OrbitCard, 'image' | 'accent' | 'tint'>[]; lessonsLabel: string },
 ): OrbitCard[] {
   // Clé stable : les textures 3D ne sont redessinées que si la progression change.
-  const key = stats.map((s) => `${s.level.id}:${s.pct}:${s.total}`).join('|') + chapters.join('|')
+  const key = stats.map((s) => `${s.level.id}:${s.pct}:${s.total}`).join('|') + chapters.join('|') + (options?.courseBase ?? '')
   return useMemo(() => {
     // Palette neutre : cartes blanches, teintes très douces, encre sombre.
     const palette = [
@@ -172,17 +174,17 @@ export function usePathCards(
     const imageFor = (i: number) => { const photo = vocabularyThemes[i].photo; return photo.startsWith('/') ? photo : `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=900&q=80` }
     const levels: OrbitCard[] = stats.map(({ level, total, pct }) => ({
       id: level.id,
-      to: `/cours/${level.id}`,
+      to: `${options?.courseBase ?? '/cours'}/${level.id}`,
       badge: String(level.index + 1).padStart(2, '0'),
       ko: level.korean,
       title: chapters[level.index] ?? level.name,
-      subtitle: `${level.cefr} · ${total} leçons`,
+      subtitle: `${level.cefr} · ${total} ${options?.lessonsLabel ?? 'leçons'}`,
       pct,
       image: imageFor(level.index),
       ...palette[level.index % 3],
     }))
     // Les cours ajoutés au menu déroulant
-    const extras: OrbitCard[] = [
+    const extras: OrbitCard[] = (options?.extras ?? [
       { id: 'atelier-hangeul', to: '/alphabet', badge: 'Hangeul', ko: '가나다', title: 'L’atelier hangeul', subtitle: 'Lettres, sons et syllabes' },
       { id: 'nombres', to: '/nombres', badge: 'Nombres', ko: '하나 둘', title: 'Chiffres & nombres', subtitle: 'Compter, prix, heures' },
       { id: 'vocabulaire', to: '/vocabulaire', badge: 'Mots', ko: '단어', title: 'Vocabulaire en photos', subtitle: 'Des thèmes à retenir' },
@@ -190,7 +192,7 @@ export function usePathCards(
       { id: 'structures', to: '/structures', badge: 'Grammaire', ko: '문장', title: 'Phrases & grammaire', subtitle: 'Construire tes phrases' },
       { id: 'tests', to: '/tests', badge: 'QCM', ko: '시험', title: 'Tests & QCM', subtitle: 'Valide chaque niveau' },
       { id: 'pratique', to: '/pratique', badge: 'Oral', ko: '대화', title: 'En situation', subtitle: 'Jeux et studio oral' },
-    ].map((c, i) => ({ ...c, image: imageFor(i + 6), ...palette[i % 3] }))
+    ]).map((c, i) => ({ ...c, image: imageFor(i + 6), ...palette[i % 3] }))
     return [...levels, ...extras]
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])

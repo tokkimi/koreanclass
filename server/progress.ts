@@ -1,5 +1,5 @@
 import { allLessons, levels, placementTest } from '../src/data/index.js'
-import { allCourseLessons, allCourseLevels } from '../src/data/courses/index.js'
+import { allCourseLessons, allCourseLevels, coursePlacement, courseLevels, placementLanguage } from '../src/data/courses/index.js'
 import { languageName } from '../src/data/languages.js'
 import type { Exercise } from '../src/data/types.js'
 import { checkFill, PASS_MARK } from '../src/lib/grading.js'
@@ -26,7 +26,7 @@ export function recordAttempt(p: Progress, input: { kind: ResultEntry['kind']; r
   // Le coréen d'abord (inchangé), puis les autres langues dont les identifiants sont préfixés (ja-, es-, en-, fr-).
   const lesson = allLessons.find(x => x.lesson.id === input.refId) ?? allCourseLessons.find(x => x.lesson.id === input.refId)
   const level = levels.find(x => x.id === input.refId) ?? allCourseLevels.find(x => x.level.id === input.refId)?.level
-  const exercises = input.kind === 'lesson' ? lesson?.lesson.exercises : input.kind === 'test' ? level?.test : input.kind === 'placement' ? placementTest.map(x => x.exercise) : undefined
+  const exercises = input.kind === 'lesson' ? lesson?.lesson.exercises : input.kind === 'test' ? level?.test : input.kind === 'placement' ? (placementLanguage(input.refId) ? coursePlacement(placementLanguage(input.refId)!).map(x => x.exercise) : placementTest.map(x => x.exercise)) : undefined
   if (!exercises || input.answers.length !== exercises.length || input.answers.some(x => typeof x !== 'string' || x.length > 3000)) throw new Error('Les réponses du quiz sont incomplètes.')
   const results = exercises.map((ex, i) => grade(ex, input.answers[i]))
   const score = results.filter(Boolean).length
@@ -48,13 +48,27 @@ export function recordAttempt(p: Progress, input: { kind: ResultEntry['kind']; r
     p.xp += improvement * 15 + (passed && !prev?.passed ? 200 : 0)
     p.tests[input.refId] = { passed, best: Math.max(prev?.best ?? 0, pct), last: pct, attempts: (prev?.attempts ?? 0) + 1, lastAt: date }
     title = `${langPrefix(input.refId)}Test ${level!.name}`
+  } else if (placementLanguage(input.refId)) {
+    // Test de positionnement d'une autre langue : même règle (75 % par niveau) que le coréen.
+    const lang = placementLanguage(input.refId)!
+    const test = coursePlacement(lang)
+    const langLevels = courseLevels(lang)
+    let levelIndex = langLevels.length - 1
+    for (const l of langLevels) {
+      const indexes = test.map((x, i) => x.levelIndex === l.index ? i : -1).filter(i => i >= 0)
+      if (indexes.filter(i => results[i]).length < Math.ceil(indexes.length * .75)) { levelIndex = l.index; break }
+    }
+    const bestPrevious = Math.max(0, ...p.history.filter(h => h.kind === 'placement' && h.refId === input.refId).map(h => h.score))
+    p.xp += Math.max(0, score - bestPrevious) * 5
+    p.placements = { ...(p.placements ?? {}), [lang]: { levelIndex, score, total, date } }
+    title = `${languageName(lang)} · Test de positionnement`
   } else {
     let levelIndex = levels.length - 1
     for (const l of levels) {
       const indexes = placementTest.map((x, i) => x.levelIndex === l.index ? i : -1).filter(i => i >= 0)
       if (indexes.filter(i => results[i]).length < Math.ceil(indexes.length * .75)) { levelIndex = l.index; break }
     }
-    const bestPrevious = Math.max(0, ...p.history.filter(h => h.kind === 'placement').map(h => h.score))
+    const bestPrevious = Math.max(0, ...p.history.filter(h => h.kind === 'placement' && h.refId === 'placement').map(h => h.score))
     p.xp += Math.max(0, score - bestPrevious) * 5
     p.placement = { levelIndex, score, total, date }
     title = 'Test de positionnement'

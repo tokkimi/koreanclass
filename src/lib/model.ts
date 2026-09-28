@@ -67,6 +67,8 @@ export interface Progress {
   tests: Record<string, TestProgress>
   history: ResultEntry[]
   placement: { levelIndex: number; score: number; total: number; date: string } | null
+  /** Tests de positionnement des autres langues (japonais, espagnol…). */
+  placements?: Record<string, { levelIndex: number; score: number; total: number; date: string }>
   xp: number
   streak: { count: number; lastDay: string }
   bookings: Booking[]

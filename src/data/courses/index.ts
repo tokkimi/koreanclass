@@ -1,4 +1,4 @@
-import type { Level, Lesson } from '../types.js'
+import type { Exercise, Level, Lesson } from '../types.js'
 import { comprehensiveAssessment } from '../index.js'
 import { qcm } from '../helpers.js'
 import { type } from './dsl.js'
@@ -81,3 +81,20 @@ export function getCourseLesson(lang: string, levelId?: string, lessonId?: strin
 /** Toutes les leçons et tous les niveaux, pour la correction côté serveur. */
 export const allCourseLevels: { lang: CourseLanguage; level: Level }[] = Object.entries(courses).flatMap(([lang, levels]) => levels!.map((level) => ({ lang: lang as CourseLanguage, level })))
 export const allCourseLessons: { lang: CourseLanguage; level: Level; lesson: Lesson }[] = allCourseLevels.flatMap(({ lang, level }) => level.lessons.map((lesson) => ({ lang, level, lesson })))
+
+/** Préfixe des identifiants de chaque langue (ja-, es-, en-, fr-). */
+export const PREFIX: Record<CourseLanguage, string> = { japonais: 'ja', espagnol: 'es', anglais: 'en', francais: 'fr' }
+
+/**
+ * Test de positionnement, construit comme celui du coréen : 6 questions par niveau
+ * (3 du test de niveau + 3 tirées des leçons), de difficulté croissante.
+ */
+export function coursePlacement(lang: string): { levelIndex: number; exercise: Exercise }[] {
+  return courseLevels(lang).flatMap((level) => {
+    const base = level.test.filter((e) => e.type === 'qcm').slice(0, 3)
+    const fromLessons = level.lessons.map((l) => l.exercises.find((e) => e.type === 'qcm' && !base.includes(e))).filter((e): e is Exercise => !!e).slice(1, 4)
+    return [...base, ...fromLessons].map((exercise) => ({ levelIndex: level.index, exercise }))
+  })
+}
+export const placementRef = (lang: string) => `${PREFIX[lang as CourseLanguage]}-placement`
+export const placementLanguage = (refId: string) => (Object.keys(PREFIX) as CourseLanguage[]).find((l) => placementRef(l) === refId)

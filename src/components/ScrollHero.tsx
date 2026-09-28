@@ -23,6 +23,12 @@ export interface ScrollHeroProps {
   words?: string[]
   ctaLabel?: string
   ctaTo?: string
+  /** Portes du hanok (seulement pour le coréen) et nom de ville affiché au-dessus. */
+  doors?: boolean
+  doorLabel?: string
+  blossoms?: boolean
+  skipLabel?: string
+  hintLabel?: string
 }
 
 const clamp = (v: number, min = 0, max = 1) => Math.min(max, Math.max(min, v))
@@ -40,6 +46,11 @@ export function ScrollHero({
   words = ['Écoute.', 'Comprends.', 'Ose parler.'],
   ctaLabel = 'Découvrir les cours',
   ctaTo = '/cours',
+  doors = true,
+  doorLabel = '서울',
+  blossoms = true,
+  skipLabel = 'Passer aux cours',
+  hintLabel = 'Fais défiler',
 }: ScrollHeroProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
@@ -181,17 +192,17 @@ export function ScrollHero({
           )}
         </div>
         <div className="scroll-hero__veil" aria-hidden="true" />
-          <div className="scroll-hero__hanok" aria-hidden="true">
+          {doors && <div className="scroll-hero__hanok" aria-hidden="true">
             <div className="scroll-hero__door scroll-hero__door--left"><i /><i /><i /></div>
             <div className="scroll-hero__door scroll-hero__door--right"><i /><i /><i /></div>
-          <div className="scroll-hero__door-top"><span>서울</span></div>
+          <div className="scroll-hero__door-top"><span>{doorLabel}</span></div>
           <div className="scroll-hero__door-threshold" />
-        </div>
-        <div className="scroll-hero__blossoms" aria-hidden="true">
+        </div>}
+        {blossoms && <div className="scroll-hero__blossoms" aria-hidden="true">
           {Array.from({ length: 18 }, (_, index) => <i key={index} style={{ ['--i' as string]: index, ['--left' as string]: `${5 + index * 5.4}%`, ['--top' as string]: `${5 + (index % 5) * 10}%` } as CSSProperties} />)}
-        </div>
+        </div>}
         <a className="scroll-hero__skip" href={`#${skipTargetId}`} onClick={skip}>
-          Passer aux cours <span aria-hidden="true">↓</span>
+          {skipLabel} <span aria-hidden="true">↓</span>
         </a>
 
         <div className="scroll-hero__copy">
@@ -211,7 +222,7 @@ export function ScrollHero({
         </div>
 
         <div className="scroll-hero__hint" aria-hidden="true">
-          <span>Fais défiler</span>
+          <span>{hintLabel}</span>
           <svg width="14" height="18" viewBox="0 0 14 18">
             <path d="M7 1v16M2 12l5 5 5-5" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
