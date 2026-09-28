@@ -6,6 +6,20 @@ import { espagnol } from './espagnol.js'
 import { anglais } from './anglais.js'
 import { francais } from './francais.js'
 import { vocabLessons } from './vocab.js'
+import { sceneLessonFor, structureLessonFor, type GrammarContent } from './grammar.js'
+import { grammarJaponais } from './grammar-japonais.js'
+
+export const grammarContent: Partial<Record<string, GrammarContent>> = { japonais: grammarJaponais }
+
+/** Ateliers de structures et scènes d'un niveau (ajoutés après les leçons, comme en coréen). */
+export function grammarLessons(lang: string, levelIndex: number): Lesson[] {
+  const g = grammarContent[lang]
+  if (!g) return []
+  return [...g.units.filter((u) => u.level === levelIndex).map((u) => structureLessonFor(lang, u)), ...g.scenes.filter((s) => s.levelIndex === levelIndex).map((s) => sceneLessonFor(lang, s))]
+}
+
+/** Toutes les scènes « En situation » des autres langues (pour la correction côté serveur). */
+export const courseScenes = () => Object.values(grammarContent).flatMap((g) => g!.scenes)
 
 /** Contenu des pages annexes, par langue (rempli langue par langue). */
 export const portalContent: Partial<Record<string, PortalContent>> = { japonais, espagnol, anglais, francais }

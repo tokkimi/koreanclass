@@ -68,7 +68,7 @@ const frFaq = {
 export type PortalPage = 'ecriture' | 'nombres' | 'vocabulaire' | 'couleurs' | 'structures' | 'tests' | 'pratique'
 const ALWAYS: PortalPage[] = ['tests']
 /** Pages annexes dont le contenu est prêt, langue par langue. */
-export const readyPages: Record<string, PortalPage[]> = { japonais: ['ecriture', 'nombres', 'couleurs', 'vocabulaire'], espagnol: ['ecriture', 'nombres', 'couleurs', 'vocabulaire'], anglais: ['ecriture', 'nombres', 'couleurs', 'vocabulaire'], francais: ['ecriture', 'nombres', 'couleurs', 'vocabulaire'] }
+export const readyPages: Record<string, PortalPage[]> = { japonais: ['ecriture', 'nombres', 'couleurs', 'vocabulaire', 'structures', 'pratique'], espagnol: ['ecriture', 'nombres', 'couleurs', 'vocabulaire'], anglais: ['ecriture', 'nombres', 'couleurs', 'vocabulaire'], francais: ['ecriture', 'nombres', 'couleurs', 'vocabulaire'] }
 export const isBuilt = (lang: string, page: PortalPage) => ALWAYS.includes(page) || (readyPages[lang] ?? []).includes(page)
 
 export const portals: Record<string, PortalCopy> = {

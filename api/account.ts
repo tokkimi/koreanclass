@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { randomUUID } from 'node:crypto'
 import { consumeLimit, digest, findSession, passwordHash, randomToken, readDatabase, startSession, transaction, verifyPassword, type Account } from '../server/database.js'
 import { workshops } from '../src/data/workshops.js'
+import { courseScenes } from '../src/data/portal-content/index.js'
 import { compareSpeech } from '../src/lib/oral.js'
 import { recordAttempt } from '../server/progress.js'
 import { emptyProgress, type User, type Booking } from '../src/lib/model.js'
@@ -108,7 +109,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         if (!Array.isArray(body.answers)) fail('Réponses manquantes.')
         recordAttempt(account.progress, { kind: body.kind, refId: str(body.refId), answers: body.answers, id: operationId })
       } else if (action === 'scene' || action === 'oral') {
-        const w=workshops.find(x=>x.id===body.refId)
+        // Scènes coréennes, puis scènes des autres langues (mêmes champs utiles : turns[].answer, speech.model).
+        const w=workshops.find(x=>x.id===body.refId) ?? courseScenes().find(x=>x.id===body.refId)
         if(!w) fail('Atelier inconnu.')
         const practice=account.progress.practice??[]
         const entry:any={id:operationId,refId:w!.id,kind:action,date:new Date().toISOString(),score:null,total:0}

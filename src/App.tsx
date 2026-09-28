@@ -13,6 +13,7 @@ import { LangCourses, LangLesson, LangLevel, LangTest } from './pages/lang/LangC
 import { LangHome, LangPlacement, LangTests } from './pages/lang/LangPortal'
 import { LangColors, LangNumbers, LangWriting } from './pages/lang/LangAnnex'
 import { LangVocabulary } from './pages/lang/LangVocabulary'
+import { LangPractice, LangStructures } from './pages/lang/LangGrammar'
 import Practice from './pages/Practice'
 import Admin from './pages/Admin'
 import Structures from './pages/Structures'
@@ -55,6 +56,8 @@ export default function App() {
             <Route key={`${l.id}-ecriture`} path={`${l.path.slice(1)}/ecriture`} element={<LangWriting lang={l} />} />,
             <Route key={`${l.id}-nombres`} path={`${l.path.slice(1)}/nombres`} element={<LangNumbers lang={l} />} />,
             <Route key={`${l.id}-vocabulaire`} path={`${l.path.slice(1)}/vocabulaire`} element={<LangVocabulary lang={l} />} />,
+            <Route key={`${l.id}-structures`} path={`${l.path.slice(1)}/structures`} element={<LangStructures lang={l} />} />,
+            <Route key={`${l.id}-pratique`} path={`${l.path.slice(1)}/pratique`} element={<LangPractice lang={l} />} />,
             <Route key={`${l.id}-couleurs`} path={`${l.path.slice(1)}/couleurs`} element={<LangColors lang={l} />} />,
             <Route key={`${l.id}-positionnement`} path={`${l.path.slice(1)}/test-de-niveau`} element={<LangPlacement lang={l} />} />,
             <Route key={`${l.id}-cours`} path={`${l.path.slice(1)}/cours`} element={<LangCourses lang={l} />} />,
