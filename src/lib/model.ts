@@ -112,7 +112,8 @@ export function globalStats(p: Progress, list?: Level[]) {
   const inList = list ? new Set(list.flatMap((l) => l.lessons.map((x) => x.id))) : null
   const lessonTotal = list ? inList!.size : totalLessons
   const completed = Object.entries(p.lessons).filter(([id, l]) => l.completed && (!inList || inList.has(id))).length
-  const scored = p.history.filter((h) => h.total > 0)
+  const levelIds = list ? new Set(list.map((l) => l.id)) : null
+  const scored = p.history.filter((h) => h.total > 0 && (!inList || inList.has(h.refId) || levelIds!.has(h.refId)))
   const avg = scored.length ? Math.round(scored.reduce((a, h) => a + (h.score / h.total) * 100, 0) / scored.length) : null
   const passedLevels = lv.filter((l) => p.tests[l.id]?.passed)
   const stats = levelStats(p, lv)

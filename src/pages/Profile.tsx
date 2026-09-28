@@ -5,8 +5,8 @@ import { currentStreak, globalStats, levelStats, useCurrentUser, useProgressOf, 
 import { computeBadges } from '../lib/badges'
 import { Avatar } from '../components/Avatar'
 import { ProgressBar } from '../components/ProgressBar'
-import { AccountTabs, CourseSwitch } from '../components/AccountTabs'
-import { levelsOf, useLastLang } from '../lib/lastLang'
+import { AccountTabs } from '../components/AccountTabs'
+import { inLanguage, levelsOf, useLastLang } from '../lib/lastLang'
 import NotFound from './NotFound'
 
 type Tab = 'progression' | 'resultats' | 'badges'
@@ -26,7 +26,8 @@ export default function Profile() {
   const list = levelsOf(lang)
   const g = globalStats(p, list)
   const stats = levelStats(p, list)
-  const badges = computeBadges(p)
+  const badges = computeBadges(p, list)
+  const history = p.history.filter(inLanguage(lang, list))
   const earned = badges.filter((b) => b.earned)
 
   return (
@@ -102,7 +103,6 @@ export default function Profile() {
         </button>
       </div>
 
-      {tab === 'progression' && isMe && <CourseSwitch />}
       {tab === 'progression' && (
         <div className="profile-levels">
           {stats.map((s) => (
@@ -128,11 +128,11 @@ export default function Profile() {
 
       {tab === 'resultats' && (
         <div className="card">
-          {p.history.length === 0 ? (
+          {history.length === 0 ? (
             <p className="muted">Aucun résultat pour le moment.</p>
           ) : (
             <ul className="results-list">
-              {p.history.slice(0, 50).map((h) => {
+              {history.slice(0, 50).map((h) => {
                 const pct = Math.round((h.score / h.total) * 100)
                 return (
                   <li key={h.id}>

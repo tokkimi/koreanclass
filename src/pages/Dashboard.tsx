@@ -4,8 +4,8 @@ import { currentStreak, globalStats, levelStats, useCurrentUser, useProgress } f
 import { computeBadges } from '../lib/badges'
 import { ProgressBar } from '../components/ProgressBar'
 import { Avatar } from '../components/Avatar'
-import { AccountTabs, CourseSwitch } from '../components/AccountTabs'
-import { baseOf, levelsOf, useLastLang } from '../lib/lastLang'
+import { AccountTabs } from '../components/AccountTabs'
+import { baseOf, inLanguage, levelsOf, useLastLang } from '../lib/lastLang'
 
 export default function Dashboard() {
   const user = useCurrentUser()!
@@ -17,7 +17,8 @@ export default function Dashboard() {
   const g = globalStats(p, list)
   const stats = levelStats(p, list)
   const allLessons = list.flatMap((level) => level.lessons.map((lesson) => ({ level, lesson })))
-  const badges = computeBadges(p)
+  const badges = computeBadges(p, list)
+  const history = p.history.filter(inLanguage(lang, list))
 
   const startLevel = korean && p.placement ? p.placement.levelIndex : 0
   const next =
@@ -28,7 +29,6 @@ export default function Dashboard() {
   return (
     <div className="container page">
       <AccountTabs />
-      <CourseSwitch />
       <div className="dash-head">
         <Avatar user={user} size={64} />
         <div>
@@ -150,7 +150,7 @@ export default function Dashboard() {
           <div className="card">
             <h2>Mes résultats</h2>
             <Link to={`${base}/pratique`} className="link">Jeux et prises de parole : {p.practice?.length ?? 0} activités enregistrées →</Link>
-            {p.history.length === 0 ? (
+            {history.length === 0 ? (
               <p className="muted">Aucun résultat pour l'instant. Terminez une leçon ou un test pour voir vos scores ici.</p>
             ) : (
               <div className="table-wrap">
@@ -164,7 +164,7 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {p.history.slice(0, 30).map((h) => {
+                    {history.slice(0, 30).map((h) => {
                       const pct = Math.round((h.score / h.total) * 100)
                       return (
                         <tr key={h.id}>

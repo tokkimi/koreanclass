@@ -46,7 +46,7 @@ export function Layout() {
 
   const visited = sectionOf(location.pathname)
   // Langue du bouton en bas à gauche : celle de la page, sinon la dernière étudiée.
-  const dockLang = visited === 'coreen' ? languages[0] : visited ?? last
+  const dockLang = inAccount ? last : visited === 'coreen' ? languages[0] : visited ?? last
   useEffect(() => {
     if (visited) setLastLang(visited === 'coreen' ? 'coreen' : visited.id)
   }, [visited])
@@ -165,7 +165,7 @@ export function Layout() {
           <div id="dock-langs" className="dock-picker" role="group" aria-label={t('Choisir la langue', 'Choose the language')} onClick={(e) => e.stopPropagation()}>
             <p className="dock-picker-title">{t('Quelle langue ?', 'Which language?')}</p>
             {languages.map((l) => (
-              <button key={l.id} type="button" className={l.id === dockLang.id ? 'active' : ''} aria-pressed={l.id === dockLang.id} onClick={() => { setLastLang(l.id); setPicker(false); navigate(l.path) }}>
+              <button key={l.id} type="button" className={l.id === dockLang.id ? 'active' : ''} aria-pressed={l.id === dockLang.id} onClick={() => { setLastLang(l.id); setPicker(false); if (!inAccount) navigate(l.path) }}>
                 <span className="dock-flag" aria-hidden="true">{FLAGS[l.id]}</span>
                 <span>{name(l)}</span>
               </button>

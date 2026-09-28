@@ -1,5 +1,6 @@
 import { levels } from '../data/index.js'
 import type { Progress } from './store.js'
+import type { Level } from '../data/types.js'
 
 export interface Badge {
   id: string
@@ -9,9 +10,12 @@ export interface Badge {
   earned: boolean
 }
 
-export function computeBadges(p: Progress): Badge[] {
-  const completed = Object.values(p.lessons).filter((l) => l.completed).length
-  const perfect = Object.values(p.lessons).some((l) => l.bestScore === 100)
+/** Avec `list`, les badges de leçons et de niveaux ne comptent que cette langue. */
+export function computeBadges(p: Progress, list?: Level[]): Badge[] {
+  const ids = list ? new Set(list.flatMap((l) => l.lessons.map((x) => x.id))) : null
+  const mine = Object.entries(p.lessons).filter(([id]) => !ids || ids.has(id)).map(([, l]) => l)
+  const completed = mine.filter((l) => l.completed).length
+  const perfect = mine.some((l) => l.bestScore === 100)
   return [
     { id: 'first', icon: '🌱', name: 'Premier pas', desc: 'Terminer une première leçon', earned: completed >= 1 },
     { id: 'ten', icon: '📚', name: 'Studieux', desc: 'Terminer 10 leçons', earned: completed >= 10 },
@@ -21,7 +25,7 @@ export function computeBadges(p: Progress): Badge[] {
     { id: 'streak3', icon: '⚡', name: 'Régulier', desc: '3 jours de suite', earned: p.streak.count >= 3 },
     { id: 'streak7', icon: '🏆', name: 'Assidu', desc: '7 jours de suite', earned: p.streak.count >= 7 },
     { id: 'booking', icon: '🎓', name: 'Accompagné', desc: 'Réserver un cours particulier', earned: p.bookings.some((b) => b.status !== 'annulée') },
-    ...levels.map((l) => ({
+    ...(list ?? levels).map((l) => ({
       id: `level-${l.id}`,
       icon: '🏅',
       name: `Niveau ${l.index} validé`,

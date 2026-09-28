@@ -34,3 +34,9 @@ export function useLastLang(): LanguageInfo {
 export const levelsOf = (lang: LanguageInfo): Level[] => (lang.id === 'coreen' ? levels : courseLevels(lang.id))
 /** Préfixe des adresses de cours : /cours pour le coréen, /japonais/cours… pour les autres. */
 export const baseOf = (lang: LanguageInfo) => (lang.id === 'coreen' ? '' : lang.path)
+
+/** Résultats (historique) appartenant à cette langue. */
+export function inLanguage(lang: LanguageInfo, list: Level[]) {
+  const ids = new Set(list.flatMap((l) => [l.id, ...l.lessons.map((x) => x.id)]))
+  return (h: { refId?: string; kind: string }) => (h.kind === 'placement' ? lang.id === 'coreen' : !!h.refId && ids.has(h.refId))
+}
