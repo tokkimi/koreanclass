@@ -3966,3 +3966,13 @@ main:has(.scroll-hero) .sync-status{position:fixed;z-index:60;top:78px;left:50%;
 .course-switch { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px; }
 .course-switch button { padding:7px 14px; border-radius:999px; border:1px solid var(--border); background:var(--card); font:inherit; font-size:.875rem; font-weight:600; color:var(--muted); cursor:pointer; }
 .course-switch button.active { background:var(--text); border-color:var(--text); color:var(--card); }
+/* Barre du bas : choix de la langue à la place de « Accueil » */
+.mobile-dock .dock-lang { display:flex; flex-direction:column; align-items:center; gap:5px; min-width:58px; padding:5px; background:none; border:0; font:inherit; font-size:.75rem; font-weight:550; color:var(--muted); cursor:pointer; }
+.mobile-dock .dock-lang.active { color:var(--primary); }
+.dock-flag { font-size:1.35rem; line-height:1; }
+.dock-picker-backdrop { position:fixed; inset:0; z-index:59; background:#0f172a33; }
+.dock-picker { position:fixed; left:12px; right:12px; bottom:calc(84px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:4px; padding:12px; border-radius:22px; background:var(--card); border:1px solid var(--border); box-shadow:0 20px 50px #0f172a33; }
+.dock-picker-title { margin:2px 8px 6px; font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.dock-picker button { display:flex; align-items:center; gap:14px; padding:12px 14px; border:0; border-radius:14px; background:none; font:inherit; font-weight:600; color:var(--text); text-align:left; cursor:pointer; }
+.dock-picker button.active { background:var(--primary-soft, #eef2ff); color:var(--primary); }
+@media (min-width:761px) { .dock-picker-backdrop { display:none; } }

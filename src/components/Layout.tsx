@@ -8,7 +8,9 @@ import { Avatar } from './Avatar'
 import { SITE_NAME } from '../config'
 import { Icon } from './Icon'
 import { setUiLang, useSiteLang } from '../lib/i18n'
-import { setLastLang, useLastLang } from '../lib/lastLang'
+import { baseOf, setLastLang, useLastLang } from '../lib/lastLang'
+
+const FLAGS: Record<string, string> = { coreen: '🇰🇷', japonais: '🇯🇵', espagnol: '🇪🇸', anglais: '🇬🇧', francais: '🇫🇷' }
 
 /** Pages du parcours coréen (le coréen garde ses adresses historiques). */
 const KOREAN_PATHS = ['/coreen', '/cours', '/tests', '/test-de-niveau', '/pratique', '/structures', '/alphabet', '/couleurs', '/vocabulaire', '/nombres']
@@ -26,6 +28,7 @@ export function Layout() {
   const sync = useSyncStatus()
   const [open, setOpen] = useState(false)
   const [langs, setLangs] = useState(false)
+  const [picker, setPicker] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   const last = useLastLang()
@@ -42,6 +45,8 @@ export function Layout() {
   const built = (page: PortalPage) => !!current && isBuilt(current.id, page)
 
   const visited = sectionOf(location.pathname)
+  // Langue du bouton en bas à gauche : celle de la page, sinon la dernière étudiée.
+  const dockLang = visited === 'coreen' ? languages[0] : visited ?? last
   useEffect(() => {
     if (visited) setLastLang(visited === 'coreen' ? 'coreen' : visited.id)
   }, [visited])
@@ -49,6 +54,7 @@ export function Layout() {
   useEffect(() => {
     setOpen(false)
     setLangs(false)
+    setPicker(false)
     window.scrollTo(0, 0)
   }, [location.pathname])
 
@@ -149,15 +155,31 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      {!open && !inAccount && <BookingBubble />}
+      {!open && !picker && !inAccount && <BookingBubble />}
       <main>
         {sync && sync !== 'Progression sauvegardée en ligne' && sync !== 'Sauvegarde en cours…' && <div className="container sync-status" role="status">{sync}</div>}
         <Outlet />
       </main>
+      {picker && (
+        <div className="dock-picker-backdrop" onClick={() => setPicker(false)}>
+          <div id="dock-langs" className="dock-picker" role="group" aria-label={t('Choisir la langue', 'Choose the language')} onClick={(e) => e.stopPropagation()}>
+            <p className="dock-picker-title">{t('Quelle langue ?', 'Which language?')}</p>
+            {languages.map((l) => (
+              <button key={l.id} type="button" className={l.id === dockLang.id ? 'active' : ''} aria-pressed={l.id === dockLang.id} onClick={() => { setLastLang(l.id); setPicker(false); navigate(l.path) }}>
+                <span className="dock-flag" aria-hidden="true">{FLAGS[l.id]}</span>
+                <span>{name(l)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <nav className="mobile-dock" aria-label={t("Navigation principale", "Main navigation")}>
-        <NavLink to="/" end><Icon name="home" /><span>{t('Accueil', 'Home')}</span></NavLink>
-        <NavLink to={current?.available ? `${current.path}/cours` : '/cours'}><Icon name="book" /><span>{t('Apprendre', 'Learn')}</span></NavLink>
-        <NavLink to={current?.available ? `${current.path}/pratique` : '/pratique'}><Icon name="quiz" /><span>{t('Jouer', 'Play')}</span></NavLink>
+        <button type="button" className={`dock-lang ${picker ? 'active' : ''}`} aria-haspopup="true" aria-expanded={picker} aria-controls="dock-langs" onClick={() => setPicker(!picker)}>
+          <span className="dock-flag" aria-hidden="true">{FLAGS[dockLang.id]}</span>
+          <span>{name(dockLang)}</span>
+        </button>
+        <NavLink to={`${baseOf(dockLang)}/cours`}><Icon name="book" /><span>{t('Apprendre', 'Learn')}</span></NavLink>
+        <NavLink to={`${baseOf(dockLang)}/pratique`}><Icon name="quiz" /><span>{t('Jouer', 'Play')}</span></NavLink>
         <NavLink to="/tableau-de-bord"><Icon name="chart" /><span>{t('Progrès', 'Progress')}</span></NavLink>
         <NavLink to={user ? '/profil' : '/connexion'}><Icon name="user" /><span>{user ? t('Profil', 'Profile') : t('Connexion', 'Log in')}</span></NavLink>
       </nav>
