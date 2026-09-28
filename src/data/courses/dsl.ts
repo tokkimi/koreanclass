@@ -41,9 +41,9 @@ export function table(s: string): NonNullable<Section['table']> {
 
 const plain = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').normalize('NFC').replace(/[¿¡]/g, '')
 
-/** Réponse à taper : accepte aussi la version sans accents ni ¿ ¡ (claviers sans accents). */
+/** Réponse à taper : accepte aussi la version sans accents ni ¿ ¡, et l’apostrophe droite (claviers sans accents). */
 export function type(q: string, answers: string | string[], hint?: string, explain?: string): Exercise {
   const list = Array.isArray(answers) ? answers : [answers]
-  const all = [...new Set([...list, ...list.map(plain)])]
+  const all = [...new Set([...list, ...list.map(plain), ...list.map((a) => a.replace(/’/g, "'"))])]
   return fill(q, all, hint, explain)
 }

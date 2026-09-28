@@ -122,7 +122,7 @@ export const languages: LanguageInfo[] = [
       { code: 'C1-C2', title: 'Avancé & courant', detail: 'Idioms, phrasal verbs, examens' },
     ],
     topics: ['Conversation', 'Grammaire', 'Préparation TOEIC / Cambridge / IELTS', 'Anglais professionnel', 'Prononciation', 'Voyage', 'Autre'],
-    available: false,
+    available: true,
     taughtIn: 'fr',
   },
   {
