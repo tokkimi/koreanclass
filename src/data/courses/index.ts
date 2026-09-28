@@ -1,4 +1,5 @@
 import type { Level, Lesson } from '../types.js'
+import { jaExtra } from './japonais-plus.js'
 import { jaKana, jaN5 } from './japonais-1.js'
 import { jaN4, jaN3 } from './japonais-2.js'
 import { jaN2, jaN1 } from './japonais-3.js'
@@ -14,8 +15,11 @@ import { frB2, frC1 } from './francais-3.js'
 /** Cursus en autonomie des langues autres que le coréen (le coréen reste dans src/data/index.ts). */
 export type CourseLanguage = 'japonais' | 'espagnol' | 'anglais' | 'francais'
 
+/** Ajoute les leçons supplémentaires à la fin de chaque niveau. */
+const withExtra = (level: Level, extra: Record<string, Lesson[]>): Level => ({ ...level, lessons: [...level.lessons, ...(extra[level.id] ?? [])] })
+
 export const courses: Partial<Record<CourseLanguage, Level[]>> = {
-  japonais: [jaKana, jaN5, jaN4, jaN3, jaN2, jaN1],
+  japonais: [jaKana, jaN5, jaN4, jaN3, jaN2, jaN1].map((l) => withExtra(l, jaExtra)),
   espagnol: [es0, esA1, esA2, esB1, esB2, esC1],
   anglais: [en0, enA1, enA2, enB1, enB2, enC1],
   francais: [fr0, frA1, frA2, frB1, frB2, frC1],
