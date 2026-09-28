@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { LanguageInfo } from '../../data/languages'
 import { coursePlacement, courseLevels, placementRef } from '../../data/courses'
-import { isBuilt, portals, type PortalPage } from '../../data/portal'
+import { isBuilt, portalFor, type PortalPage } from '../../data/portal'
 import { recordCoursePlacement, useCurrentUser, useProgress } from '../../lib/store'
 import { CourseLangContext } from '../../lib/courseLang'
+import { useSiteLang } from '../../lib/i18n'
 import { ScrollHero } from '../../components/ScrollHero'
 import { PathOrbit, usePathCards } from '../../components/PathOrbit'
 import { TiltCard } from '../../components/TiltCard'
@@ -29,23 +30,37 @@ export function courseStats(lang: string, p: Progress) {
   return { levels, stats, total, completed, pct: total ? Math.round((completed / total) * 100) : 0 }
 }
 
+const KEYBOARD_EN: Record<string, string> = {
+  japonais: 'Tip: turn on the Japanese keyboard (romaji → kana) on your computer or phone. Answer in kana unless the question asks for romaji.',
+  espagnol: 'Tip: accents and the ¿ ¡ signs are not required to validate, but try to use them!',
+  anglais: 'Tip: capital letters and final punctuation don’t count.',
+  francais: 'Tip: accents are not required to validate your answer, but try to use them!',
+}
 const KEYBOARD: Record<string, string> = {
   japonais: 'Astuce : active le clavier japonais (romaji → kana) sur ton ordinateur ou ton téléphone.',
   espagnol: 'Astuce : les accents et les signes ¿ ¡ ne sont pas obligatoires pour valider.',
   anglais: 'Astuce : les majuscules et la ponctuation finale ne comptent pas.',
   francais: 'Tip: accents are not required to validate your answer.',
 }
+/** Anglais si le cours est expliqué en anglais (français) ou si le visiteur a choisi EN. */
+export function useEn(lang: LanguageInfo) {
+  const site = useSiteLang()
+  return lang.taughtIn === 'en' || site === 'en'
+}
+
 export function LangShell({ lang, children }: { lang: LanguageInfo; children: React.ReactNode }) {
+  const ui = useEn(lang) ? 'en' : 'fr'
   return (
-    <CourseLangContext.Provider value={{ id: lang.id, speech: lang.speech, ui: lang.taughtIn, keyboard: KEYBOARD[lang.id] ?? '' }}>
-      <div lang={lang.taughtIn}>{children}</div>
+    <CourseLangContext.Provider value={{ id: lang.id, speech: lang.speech, ui, keyboard: (ui === 'en' ? KEYBOARD_EN : KEYBOARD)[lang.id] ?? '' }}>
+      <div lang={ui}>{children}</div>
     </CourseLangContext.Provider>
   )
 }
 
 /** Accueil d'une langue : même construction que l'accueil coréen. */
 export function LangHome({ lang }: { lang: LanguageInfo }) {
-  const c = portals[lang.id]
+  const en = useEn(lang)
+  const c = portalFor(lang.id, en ? 'en' : 'fr')
   const user = useCurrentUser()
   const p = useProgress()
   const s = courseStats(lang.id, p)
@@ -65,13 +80,12 @@ export function LangHome({ lang }: { lang: LanguageInfo }) {
         : [],
     [c, base, lang.id],
   )
-  const pathCards = usePathCards(s.stats, c?.chapters ?? [], { courseBase: `${base}/cours`, extras, lessonsLabel: lang.taughtIn === 'en' ? 'lessons' : 'leçons' })
+  const pathCards = usePathCards(s.stats, c?.chapters ?? [], { courseBase: `${base}/cours`, extras, lessonsLabel: en ? 'lessons' : 'leçons' })
   if (!c) return <NotFound />
   const placed = p.placements?.[lang.id]?.levelIndex ?? 0
   const all = s.levels.flatMap((level) => level.lessons.map((lesson) => ({ level, lesson })))
   const next = all.find(({ level, lesson }) => level.index >= placed && !p.lessons[lesson.id]?.completed) ?? all.find(({ lesson }) => !p.lessons[lesson.id]?.completed)
   const hours = Math.round(all.reduce((m, x) => m + x.lesson.duration, 0) / 60)
-  const en = lang.taughtIn === 'en'
 
   return (
     <LangShell lang={lang}>
@@ -156,8 +170,8 @@ export function LangHome({ lang }: { lang: LanguageInfo }) {
 
 /** Page « Tests & QCM » d'une langue. */
 export function LangTests({ lang }: { lang: LanguageInfo }) {
+  const en = useEn(lang)
   const p = useProgress()
-  const en = lang.taughtIn === 'en'
   const levels = courseLevels(lang.id)
   const placement = coursePlacement(lang.id)
   const last = p.placements?.[lang.id]
@@ -222,8 +236,8 @@ export function LangTests({ lang }: { lang: LanguageInfo }) {
 
 /** Test de positionnement d'une langue (même règle que le coréen). */
 export function LangPlacement({ lang }: { lang: LanguageInfo }) {
+  const en = useEn(lang)
   const user = useCurrentUser()
-  const en = lang.taughtIn === 'en'
   const [started, setStarted] = useState(false)
   const [result, setResult] = useState<{ levelIndex: number; score: number; total: number } | null>(null)
   const [runKey, setRunKey] = useState(1)

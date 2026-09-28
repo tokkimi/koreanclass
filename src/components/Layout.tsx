@@ -1,12 +1,13 @@
 import { BookingBubble } from './BookingBubble'
 import { languages, type LanguageInfo } from '../data/languages'
-import { isBuilt, portals, type PortalPage } from '../data/portal'
+import { isBuilt, portalFor, type PortalPage } from '../data/portal'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { logout, useCurrentUser, useSyncStatus } from '../lib/store'
 import { Avatar } from './Avatar'
 import { SITE_NAME } from '../config'
 import { Icon } from './Icon'
+import { setUiLang, useSiteLang } from '../lib/i18n'
 
 /** Pages du parcours coréen (le coréen garde ses adresses historiques). */
 const KOREAN_PATHS = ['/coreen', '/cours', '/tests', '/test-de-niveau', '/pratique', '/structures', '/alphabet', '/couleurs', '/vocabulaire', '/nombres']
@@ -26,8 +27,12 @@ export function Layout() {
   const navigate = useNavigate()
   const section = sectionOf(location.pathname)
   const current = section && section !== 'coreen' ? section : null
-  const en = current?.taughtIn === 'en'
-  const portal = current?.available ? portals[current.id] : undefined
+  const site = useSiteLang()
+  // Le cours de français est toujours en anglais ; ailleurs, on suit le choix FR / EN du visiteur.
+  const en = current?.taughtIn === 'en' || site === 'en'
+  const t = (fr: string, english: string) => (en ? english : fr)
+  const portal = current?.available ? portalFor(current.id, en ? 'en' : 'fr') : undefined
+  const name = (l: LanguageInfo) => (en ? l.nameEn : l.name)
   const built = (page: PortalPage) => !!current && isBuilt(current.id, page)
 
   useEffect(() => {
@@ -43,29 +48,29 @@ export function Layout() {
           <Link to="/" className="logo">
             <img className="logo-full" src="/talktome-club-logo.png" alt="TalkToMe Club" />
           </Link>
-          <button className="burger" aria-label={open ? "Fermer le menu" : "Ouvrir le menu"} aria-controls="main-menu" aria-expanded={open} onClick={() => setOpen(!open)}>
-            {open ? "✕ Fermer" : "☰ Menu"}
+          <button className="burger" aria-label={open ? t("Fermer le menu", "Close the menu") : t("Ouvrir le menu", "Open the menu")} aria-controls="main-menu" aria-expanded={open} onClick={() => setOpen(!open)}>
+            {open ? t("✕ Fermer", "✕ Close") : "☰ Menu"}
           </button>
-          <nav id="main-menu" className={`nav ${open ? 'open' : ''}`} aria-label="Menu principal" onKeyDown={e=>{if(e.key==='Escape'){setOpen(false);document.querySelector<HTMLButtonElement>('.burger')?.focus()}}}>
+          <nav id="main-menu" className={`nav ${open ? 'open' : ''}`} aria-label={t("Menu principal", "Main menu")} onKeyDown={e=>{if(e.key==='Escape'){setOpen(false);document.querySelector<HTMLButtonElement>('.burger')?.focus()}}}>
             {section === 'coreen' ? (
               <>
-                <NavLink to="/" end className="nav-back">← Toutes les langues</NavLink>
-                <span className="nav-group">Coréen</span>
-                <NavLink to="/coreen">Accueil coréen</NavLink>
-                <NavLink to="/cours">Cours</NavLink>
-                <NavLink to="/alphabet">Hangeul</NavLink>
-                <NavLink to="/nombres">Nombres</NavLink>
-                <NavLink to="/vocabulaire">Vocabulaire</NavLink>
-                <NavLink to="/couleurs">Couleurs</NavLink>
-                <NavLink to="/structures">Phrases & grammaire</NavLink>
-                <NavLink to="/tests">Tests & QCM</NavLink>
-                <NavLink to="/pratique">En situation</NavLink>
+                <NavLink to="/" end className="nav-back">{t('← Toutes les langues', '← All languages')}</NavLink>
+                <span className="nav-group">{t('Coréen', 'Korean')}</span>
+                <NavLink to="/coreen">{t('Accueil coréen', 'Korean home')}</NavLink>
+                <NavLink to="/cours">{t('Cours', 'Lessons')}</NavLink>
+                <NavLink to="/alphabet">{t('Hangeul', 'Hangul')}</NavLink>
+                <NavLink to="/nombres">{t('Nombres', 'Numbers')}</NavLink>
+                <NavLink to="/vocabulaire">{t('Vocabulaire', 'Vocabulary')}</NavLink>
+                <NavLink to="/couleurs">{t('Couleurs', 'Colours')}</NavLink>
+                <NavLink to="/structures">{t('Phrases & grammaire', 'Sentences & grammar')}</NavLink>
+                <NavLink to="/tests">{t('Tests & QCM', 'Tests & quizzes')}</NavLink>
+                <NavLink to="/pratique">{t('En situation', 'Real-life practice')}</NavLink>
               </>
             ) : current ? (
               <>
                 <NavLink to="/" end className="nav-back">{portal?.nav.back ?? '← Toutes les langues'}</NavLink>
-                <span className="nav-group">{current.name}</span>
-                <NavLink to={current.path} end>{portal?.nav.home ?? current.name}</NavLink>
+                <span className="nav-group">{name(current)}</span>
+                <NavLink to={current.path} end>{portal?.nav.home ?? name(current)}</NavLink>
                 {current.available && <NavLink to={`${current.path}/cours`}>{portal?.nav.courses ?? 'Cours'}</NavLink>}
                 {portal && built('ecriture') && <NavLink to={`${current.path}/ecriture`}>{portal.writing.menu}</NavLink>}
                 {portal && built('nombres') && <NavLink to={`${current.path}/nombres`}>{portal.nav.numbers}</NavLink>}
@@ -77,17 +82,17 @@ export function Layout() {
               </>
             ) : (
               <>
-                <NavLink to="/" end>Accueil</NavLink>
-                <span className="nav-group">Nos langues</span>
+                <NavLink to="/" end>{t('Accueil', 'Home')}</NavLink>
+                <span className="nav-group">{t('Nos langues', 'Our languages')}</span>
                 {languages.map((l) => (
                   <NavLink key={l.id} to={l.path}>
-                    {l.name}
+                    {name(l)}
                   </NavLink>
                 ))}
               </>
             )}
             <NavLink to={current ? `/reserver?langue=${current.id}` : section === 'coreen' ? '/reserver?langue=coreen' : '/reserver'} className="nav-cta">
-              {portal?.nav.teacher ?? 'Cours privé'}
+              {portal?.nav.teacher ?? t('Cours privé', 'Private lesson')}
             </NavLink>
             {user ? (
               <div className="user-menu">
@@ -97,28 +102,38 @@ export function Layout() {
                 </button>
                 {menu && (
                   <div className="dropdown" role="menu">
-                    <Link to="/tableau-de-bord">📊 Mon parcours</Link>
-                    {user.role==='admin'&&<Link to="/admin">Administration</Link>}
-                    <Link to="/profil">👤 Mon profil</Link>
-                    <Link to="/profil/modifier">✏️ Modifier le profil</Link>
-                    <Link to="/reservations">📅 Mes réservations</Link>
+                    <Link to="/tableau-de-bord">📊 {t('Mon parcours', 'My progress')}</Link>
+                    {user.role==='admin'&&<Link to="/admin">{t('Administration', 'Admin')}</Link>}
+                    <Link to="/profil">👤 {t('Mon profil', 'My profile')}</Link>
+                    <Link to="/profil/modifier">✏️ {t('Modifier le profil', 'Edit profile')}</Link>
+                    <Link to="/reservations">📅 {t('Mes réservations', 'My bookings')}</Link>
                     <button
                       onClick={async () => {
                         try { await logout(); navigate('/') } catch { /* error displayed globally */ }
                       }}
                     >
-                      🚪 Déconnexion
+                      🚪 {t('Déconnexion', 'Log out')}
                     </button>
                   </div>
                 )}
               </div>
             ) : (
               <>
-                <NavLink to="/connexion">Connexion</NavLink>
+                <NavLink to="/connexion">{t('Connexion', 'Log in')}</NavLink>
                 <Link to="/inscription" className="btn small">
-                  S'inscrire
+                  {t('S’inscrire', 'Sign up')}
                 </Link>
               </>
+            )}
+            {current?.taughtIn !== 'en' && (
+              <div className="lang-toggle" role="group" aria-label={t('Langue du site', 'Site language')}>
+                <button type="button" aria-pressed={site === 'fr'} className={site === 'fr' ? 'active' : ''} onClick={() => setUiLang('fr')}>
+                  FR
+                </button>
+                <button type="button" aria-pressed={site === 'en'} className={site === 'en' ? 'active' : ''} onClick={() => setUiLang('en')}>
+                  EN
+                </button>
+              </div>
             )}
           </nav>
         </div>
@@ -128,12 +143,12 @@ export function Layout() {
         {sync && sync !== 'Progression sauvegardée en ligne' && sync !== 'Sauvegarde en cours…' && <div className="container sync-status" role="status">{sync}</div>}
         <Outlet />
       </main>
-      <nav className="mobile-dock" aria-label="Navigation principale">
-        <NavLink to="/" end><Icon name="home" /><span>Accueil</span></NavLink>
-        <NavLink to={current?.available ? `${current.path}/cours` : '/cours'}><Icon name="book" /><span>{en ? 'Learn' : 'Apprendre'}</span></NavLink>
-        <NavLink to="/pratique"><Icon name="quiz" /><span>Jouer</span></NavLink>
-        <NavLink to="/tableau-de-bord"><Icon name="chart" /><span>Progrès</span></NavLink>
-        <NavLink to={user ? '/profil' : '/connexion'}><Icon name="user" /><span>{user ? 'Profil' : 'Connexion'}</span></NavLink>
+      <nav className="mobile-dock" aria-label={t("Navigation principale", "Main navigation")}>
+        <NavLink to="/" end><Icon name="home" /><span>{t('Accueil', 'Home')}</span></NavLink>
+        <NavLink to={current?.available ? `${current.path}/cours` : '/cours'}><Icon name="book" /><span>{t('Apprendre', 'Learn')}</span></NavLink>
+        <NavLink to={current?.available ? `${current.path}/pratique` : '/pratique'}><Icon name="quiz" /><span>{t('Jouer', 'Play')}</span></NavLink>
+        <NavLink to="/tableau-de-bord"><Icon name="chart" /><span>{t('Progrès', 'Progress')}</span></NavLink>
+        <NavLink to={user ? '/profil' : '/connexion'}><Icon name="user" /><span>{user ? t('Profil', 'Profile') : t('Connexion', 'Log in')}</span></NavLink>
       </nav>
       <footer className="footer">
         <div className="container footer-grid">
@@ -141,30 +156,31 @@ export function Layout() {
             <div className="logo">
               <img className="logo-full" src="/talktome-club-logo.png" alt="TalkToMe Club" />
             </div>
-            <p className="muted small">Le coréen expliqué en français, du hangeul au niveau courant. 화이팅!</p>
+            <p className="muted small">{t('Coréen, japonais, espagnol, anglais et français : du premier mot au niveau courant.', 'Korean, Japanese, Spanish, English and French: from your first word to fluency.')}</p>
           </div>
           <div>
-            <h4>Apprendre</h4>
-            <Link to="/cours">Tous les cours</Link>
-            <Link to="/alphabet">Alphabet coréen</Link>
-            <Link to="/pratique">Jeux & studio oral</Link>
-            <Link to="/test-de-niveau">Test de positionnement</Link>
+            <h4>{t('Apprendre', 'Learn')}</h4>
+            {languages.map((l) => (
+              <Link key={l.id} to={l.path}>
+                {name(l)}
+              </Link>
+            ))}
           </div>
           <div>
-            <h4>Progresser</h4>
-            <Link to="/tests">Tests de niveau</Link>
-            <Link to="/tableau-de-bord">Mon parcours</Link>
-            <Link to="/reserver">Cours particuliers</Link>
+            <h4>{t('Progresser', 'Progress')}</h4>
+            <Link to="/tableau-de-bord">{t('Mon parcours', 'My progress')}</Link>
+            <Link to="/reserver">{t('Cours particuliers', 'Private lessons')}</Link>
+            <Link to="/reservations">{t('Mes réservations', 'My bookings')}</Link>
           </div>
           <div>
-            <h4>Infos</h4>
-            <Link to="/#tarifs">Tarifs</Link>
+            <h4>{t('Infos', 'Info')}</h4>
+            <Link to="/#tarifs">{t('Tarifs', 'Prices')}</Link>
             <Link to="/#faq">FAQ</Link>
-            <Link to="/cgv">Conditions de vente & contact</Link>
-            <Link to="/confidentialite">Confidentialité</Link>
+            <Link to="/cgv">{t('Conditions de vente & contact', 'Terms of sale & contact')}</Link>
+            <Link to="/confidentialite">{t('Confidentialité', 'Privacy')}</Link>
           </div>
         </div>
-        <div className="container muted small footer-bottom">© {new Date().getFullYear()} {SITE_NAME}. Tous droits réservés.</div>
+        <div className="container muted small footer-bottom">© {new Date().getFullYear()} {SITE_NAME}. {t('Tous droits réservés.', 'All rights reserved.')}</div>
       </footer>
     </div>
   )

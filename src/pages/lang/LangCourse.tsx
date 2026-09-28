@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import type { LanguageInfo } from '../../data/languages'
+import { localized, type LanguageInfo } from '../../data/languages'
 import type { Level } from '../../data/types'
 import { courseLevels, getCourseLesson, getCourseLevel } from '../../data/courses'
 import { recordLesson, recordTest, useCurrentUser, useProgress } from '../../lib/store'
@@ -10,10 +10,17 @@ import { RichText } from '../../components/RichText'
 import { SpeakButton } from '../../components/Speak'
 import { ProgressBar } from '../../components/ProgressBar'
 import { PASS_MARK } from '../../lib/grading'
+import { useEn } from './LangPortal'
 import NotFound from '../NotFound'
 
 /** Pages de cours communes au japonais, à l'espagnol, à l'anglais et au français. */
 
+const KEYBOARD_EN: Record<string, string> = {
+  japonais: 'Tip: turn on the Japanese keyboard (romaji → kana) on your computer or phone. Answer in kana unless the question asks for romaji.',
+  espagnol: 'Tip: accents and the ¿ ¡ signs are not required to validate, but try to use them!',
+  anglais: 'Tip: capital letters and final punctuation don’t count.',
+  francais: 'Tip: accents are not required to validate your answer, but try to use them!',
+}
 const KEYBOARD: Record<string, string> = {
   japonais: 'Astuce : active le clavier japonais (romaji → kana) sur ton ordinateur ou ton téléphone. Réponds en kana, sauf si la question demande le romaji.',
   espagnol: 'Astuce : les accents et les signes ¿ ¡ ne sont pas obligatoires pour valider, mais essaie de les mettre !',
@@ -74,7 +81,7 @@ const T = {
     home: 'Home',
     courses: 'Lessons',
     eyebrow: 'YOUR FULL COURSE',
-    title: () => 'French step by step, from your first word to fluency.',
+    title: (n: string) => `${n} step by step, from your first word to fluency.`,
     lead: (n: number) => `${n} levels. Every lesson has explanations, vocabulary with audio, a dialogue and self-correcting exercises. A test validates each level.`,
     signup: 'Create an account',
     signupEnd: ' to save your progress.',
@@ -124,10 +131,11 @@ const base = (lang: LanguageInfo) => `${lang.path}/cours`
 const shortName = (level: Level) => level.name.split('— ')[1] ?? level.name
 
 function CourseShell({ lang, children }: { lang: LanguageInfo; children: ReactNode }) {
-  const value: CourseLang = { id: lang.id, speech: lang.speech, ui: lang.taughtIn, keyboard: KEYBOARD[lang.id] ?? '' }
+  const ui = useEn(lang) ? 'en' : 'fr'
+  const value: CourseLang = { id: lang.id, speech: lang.speech, ui, keyboard: (ui === 'en' ? KEYBOARD_EN : KEYBOARD)[lang.id] ?? '' }
   return (
     <CourseLangContext.Provider value={value}>
-      <div lang={lang.taughtIn} style={{ ['--lang' as string]: lang.accent }}>{children}</div>
+      <div lang={ui} style={{ ['--lang' as string]: lang.accent }}>{children}</div>
     </CourseLangContext.Provider>
   )
 }
@@ -140,7 +148,7 @@ function stats(levels: Level[], progress: ReturnType<typeof useProgress>) {
 }
 
 export function LangCourses({ lang }: { lang: LanguageInfo }) {
-  const t = T[lang.taughtIn]
+  const t = T[useEn(lang) ? 'en' : 'fr']
   const user = useCurrentUser()
   const progress = useProgress()
   const levels = courseLevels(lang.id)
@@ -148,10 +156,10 @@ export function LangCourses({ lang }: { lang: LanguageInfo }) {
   return (
     <CourseShell lang={lang}>
       <div className="container page">
-        <Link to={lang.path} className="link small">← {lang.name} · {t.home}</Link>
+        <Link to={lang.path} className="link small">← {localized(lang, t === T.en).name} · {t.home}</Link>
         <div className="page-head">
           <p className="eyebrow">{t.eyebrow}</p>
-          <h1>{t.title(lang.name)}</h1>
+          <h1>{t.title(localized(lang, t === T.en).name)}</h1>
           <p className="muted">
             {t.lead(levels.length)}
             {!user && (
@@ -191,7 +199,7 @@ export function LangCourses({ lang }: { lang: LanguageInfo }) {
 }
 
 export function LangLevel({ lang }: { lang: LanguageInfo }) {
-  const t = T[lang.taughtIn]
+  const t = T[useEn(lang) ? 'en' : 'fr']
   const { levelId } = useParams()
   const level = getCourseLevel(lang.id, levelId)
   const progress = useProgress()
@@ -267,7 +275,7 @@ export function LangLesson({ lang }: { lang: LanguageInfo }) {
 }
 
 function LessonView({ lang }: { lang: LanguageInfo }) {
-  const t = T[lang.taughtIn]
+  const t = T[useEn(lang) ? 'en' : 'fr']
   const { levelId, lessonId } = useParams()
   const found = getCourseLesson(lang.id, levelId, lessonId)
   const user = useCurrentUser()
@@ -435,7 +443,7 @@ export function LangTest({ lang }: { lang: LanguageInfo }) {
 }
 
 function TestView({ lang }: { lang: LanguageInfo }) {
-  const t = T[lang.taughtIn]
+  const t = T[useEn(lang) ? 'en' : 'fr']
   const { levelId } = useParams()
   const level = getCourseLevel(lang.id, levelId)
   const user = useCurrentUser()

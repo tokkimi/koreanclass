@@ -317,3 +317,104 @@ export const portals: Record<string, PortalCopy> = {
     },
   },
 }
+
+/** Version anglaise des portails japonais, espagnol et anglais (site affiché en anglais). */
+const enTeacher = (topic: string) => ({
+  eyebrow: 'With a teacher',
+  title: 'Speak. We’re listening.',
+  lead: 'One-to-one video lessons, tailored to your level and goals.',
+  one: 'One hour',
+  oneSub: 'Try it, no commitment',
+  oneCta: 'Book 1 hour',
+  oneList: ['1 h video lesson with a teacher', topic] as [string, string],
+  pack: '10-hour pack',
+  packSub: 'To really make progress',
+  packCta: 'Get the pack',
+  packList: ['€10/h · save €50', 'Your hours, whenever you want'] as [string, string],
+  level: 'Already know a bit?',
+  levelLink: 'Find your level in 18 minutes →',
+})
+const enNav = (lang: string) => ({
+  home: `${lang} home`,
+  courses: 'Lessons',
+  numbers: 'Numbers',
+  vocabulary: 'Vocabulary',
+  colors: 'Colours',
+  structures: 'Sentences & grammar',
+  tests: 'Tests & quizzes',
+  practice: 'Real-life practice',
+  back: '← All languages',
+  teacher: 'Private lesson',
+})
+const enStages = (names: string[], details: string[]) => ['blue', 'mint', 'lavender', 'sky', 'violet', 'ink'].map((tone, i) => ({ level: String(i).padStart(2, '0'), name: names[i], detail: details[i], tone }))
+const enCommon = {
+  pathTitle: 'Your path, no pressure.',
+  start: 'Start',
+  resume: 'Resume',
+  go: 'Let’s go',
+  continue: 'Continue',
+  access: (l: number, n: number) => `${l} levels · ${n} lessons · free access`,
+  faq: { q: 'How do I keep my progress?', a: 'Create your profile, then log in on any device: your results are saved online. A lesson is passed from 70%, and you can replay as often as you like.' },
+}
+const enJourney = (title: string, text: string, stages: ReturnType<typeof enStages>, goal: string, lang: string) => ({
+  eyebrow: 'A REAL PATH, NOT A LIST OF LESSONS',
+  title,
+  text,
+  stages,
+  goal,
+  start: 'Start my course',
+  startTo: `/${lang}/cours`,
+  teacher: 'Get help from a teacher',
+  teacherTo: `/reserver?langue=${lang}`,
+  labels: ['progressive levels', 'lessons and workshops', 'of guided learning', '6 steps', 'One goal at a time', 'final goal'] as [string, string, string, string, string, string],
+})
+const enCheck = (text: string, lang: string) => ({ eyebrow: 'PLACEMENT TEST', title: 'Want to focus on what you really need?', text, minutes: '≈ 18 min', custom: 'personal recommendation', questions: 'questions', cta: 'Check my level now', to: `/${lang}/test-de-niveau` })
+const enPractice = (text: string, lang: string) => ({ eyebrow: 'REAL-LIFE PRACTICE', title: 'Don’t just recognise the words. Use them.', text, tags: ['dialogue game', 'listening', 'speaking'] as [string, string, string], cta: 'Try real-life practice', to: `/${lang}/pratique` })
+
+export const portalsEn: Record<string, PortalCopy> = {
+  japonais: {
+    ...enCommon,
+    hero: { image: portals.japonais.hero.image, title: 'Japanese starts here.', words: ['Listen.', 'Understand.', 'Speak up.'], cta: 'Explore the lessons' },
+    chapters: ['Your first kana', 'The basics to chat', 'Tell your day', 'Speak like a local', 'Keigo and nuance', 'Fluent Japanese is yours'],
+    writing: { menu: 'Kana', badge: 'Kana', ko: 'あいう', title: 'The kana workshop', subtitle: 'Hiragana and katakana' },
+    nav: enNav('Japanese'),
+    pathLead: 'From your first kana to real conversations. Spin, choose, start.',
+    hello: (name, pct) => `Hello, ${name} · ${pct}% of the course`,
+    journey: enJourney('A clear path, from kana to the JLPT.', 'Read kana, build sentences, then master keigo and nuance. You move at your own pace, with a clear milestone at every step.', enStages(['Kana', 'N5', 'N4', 'N3', 'N2', 'N1'], ['Read syllables', 'Introduce yourself', 'Tell your story', 'Speak naturally', 'Keigo and press', 'Fluent Japanese']), 'JLPT', 'japonais'),
+    levelCheck: enCheck('Show us what you can do. Check your level now: kana, comprehension, sentence structures and keigo.', 'japonais'),
+    practice: enPractice('Order ramen, ask your way in Tokyo, book a ryokan. Pick your answer, listen to it, then speak.', 'japonais'),
+    teacher: enTeacher('Conversation, grammar or JLPT'),
+    extras: { numbers: ['Numbers', 'いち に', 'Count, prices, time'], vocabulary: ['Words', 'ことば', 'Themes to remember'], colors: ['Colours', 'いろ', 'See, say, describe'], structures: ['Grammar', 'ぶんぽう', 'Build your sentences'], tests: ['Quiz', 'テスト', 'Pass every level'], practice: ['Speaking', 'かいわ', 'Games and speaking studio'] },
+  },
+  espagnol: {
+    ...enCommon,
+    hero: { image: portals.espagnol.hero.image, title: 'Spanish starts here.', words: ['Escucha.', 'Comprende.', '¡Habla!'], cta: 'Explore the lessons' },
+    chapters: ['Your first words', 'The basics to chat', 'Tell your day', 'The subjunctive, no fear', 'Argue and nuance', 'Fluent Spanish is yours'],
+    writing: { menu: 'Alphabet & sounds', badge: 'Sounds', ko: 'ñ ll rr', title: 'Alphabet and pronunciation', subtitle: 'Letters, sounds and stress' },
+    nav: enNav('Spanish'),
+    pathLead: 'From your first words to real conversations. Spin, choose, start.',
+    hello: (name, pct) => `¡Hola, ${name}! · ${pct}% of the course`,
+    journey: enJourney('A clear path, from your first words to the DELE.', 'Build the basics, tell stories in the past, tame the subjunctive, then argue with precision. You move at your own pace.', enStages(['Sounds', 'A1', 'A2', 'B1', 'B2', 'C1+'], ['Read and pronounce', 'Introduce yourself', 'Tell your story', 'Link ideas', 'Nuance', 'Speak naturally']), 'DELE', 'espagnol'),
+    levelCheck: enCheck('Show us what you can do. Check your level now: basics, past tenses, subjunctive and nuance.', 'espagnol'),
+    practice: enPractice('Order tapas, find a flat, get through an interview. Pick your answer, listen to it, then speak.', 'espagnol'),
+    teacher: enTeacher('Conversation, grammar or DELE'),
+    extras: { numbers: ['Numbers', 'uno dos', 'Count, prices, time'], vocabulary: ['Words', 'palabras', 'Themes to remember'], colors: ['Colours', 'colores', 'See, say, describe'], structures: ['Grammar', 'frases', 'Build your sentences'], tests: ['Quiz', 'examen', 'Pass every level'], practice: ['Speaking', 'charla', 'Games and speaking studio'] },
+  },
+  anglais: {
+    ...enCommon,
+    hero: { image: portals.anglais.hero.image, title: 'English starts here.', words: ['Listen.', 'Understand.', 'Speak up.'], cta: 'Explore the lessons' },
+    chapters: ['Your first words', 'The basics to chat', 'Tell your day', 'Present perfect mastered', 'Speak like at work', 'Fluent English is yours'],
+    writing: { menu: 'Alphabet & sounds', badge: 'Sounds', ko: 'th · sh', title: 'Alphabet and pronunciation', subtitle: 'Letters, sounds and stress' },
+    nav: enNav('English'),
+    pathLead: 'From your first words to real conversations. Spin, choose, start.',
+    hello: (name, pct) => `Hello, ${name} · ${pct}% of the course`,
+    journey: enJourney('A clear path, from your first words to IELTS.', 'Build the basics, master the tenses, then speak with ease at work and when travelling. You move at your own pace.', enStages(['Sounds', 'A1', 'A2', 'B1', 'B2', 'C1+'], ['Read and pronounce', 'Introduce yourself', 'Tell your story', 'Link ideas', 'Nuance', 'Speak naturally']), 'IELTS', 'anglais'),
+    levelCheck: enCheck('Show us what you can do. Check your level now: basics, tenses, modals and nuance.', 'anglais'),
+    practice: enPractice('Order in a pub, take the Tube, get through an interview. Pick your answer, listen to it, then speak.', 'anglais'),
+    teacher: enTeacher('Conversation, business English or TOEIC / IELTS'),
+    extras: { numbers: ['Numbers', 'one two', 'Count, prices, time'], vocabulary: ['Words', 'words', 'Themes to remember'], colors: ['Colours', 'colours', 'See, say, describe'], structures: ['Grammar', 'grammar', 'Build your sentences'], tests: ['Quiz', 'quiz', 'Pass every level'], practice: ['Speaking', 'talk', 'Games and speaking studio'] },
+  },
+}
+
+/** Textes du portail d'une langue selon la langue d'affichage. */
+export const portalFor = (lang: string, ui: 'fr' | 'en'): PortalCopy | undefined => (ui === 'en' && portalsEn[lang] ? portalsEn[lang] : portals[lang])

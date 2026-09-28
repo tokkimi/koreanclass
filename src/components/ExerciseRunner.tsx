@@ -4,6 +4,7 @@ import type { Exercise } from '../data/types'
 import { checkFill, checkMatch, checkOrder, scoreLabel, seededShuffle, shuffleDifferent } from '../lib/grading'
 import { SpeakButton } from './Speak'
 import { isTargetScript, spokenPart, useCourseLang } from '../lib/courseLang'
+import { useT, useUiLang } from '../lib/i18n'
 
 interface Props {
   exercises: Exercise[]
@@ -21,16 +22,12 @@ interface Answer {
 
 const hasHangul = (s: string) => /[가-힣ㄱ-ㆎ]/.test(s)
 const koreanOnly = (s: string) => (s.match(/[가-힣ㄱ-ㆎ][가-힣ㄱ-ㆎ\s]*/g) ?? []).join(", ")
-/** Textes de l'interface : français par défaut, anglais pour le cours de français. */
-function useT() {
-  const c = useCourseLang()
-  return (fr: string, en: string) => (c?.ui === 'en' ? en : fr)
-}
 const otherLabel = (pct: number, en: boolean) => (pct >= 90 ? (en ? 'Excellent!' : 'Excellent !') : pct >= 70 ? (en ? 'Well done!' : 'Très bien !') : pct >= 50 ? (en ? 'Not bad, keep going!' : 'Pas mal, continue !') : en ? 'Needs more practice' : 'À retravailler')
 
 export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passMark }: Props) {
   const course = useCourseLang()
   const t = useT()
+  const ui = useUiLang()
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [checked, setChecked] = useState<Answer | null>(null)
@@ -79,12 +76,12 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
         <div className={`score-ring ${passed ? 'ok' : 'ko'}`} style={{ ['--pct' as string]: pct }}>
           <span>{pct}%</span>
         </div>
-        <h3>{course ? otherLabel(pct, course.ui === 'en') : scoreLabel(pct)}</h3>
+        <h3>{course ? otherLabel(pct, ui === 'en') : ui === 'en' ? otherLabel(pct, true) : scoreLabel(pct)}</h3>
         <p className="muted">
-          {course?.ui === 'en' ? `${score} correct answer${score > 1 ? 's' : ''} out of ${exercises.length}` : `${score} bonne${score > 1 ? 's' : ''} réponse${score > 1 ? 's' : ''} sur ${exercises.length}`}
+          {ui === 'en' ? `${score} correct answer${score > 1 ? 's' : ''} out of ${exercises.length}` : `${score} bonne${score > 1 ? 's' : ''} réponse${score > 1 ? 's' : ''} sur ${exercises.length}`}
           {passMark !== undefined && (passed ? t(' — niveau validé ✅', ' — passed ✅') : t(` — il faut ${passMark} % pour valider`, ` — you need ${passMark}% to pass`))}
         </p>
-        {course ? <div className="card mt"><h3>{t('On le travaille ensemble ?', 'Want to practise it together?')}</h3><p>{t('Reprends ces notions et pratique à l’oral avec ton professeur. Cours particulier : 15 € / heure.', 'Go over these points and practise speaking with your teacher. Private lesson: €15 / hour.')}</p><Link className="btn" to={`/reserver?langue=${course.id}&formule=single`}>{t('Réserver mon cours · 15 €', 'Book my lesson · €15')}</Link><p className="small"><Link className="link" to={`/reserver?langue=${course.id}&formule=pack10`}>{t('Ou choisir 10 heures à 100 € →', 'Or take 10 hours for €100 →')}</Link></p></div> : <div className="card mt"><h3>On le travaille ensemble ?</h3><p>Reprends ces notions et pratique à l’oral avec ton professeur. Cours particulier : 15 € / heure.</p><Link className="btn" to="/reserver?formule=single">Réserver mon cours · 15 €</Link><p className="small"><Link className="link" to="/reserver?formule=pack10">Ou choisir 10 heures à 100 € →</Link></p></div>}
+        {course ? <div className="card mt"><h3>{t('On le travaille ensemble ?', 'Want to practise it together?')}</h3><p>{t('Reprends ces notions et pratique à l’oral avec ton professeur. Cours particulier : 15 € / heure.', 'Go over these points and practise speaking with your teacher. Private lesson: €15 / hour.')}</p><Link className="btn" to={`/reserver?langue=${course.id}&formule=single`}>{t('Réserver mon cours · 15 €', 'Book my lesson · €15')}</Link><p className="small"><Link className="link" to={`/reserver?langue=${course.id}&formule=pack10`}>{t('Ou choisir 10 heures à 100 € →', 'Or take 10 hours for €100 →')}</Link></p></div> : <div className="card mt"><h3>{t('On le travaille ensemble ?', 'Want to practise it together?')}</h3><p>{t('Reprends ces notions et pratique à l’oral avec ton professeur. Cours particulier : 15 € / heure.', 'Go over these points and practise speaking with your teacher. Private lesson: €15 / hour.')}</p><Link className="btn" to="/reserver?formule=single">{t('Réserver mon cours · 15 €', 'Book my lesson · €15')}</Link><p className="small"><Link className="link" to="/reserver?formule=pack10">{t('Ou choisir 10 heures à 100 € →', 'Or take 10 hours for €100 →')}</Link></p></div>}
         <details className="recap">
           <summary>{t('Voir le détail des réponses', 'See all answers')}</summary>
           <ol>
@@ -189,8 +186,8 @@ function Qcm({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'qcm' }
   return (
     <div>
       <Question text={ex.q} />
-      {ex.image && <img src={ex.image} alt="Photo à reconnaître" style={{display:'block',width:'100%',maxHeight:320,objectFit:'contain',borderRadius:18,marginBottom:20}} />}
-      {ex.swatch && <div role="img" aria-label="Couleur à reconnaître" style={{height:180,background:ex.swatch,border:'1px solid #9998',borderRadius:18,marginBottom:20}} />}
+      {ex.image && <img src={ex.image} alt={t('Photo à reconnaître', 'Photo to recognise')} style={{display:'block',width:'100%',maxHeight:320,objectFit:'contain',borderRadius:18,marginBottom:20}} />}
+      {ex.swatch && <div role="img" aria-label={t('Couleur à reconnaître', 'Colour to recognise')} style={{height:180,background:ex.swatch,border:'1px solid #9998',borderRadius:18,marginBottom:20}} />}
       <div className="options">
         {ex.options.map((o, i) => {
           let cls = 'option'
@@ -229,7 +226,7 @@ function Fill({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'fill'
           submit()
         }}
       >
-        <input className="input ko-text" value={v} onChange={(e) => setV(e.target.value)} disabled={disabled} placeholder={course ? t('Tape ta réponse', 'Type your answer') : 'Tapez votre réponse (clavier coréen conseillé)'} autoFocus lang={course ? course.speech : 'ko'} />
+        <input className="input ko-text" value={v} onChange={(e) => setV(e.target.value)} disabled={disabled} placeholder={course ? t('Tape ta réponse', 'Type your answer') : t('Tapez votre réponse (clavier coréen conseillé)', 'Type your answer (Korean keyboard recommended)')} autoFocus lang={course ? course.speech : 'ko'} />
         {!disabled && (
           <button className="btn" type="submit" disabled={!v.trim()}>
             {t('Vérifier', 'Check')}
@@ -237,7 +234,7 @@ function Fill({ ex, disabled, onSubmit }: { ex: Extract<Exercise, { type: 'fill'
         )}
       </form>
       <p className="muted small">
-        {course ? course.keyboard : 'Astuce : activez le clavier coréen (2-set / 두벌식) sur votre ordinateur ou téléphone.'}
+        {course ? course.keyboard : t('Astuce : activez le clavier coréen (2-set / 두벌식) sur votre ordinateur ou téléphone.', 'Tip: turn on the Korean keyboard (2-set / 두벌식) on your computer or phone.')}
       </p>
     </div>
   )

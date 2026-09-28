@@ -1,3 +1,4 @@
+import { useT, useUiLang } from '../lib/i18n'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { vocabularyThemes } from '../data/vocabulary'
@@ -25,6 +26,7 @@ function hasWebGL() {
  */
 export function PathOrbit({ cards, onSelect }: { cards: OrbitCard[]; onSelect?: (card: OrbitCard) => void }) {
   const navigate = useNavigate()
+  const t = useT()
   const wrap = useRef<HTMLDivElement>(null)
   const control = useRef<OrbitControl>({ target: 0, current: 0, dragging: false })
   const drag = useRef<{ x: number; y: number; id: number; decided: boolean; horizontal: boolean } | null>(null)
@@ -125,13 +127,13 @@ export function PathOrbit({ cards, onSelect }: { cards: OrbitCard[]; onSelect?: 
           <div className="orbit-loading" aria-hidden="true" />
         )}
         <p className="orbit-help" aria-hidden="true">
-          Glisse dans les deux directions pour tourner · touche une carte pour l’ouvrir
+          {t('Glisse dans les deux directions pour tourner · touche une carte pour l’ouvrir', 'Swipe either way to spin · tap a card to open it')}
         </p>
       </div>
 
-      <div className="row center orbit-controls"><button className="btn ghost small" onClick={() => { control.current.target += step }}>Précédent</button><button className="btn ghost small" onClick={() => { control.current.tilt = 0 }}>Recentrer</button><button className="btn ghost small" onClick={() => { control.current.target -= step }}>Suivant</button></div>
+      <div className="row center orbit-controls"><button className="btn ghost small" onClick={() => { control.current.target += step }}>{t('Précédent', 'Previous')}</button><button className="btn ghost small" onClick={() => { control.current.tilt = 0 }}>{t('Recentrer', 'Recentre')}</button><button className="btn ghost small" onClick={() => { control.current.target -= step }}>{t('Suivant', 'Next')}</button></div>
       {/* Pas de commandes visibles : liens pour le clavier et les lecteurs d'écran. */}
-      <nav className="sr-only" aria-label="Toutes les étapes du parcours">
+      <nav className="sr-only" aria-label={t('Toutes les étapes du parcours', 'All the steps of the course')}>
         <ul>
           {cards.map((c) => (
             <li key={c.id}>
@@ -163,7 +165,8 @@ export function usePathCards(
   options?: { courseBase: string; extras: Omit<OrbitCard, 'image' | 'accent' | 'tint'>[]; lessonsLabel: string },
 ): OrbitCard[] {
   // Clé stable : les textures 3D ne sont redessinées que si la progression change.
-  const key = stats.map((s) => `${s.level.id}:${s.pct}:${s.total}`).join('|') + chapters.join('|') + (options?.courseBase ?? '')
+  const ui = useUiLang()
+  const key = stats.map((s) => `${s.level.id}:${s.pct}:${s.total}`).join('|') + chapters.join('|') + (options?.courseBase ?? '') + ui
   return useMemo(() => {
     // Palette neutre : cartes blanches, teintes très douces, encre sombre.
     const palette = [
@@ -178,13 +181,21 @@ export function usePathCards(
       badge: String(level.index + 1).padStart(2, '0'),
       ko: level.korean,
       title: chapters[level.index] ?? level.name,
-      subtitle: `${level.cefr} · ${total} ${options?.lessonsLabel ?? 'leçons'}`,
+      subtitle: `${level.cefr} · ${total} ${options?.lessonsLabel ?? (ui === 'en' ? 'lessons' : 'leçons')}`,
       pct,
       image: imageFor(level.index),
       ...palette[level.index % 3],
     }))
     // Les cours ajoutés au menu déroulant
-    const extras: OrbitCard[] = (options?.extras ?? [
+    const koreanExtras = ui === 'en' ? [
+      { id: 'atelier-hangeul', to: '/alphabet', badge: 'Hangul', ko: '가나다', title: 'The hangul workshop', subtitle: 'Letters, sounds and syllables' },
+      { id: 'nombres', to: '/nombres', badge: 'Numbers', ko: '하나 둘', title: 'Numbers', subtitle: 'Count, prices, time' },
+      { id: 'vocabulaire', to: '/vocabulaire', badge: 'Words', ko: '단어', title: 'Vocabulary in pictures', subtitle: 'Themes to remember' },
+      { id: 'couleurs', to: '/couleurs', badge: 'Colours', ko: '색깔', title: 'Colours', subtitle: 'See, say, describe' },
+      { id: 'structures', to: '/structures', badge: 'Grammar', ko: '문장', title: 'Sentences & grammar', subtitle: 'Build your sentences' },
+      { id: 'tests', to: '/tests', badge: 'Quiz', ko: '시험', title: 'Tests & quizzes', subtitle: 'Pass every level' },
+      { id: 'pratique', to: '/pratique', badge: 'Oral', ko: '대화', title: 'Real-life practice', subtitle: 'Games and speaking studio' },
+    ] : [
       { id: 'atelier-hangeul', to: '/alphabet', badge: 'Hangeul', ko: '가나다', title: 'L’atelier hangeul', subtitle: 'Lettres, sons et syllabes' },
       { id: 'nombres', to: '/nombres', badge: 'Nombres', ko: '하나 둘', title: 'Chiffres & nombres', subtitle: 'Compter, prix, heures' },
       { id: 'vocabulaire', to: '/vocabulaire', badge: 'Mots', ko: '단어', title: 'Vocabulaire en photos', subtitle: 'Des thèmes à retenir' },
@@ -192,7 +203,8 @@ export function usePathCards(
       { id: 'structures', to: '/structures', badge: 'Grammaire', ko: '문장', title: 'Phrases & grammaire', subtitle: 'Construire tes phrases' },
       { id: 'tests', to: '/tests', badge: 'QCM', ko: '시험', title: 'Tests & QCM', subtitle: 'Valide chaque niveau' },
       { id: 'pratique', to: '/pratique', badge: 'Oral', ko: '대화', title: 'En situation', subtitle: 'Jeux et studio oral' },
-    ]).map((c, i) => ({ ...c, image: imageFor(i + 6), ...palette[i % 3] }))
+    ]
+    const extras: OrbitCard[] = (options?.extras ?? koreanExtras).map((c, i) => ({ ...c, image: imageFor(i + 6), ...palette[i % 3] }))
     return [...levels, ...extras]
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])

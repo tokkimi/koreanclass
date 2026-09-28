@@ -10,7 +10,7 @@ import { SpeakButton } from '../../components/Speak'
 import { CardFan } from '../../components/CardFan'
 import { WordVisual } from '../../components/WordVisual'
 import type { OrbitCard } from '../../components/OrbitGallery3D'
-import { LangShell } from './LangPortal'
+import { LangShell, useEn } from './LangPortal'
 import NotFound from '../NotFound'
 
 /** Page « Vocabulaire » des autres langues : même construction que la page coréenne. */
@@ -26,7 +26,7 @@ const photoUrl = (photo: string, w = 900) => (photo.startsWith('/') ? photo : `h
 
 function WordRow(props: { lang: LanguageInfo; label: string; items: Word[]; all: Word[]; hidden: boolean; revealed: string[]; onReveal: (w: string) => void; onQuiz: () => void }) {
   const { lang, label, items, all, hidden, revealed, onReveal, onQuiz } = props
-  const en = lang.taughtIn === 'en'
+  const en = useEn(lang)
   const track = useRef<HTMLDivElement>(null)
   const scroll = (dir: 1 | -1) => track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.8, behavior: 'smooth' })
   return (
@@ -90,9 +90,9 @@ function WordRow(props: { lang: LanguageInfo; label: string; items: Word[]; all:
 }
 
 export function LangVocabulary({ lang }: { lang: LanguageInfo }) {
+  const en = useEn(lang)
   const content = vocabContent[lang.id]
   const words = useMemo(() => vocabWords(lang.id), [lang.id])
-  const en = lang.taughtIn === 'en'
   const ALL = en ? 'All' : 'Tout'
   const [params, setParams] = useSearchParams()
   const [category, setCategory] = useState(() => params.get('theme') ?? ALL)
@@ -185,7 +185,7 @@ export function LangVocabulary({ lang }: { lang: LanguageInfo }) {
               </label>
               <label>
                 {en ? 'Search' : 'Rechercher'}
-                <input className="input" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={en ? 'English, French…' : `Français, ${lang.name.toLowerCase()}…`} />
+                <input className="input" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={en ? `English, ${lang.nameEn}…` : `Français, ${lang.name.toLowerCase()}…`} />
               </label>
               <button
                 className="btn ghost"

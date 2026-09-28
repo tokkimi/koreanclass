@@ -26,6 +26,11 @@ export interface LanguageInfo {
   available: boolean
   /** Langue d'explication des cours. */
   taughtIn: 'fr' | 'en'
+  /** Version anglaise (site affiché en anglais). */
+  nameEn: string
+  pitchEn: string
+  levelsEn: { code: string; title: string; detail: string }[]
+  topicsEn: string[]
 }
 
 export const languages: LanguageInfo[] = [
@@ -52,6 +57,17 @@ export const languages: LanguageInfo[] = [
     topics: ['Conversation', 'Grammaire', 'Préparation TOPIK', 'Prononciation', 'Voyage en Corée', 'Hangeul (débutant)', 'Autre'],
     available: true,
     taughtIn: 'fr',
+    nameEn: 'Korean',
+    pitchEn: 'From hangul to TOPIK: lessons, quizzes, vocabulary in pictures and real-life scenes.',
+    levelsEn: [
+      { code: 'Pre-A1', title: 'Hangul', detail: 'Read and write the Korean alphabet' },
+      { code: 'A1', title: 'Beginner', detail: 'Introduce yourself, count, polite present' },
+      { code: 'A2', title: 'Elementary', detail: 'Past, future, linking sentences' },
+      { code: 'B1', title: 'Intermediate', detail: 'Honorifics, relative clauses, conditions' },
+      { code: 'B2', title: 'Upper intermediate', detail: 'Reported speech, nuances' },
+      { code: 'C1-C2', title: 'Advanced & fluent', detail: 'Hanja, proverbs, TOPIK II' },
+    ],
+    topicsEn: ['Conversation', 'Grammar', 'TOPIK preparation', 'Pronunciation', 'Travel in Korea', 'Hangul (beginner)', 'Other'],
   },
   {
     id: 'japonais',
@@ -76,6 +92,17 @@ export const languages: LanguageInfo[] = [
     topics: ['Conversation', 'Grammaire', 'Préparation JLPT', 'Kanji', 'Prononciation', 'Voyage au Japon', 'Kana (débutant)', 'Autre'],
     available: true,
     taughtIn: 'fr',
+    nameEn: 'Japanese',
+    pitchEn: 'From kana and kanji to the JLPT: a complete course.',
+    levelsEn: [
+      { code: 'Pre-A1', title: 'Kana', detail: 'Hiragana and katakana' },
+      { code: 'N5', title: 'Beginner', detail: 'Introduce yourself, particles, です / ます' },
+      { code: 'N4', title: 'Elementary', detail: 'て-form, past tense, first kanji' },
+      { code: 'N3', title: 'Intermediate', detail: 'Plain forms, conditionals' },
+      { code: 'N2', title: 'Upper intermediate', detail: 'Keigo, nuance, reading' },
+      { code: 'N1', title: 'Advanced & fluent', detail: 'Press, expressions, JLPT N1' },
+    ],
+    topicsEn: ['Conversation', 'Grammar', 'JLPT preparation', 'Kanji', 'Pronunciation', 'Travel in Japan', 'Kana (beginner)', 'Other'],
   },
   {
     id: 'espagnol',
@@ -100,6 +127,17 @@ export const languages: LanguageInfo[] = [
     topics: ['Conversation', 'Grammaire', 'Préparation DELE', 'Prononciation', 'Voyage en Espagne / Amérique latine', 'Débutant', 'Autre'],
     available: true,
     taughtIn: 'fr',
+    nameEn: 'Spanish',
+    pitchEn: 'From your first words to the DELE: clear grammar, audio and everyday conversations.',
+    levelsEn: [
+      { code: 'Pre-A1', title: 'First steps', detail: 'Sounds, alphabet, greetings' },
+      { code: 'A1', title: 'Beginner', detail: 'Ser / estar, present tense, numbers' },
+      { code: 'A2', title: 'Elementary', detail: 'Past tenses, near future, pronouns' },
+      { code: 'B1', title: 'Intermediate', detail: 'Present subjunctive, storytelling' },
+      { code: 'B2', title: 'Upper intermediate', detail: 'Conditional, reported speech' },
+      { code: 'C1-C2', title: 'Advanced & fluent', detail: 'Idioms, registers, DELE' },
+    ],
+    topicsEn: ['Conversation', 'Grammar', 'DELE preparation', 'Pronunciation', 'Travel in Spain / Latin America', 'Beginner', 'Other'],
   },
   {
     id: 'anglais',
@@ -124,6 +162,17 @@ export const languages: LanguageInfo[] = [
     topics: ['Conversation', 'Grammaire', 'Préparation TOEIC / Cambridge / IELTS', 'Anglais professionnel', 'Prononciation', 'Voyage', 'Autre'],
     available: true,
     taughtIn: 'fr',
+    nameEn: 'English',
+    pitchEn: 'From basic English to fluency: grammar, vocabulary, speaking and TOEIC / Cambridge preparation.',
+    levelsEn: [
+      { code: 'Pre-A1', title: 'First steps', detail: 'Sounds, alphabet, greetings' },
+      { code: 'A1', title: 'Beginner', detail: 'To be, present simple, numbers' },
+      { code: 'A2', title: 'Elementary', detail: 'Past simple, future, comparatives' },
+      { code: 'B1', title: 'Intermediate', detail: 'Present perfect, modals' },
+      { code: 'B2', title: 'Upper intermediate', detail: 'Conditionals, passive voice' },
+      { code: 'C1-C2', title: 'Advanced & fluent', detail: 'Idioms, phrasal verbs, exams' },
+    ],
+    topicsEn: ['Conversation', 'Grammar', 'TOEIC / Cambridge / IELTS preparation', 'Business English', 'Pronunciation', 'Travel', 'Other'],
   },
   {
     id: 'francais',
@@ -148,8 +197,22 @@ export const languages: LanguageInfo[] = [
     topics: ['Conversation', 'Grammar', 'DELF / DALF preparation', 'Pronunciation', 'Travel in France', 'Beginner', 'Other'],
     available: true,
     taughtIn: 'en',
+    nameEn: 'French',
+    pitchEn: 'French for English speakers: from your first words to fluency and the DELF / DALF.',
+    levelsEn: [],
+    topicsEn: [],
   },
 ]
 
 export const getLanguage = (id: string | null | undefined) => languages.find((l) => l.id === id)
 export const languageName = (id: string | undefined) => getLanguage(id ?? 'coreen')?.name ?? 'Coréen'
+
+/** Textes d'une langue selon la langue du site (le cours de français est déjà en anglais). */
+export function localized(l: LanguageInfo, en: boolean) {
+  return {
+    name: en ? l.nameEn : l.name,
+    pitch: en ? l.pitchEn : l.pitch,
+    levels: en && l.levelsEn.length ? l.levelsEn : l.levels,
+    topics: en && l.topicsEn.length ? l.topicsEn : l.topics,
+  }
+}

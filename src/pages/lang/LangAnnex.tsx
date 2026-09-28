@@ -6,7 +6,7 @@ import { SpeakButton } from '../../components/Speak'
 import { RichText } from '../../components/RichText'
 import { SavedQuiz } from '../../components/SavedQuiz'
 import { speak } from '../../lib/speech'
-import { LangShell } from './LangPortal'
+import { LangShell, useEn } from './LangPortal'
 import NotFound from '../NotFound'
 
 /** Pages « Écriture », « Nombres » et « Couleurs » des autres langues, sur le modèle coréen. */
@@ -17,10 +17,10 @@ const lessonOf = (lang: LanguageInfo, id: string) => courseLevels(lang.id).flatM
 const PFX: Record<string, string> = { japonais: 'ja', espagnol: 'es', anglais: 'en', francais: 'fr' }
 
 export function LangWriting({ lang }: { lang: LanguageInfo }) {
+  const en = useEn(lang)
   const c = portalContent[lang.id]?.writing
   const quiz = lessonOf(lang, `${PFX[lang.id]}-writing`)
   if (!c || !quiz) return <NotFound />
-  const en = lang.taughtIn === 'en'
   return (
     <LangShell lang={lang}>
       <div className="container page">
@@ -129,9 +129,9 @@ export function LangWriting({ lang }: { lang: LanguageInfo }) {
 }
 
 export function LangNumbers({ lang }: { lang: LanguageInfo }) {
+  const en = useEn(lang)
   const c = portalContent[lang.id]?.numbers
   if (!c) return <NotFound />
-  const en = lang.taughtIn === 'en'
   const lessons = c.units.map((u) => lessonOf(lang, `${PFX[lang.id]}-numbers-${u.id}`)!)
   return (
     <LangShell lang={lang}>
@@ -236,11 +236,11 @@ export function LangNumbers({ lang }: { lang: LanguageInfo }) {
 }
 
 export function LangColors({ lang }: { lang: LanguageInfo }) {
+  const en = useEn(lang)
   const c = portalContent[lang.id]?.colors
   const lesson = lessonOf(lang, `${PFX[lang.id]}-v-colors`)
   const quiz = lessonOf(lang, `${PFX[lang.id]}-v-color-images`)
   if (!c || !lesson || !quiz) return <NotFound />
-  const en = lang.taughtIn === 'en'
   return (
     <LangShell lang={lang}>
       <div className="container page">

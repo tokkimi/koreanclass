@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { useUiLang } from '../lib/i18n'
 
 /**
  * Bannière d'accueil pilotée par le défilement.
@@ -42,16 +43,23 @@ export function ScrollHero({
   imageSrc,
   videoSrc,
   skipTargetId,
-  title = 'Le coréen commence ici.',
-  words = ['Écoute.', 'Comprends.', 'Ose parler.'],
-  ctaLabel = 'Découvrir les cours',
+  title,
+  words,
+  ctaLabel,
   ctaTo = '/cours',
   doors = true,
   doorLabel = '서울',
   blossoms = true,
-  skipLabel = 'Passer aux cours',
-  hintLabel = 'Fais défiler',
+  skipLabel,
+  hintLabel,
 }: ScrollHeroProps) {
+  // Textes par défaut (accueil coréen) selon la langue du site.
+  const en = useUiLang() === 'en'
+  title ??= en ? 'Korean starts here.' : 'Le coréen commence ici.'
+  words ??= en ? ['Listen.', 'Understand.', 'Speak up.'] : ['Écoute.', 'Comprends.', 'Ose parler.']
+  ctaLabel ??= en ? 'Explore the lessons' : 'Découvrir les cours'
+  skipLabel ??= en ? 'Skip to the lessons' : 'Passer aux cours'
+  hintLabel ??= en ? 'Scroll' : 'Fais défiler'
   const sectionRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)

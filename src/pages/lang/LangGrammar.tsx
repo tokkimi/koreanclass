@@ -8,21 +8,27 @@ import { mutate, useCurrentUser, useProgress } from '../../lib/store'
 import { ExerciseRunner } from '../../components/ExerciseRunner'
 import { OralPractice } from '../../components/OralPractice'
 import { SpeakButton } from '../../components/Speak'
-import { LangShell } from './LangPortal'
+import { LangShell, useEn } from './LangPortal'
 import NotFound from '../NotFound'
 
 /** Pages « Phrases & grammaire » et « En situation » des autres langues, sur le modèle coréen. */
 
+const COUNTRY: Record<string, [string, string, string, string]> = {
+  japonais: ['AU JAPON', 'IN JAPAN', 'à Tokyo', 'in Tokyo'],
+  espagnol: ['EN ESPAGNE', 'IN SPAIN', 'à Madrid', 'in Madrid'],
+  anglais: ['AU ROYAUME-UNI', 'IN THE UK', 'à Londres', 'in London'],
+  francais: ['EN FRANCE', 'IN FRANCE', 'à Paris', 'in Paris'],
+}
 const JA = /[぀-ヿ㐀-鿿]/
 
 export function LangStructures({ lang }: { lang: LanguageInfo }) {
+  const en = useEn(lang)
   const g = grammarContent[lang.id]
   const levels = courseLevels(lang.id)
   const progress = useProgress()
   const [level, setLevel] = useState('all')
   const [search, setSearch] = useState('')
   if (!g) return <NotFound />
-  const en = lang.taughtIn === 'en'
   const units = g.units.filter(
     (u) => (level === 'all' || u.level === Number(level)) && `${u.title} ${u.context} ${u.patterns.map((p) => p.slice(0, 3).join(' ')).join(' ')}`.toLowerCase().includes(search.toLowerCase()),
   )
@@ -85,6 +91,7 @@ export function LangStructures({ lang }: { lang: LanguageInfo }) {
 }
 
 export function LangPractice({ lang }: { lang: LanguageInfo }) {
+  const en = useEn(lang)
   const g = grammarContent[lang.id]
   const levels = courseLevels(lang.id)
   const [selected, setSelected] = useState<string | null>(null)
@@ -93,7 +100,6 @@ export function LangPractice({ lang }: { lang: LanguageInfo }) {
   const user = useCurrentUser()
   const p = useProgress()
   if (!g) return <NotFound />
-  const en = lang.taughtIn === 'en'
   const scene = g.scenes.find((s) => s.id === selected)
   if (scene)
     return (
@@ -104,7 +110,7 @@ export function LangPractice({ lang }: { lang: LanguageInfo }) {
           </button>
           <header className="scene-header" style={{ backgroundImage: `linear-gradient(90deg,rgba(9,24,45,.85),rgba(9,24,45,.45)),url(${scene.image})` }}>
             <span className="pill">
-              {en ? 'LEVEL' : 'NIVEAU'} {scene.levelIndex} · {en ? 'MISSION IN FRANCE' : `MISSION EN ${lang.name.toUpperCase()}`}
+              {en ? 'LEVEL' : 'NIVEAU'} {scene.levelIndex} · {en ? `MISSION ${COUNTRY[lang.id][1]}` : `MISSION ${COUNTRY[lang.id][0]}`}
             </span>
             <h1>{scene.title}</h1>
             <p>{scene.setting}</p>
@@ -167,8 +173,8 @@ export function LangPractice({ lang }: { lang: LanguageInfo }) {
     <LangShell lang={lang}>
       <div className="container page">
         <div className="page-head">
-          <p className="eyebrow">{en ? 'FRENCH OFF THE PAGE' : `LE ${lang.name.toUpperCase()} SORT DU CAHIER`}</p>
-          <h1>{en ? 'What if you were in Paris?' : 'Et si tu y étais ?'}</h1>
+          <p className="eyebrow">{en ? `${lang.nameEn.toUpperCase()} OFF THE PAGE` : `LE ${lang.name.toUpperCase()} SORT DU CAHIER`}</p>
+          <h1>{en ? `What if you were ${COUNTRY[lang.id][3]}?` : `Et si tu étais ${COUNTRY[lang.id][2]} ?`}</h1>
           <p className="muted">{en ? 'Conversations to play, ideas to share. Try, listen, try again.' : 'Des conversations à jouer, des idées à raconter. Essaie, écoute, recommence.'}</p>
         </div>
         <div className="scenario-grid">

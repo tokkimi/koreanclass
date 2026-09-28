@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import type { LanguageInfo } from '../data/languages'
+import { localized, type LanguageInfo } from '../data/languages'
+import { useSiteLang } from '../lib/i18n'
 import { PRICING } from '../config'
 import { courseLevels } from '../data/courses'
 
@@ -46,11 +47,14 @@ const T = {
 }
 
 export default function LanguagePage({ lang }: { lang: LanguageInfo }) {
-  const t = T[lang.taughtIn]
+  const site = useSiteLang()
+  const ui = lang.taughtIn === 'en' || site === 'en' ? 'en' : 'fr'
+  const t = T[ui]
+  const loc = localized(lang, ui === 'en')
   const levels = courseLevels(lang.id)
   const open = lang.available && levels.length > 0
   return (
-    <div className="lp" style={{ ['--lang' as string]: lang.accent, ['--lang-tint' as string]: lang.tint }} lang={lang.taughtIn}>
+    <div className="lp" style={{ ['--lang' as string]: lang.accent, ['--lang-tint' as string]: lang.tint }} lang={ui}>
       <section className="lp-hero">
         <div className="container">
           <Link to="/" className="link small">
@@ -60,9 +64,9 @@ export default function LanguagePage({ lang }: { lang: LanguageInfo }) {
             {lang.hello}
           </p>
           <h1 className="lh-title">
-            {lang.taughtIn === 'en' ? 'Learn French' : `Apprendre le ${lang.name.toLowerCase()}`} <span lang={lang.speech}>{lang.native}</span>
+            {ui === 'en' ? `Learn ${loc.name}` : `Apprendre le ${lang.name.toLowerCase()}`} <span lang={lang.speech}>{lang.native}</span>
           </h1>
-          <p className="hc-lead">{lang.pitch}</p>
+          <p className="hc-lead">{loc.pitch}</p>
           <p className="small muted">
             {t.exam} : <strong>{lang.exam}</strong>
           </p>
@@ -80,7 +84,7 @@ export default function LanguagePage({ lang }: { lang: LanguageInfo }) {
         <p className="hc-eyebrow">{t.path}</p>
         <h2>{t.pathTitle}</h2>
         <ol className="lp-levels">
-          {lang.levels.map((l, i) => (
+          {loc.levels.map((l, i) => (
             <li key={l.code}>
               <span className="lp-level-num">{String(i + 1).padStart(2, '0')}</span>
               <div>

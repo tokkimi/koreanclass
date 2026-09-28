@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { CSSProperties } from 'react'
+import { useUiLang } from '../lib/i18n'
 
 const stages = [
   { level: '00', name: 'Hangeul', detail: 'Lire les blocs', tone: 'blue' },
@@ -24,7 +25,19 @@ export interface JourneyCopy {
   labels: [string, string, string, string, string, string]
 }
 export function JourneySnapshot({ levels, lessons, guidedHours, copy }: { levels: number; lessons: number; guidedHours: number; copy?: JourneyCopy }) {
-  const c: JourneyCopy = copy ?? {
+  const ui = useUiLang()
+  const c: JourneyCopy = copy ?? (ui === 'en' ? {
+    eyebrow: 'A REAL PATH, NOT A LIST OF LESSONS',
+    title: 'A clear path, from hangul to TOPIK.',
+    text: 'Build the basics, link your ideas, then speak with precision. You move at your own pace, with a clear milestone at every step.',
+    stages: stages.map((s, i) => ({ ...s, name: i === 0 ? 'Hangul' : s.name, detail: ['Read the blocks', 'Introduce yourself', 'Tell your story', 'Link ideas', 'Nuance', 'Speak naturally'][i] })),
+    goal: 'TOPIK',
+    start: 'Start my course',
+    startTo: '/cours',
+    teacher: 'Get help from a teacher',
+    teacherTo: '/reserver',
+    labels: ['progressive levels', 'lessons and workshops', 'of guided learning', '6 steps', 'One goal at a time', 'final goal'],
+  } : {
     eyebrow: 'UN VRAI CHEMIN, PAS UNE LISTE DE COURS',
     title: 'Un parcours lisible, du hangeul au TOPIK.',
     text: 'Construis les bases, relie tes idées, puis prends la parole avec précision. Tu avances à ton rythme, avec un point clair à chaque étape.',
@@ -35,7 +48,7 @@ export function JourneySnapshot({ levels, lessons, guidedHours, copy }: { levels
     teacher: 'Être accompagnée par ton prof',
     teacherTo: '/reserver',
     labels: ['niveaux progressifs', 'leçons et ateliers', 'de parcours guidé', '6 étapes', 'Un cap à la fois', 'objectif final'],
-  }
+  })
   return <section className="journey-snapshot" aria-labelledby="journey-title">
     <div className="journey-copy">
       <p className="hc-eyebrow">{c.eyebrow}</p>
@@ -51,7 +64,7 @@ export function JourneySnapshot({ levels, lessons, guidedHours, copy }: { levels
         <Link to={c.teacherTo} className="btn ghost">{c.teacher}</Link>
       </div>
     </div>
-    <div className="journey-visual" aria-label="Les six étapes du parcours">
+    <div className="journey-visual" aria-label={ui === 'en' ? 'The six steps of the course' : 'Les six étapes du parcours'}>
       <div className="journey-visual-heading"><span>{c.labels[3]}</span><strong>{c.labels[4]}</strong></div>
       <div className="journey-track">
         {c.stages.map((stage, index) => <article className={`journey-stage ${stage.tone}`} style={{ ['--delay' as string]: `${index * -0.45}s` } as CSSProperties} key={stage.level}>
