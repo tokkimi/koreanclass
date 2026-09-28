@@ -5,6 +5,7 @@ import { japonais } from './japonais.js'
 import { espagnol } from './espagnol.js'
 import { anglais } from './anglais.js'
 import { francais } from './francais.js'
+import { vocabLessons } from './vocab.js'
 
 /** Contenu des pages annexes, par langue (rempli langue par langue). */
 export const portalContent: Partial<Record<string, PortalContent>> = { japonais, espagnol, anglais, francais }
@@ -63,5 +64,6 @@ export function portalLessons(lang: string): { level0: Lesson[]; level1: Lesson[
     vocab: [{ ko: u.examples[0].ko, rom: '', fr: u.examples[0].fr }],
     exercises: u.qs.map((q) => toQcm(q, `${en ? 'Remember' : 'À retenir'} : ${q[1]}.`)),
   }))
-  return { level0: [writing], level1: [colorQuiz, colorLesson, ...numbers] }
+  const v = vocabLessons(lang)
+  return { level0: [writing], level1: [...(v.photo ? [v.photo] : []), colorQuiz, colorLesson, ...numbers, ...v.themes] }
 }
