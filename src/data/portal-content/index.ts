@@ -8,8 +8,9 @@ import { francais } from './francais.js'
 import { vocabLessons } from './vocab.js'
 import { sceneLessonFor, structureLessonFor, type GrammarContent } from './grammar.js'
 import { grammarJaponais } from './grammar-japonais.js'
+import { grammarEspagnol } from './grammar-espagnol.js'
 
-export const grammarContent: Partial<Record<string, GrammarContent>> = { japonais: grammarJaponais }
+export const grammarContent: Partial<Record<string, GrammarContent>> = { japonais: grammarJaponais, espagnol: grammarEspagnol }
 
 /** Ateliers de structures et scènes d'un niveau (ajoutés après les leçons, comme en coréen). */
 export function grammarLessons(lang: string, levelIndex: number): Lesson[] {
