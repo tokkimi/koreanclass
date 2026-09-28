@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { languages, type LanguageId } from '../data/languages'
 import { PRICING } from '../config'
+import { ContainerScroll } from '../components/ui/container-scroll-animation'
 
 /**
  * Accueil de TalkToMe Club : présente les 5 langues. Chaque langue a sa
@@ -21,6 +22,27 @@ export default function LanguagesHome() {
           Coréen, japonais, espagnol, anglais ou français : des cours en autonomie du premier mot jusqu’au niveau courant, et des professeurs pour
           te faire parler.
         </p>
+      </section>
+
+      <section className="lh-banner" aria-label="Cinq langues, un seul club">
+        <ContainerScroll
+          titleComponent={
+            <h2 className="cs-title">
+              Séoul, Tokyo, Londres, Paris, Barcelone…
+              <span>Un seul club.</span>
+            </h2>
+          }
+        >
+          <img
+            src="/images/langues-panorama.jpg"
+            alt="Panorama imaginaire réunissant Séoul, le mont Fuji, Londres, Paris et Barcelone au coucher du soleil"
+            draggable={false}
+            onError={(e) => {
+              const img = e.currentTarget
+              if (!img.src.endsWith('/images/seoul.jpg')) img.src = '/images/seoul.jpg'
+            }}
+          />
+        </ContainerScroll>
       </section>
 
       <section className="container lh-grid" aria-label="Choisis ta langue">

@@ -3836,3 +3836,82 @@ main:has(.scroll-hero) .sync-status{position:fixed;z-index:60;top:78px;left:50%;
   padding-left: 30px;
   font-size: 0.92rem;
 }
+
+/* Container scroll (bannière de l’accueil général) */
+.cs-container {
+  height: 60rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0.5rem;
+}
+.cs-inner {
+  padding: 2.5rem 0;
+  width: 100%;
+  position: relative;
+}
+.cs-header {
+  max-width: 64rem;
+  margin: 0 auto;
+  text-align: center;
+}
+.cs-card {
+  max-width: 64rem;
+  margin: -3rem auto 0;
+  height: 30rem;
+  width: 100%;
+  border: 4px solid #6c6c6c;
+  padding: 0.5rem;
+  background: #222;
+  border-radius: 30px;
+}
+.cs-card-screen {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #f3f4f6;
+}
+.cs-card-screen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.cs-title {
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  font-weight: 600;
+  color: var(--ink, #111);
+  margin: 0;
+}
+.cs-title span {
+  display: block;
+  font-size: clamp(2.6rem, 9vw, 6rem);
+  font-weight: 800;
+  line-height: 1;
+  margin-top: 0.25rem;
+}
+@media (min-width: 768px) {
+  .cs-container {
+    height: 80rem;
+    padding: 5rem;
+  }
+  .cs-inner {
+    padding: 10rem 0;
+  }
+  .cs-card {
+    height: 40rem;
+    padding: 1.5rem;
+  }
+}
+@media (max-width: 767px) {
+  /* Sur mobile, la bannière reste compacte pour ne pas créer un grand vide. */
+  .cs-container {
+    height: 30rem;
+  }
+  .cs-card {
+    height: 16rem;
+  }
+}
