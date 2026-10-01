@@ -3,6 +3,7 @@ import { localized, type LanguageInfo } from '../data/languages'
 import { useSiteLang } from '../lib/i18n'
 import { PRICING } from '../config'
 import { courseLevels } from '../data/courses'
+import { packHourly, packSaving } from '../lib/pricing'
 
 /** Textes de la page, en français ou en anglais selon la langue d'explication du cours. */
 const T = {
@@ -21,7 +22,7 @@ const T = {
     one: 'Une heure',
     oneSub: 'Pour essayer, sans engagement',
     pack: 'Pack 10 heures',
-    packSub: '10 €/h · 50 € d’économie',
+    packSub: `${packHourly()} €/h · ${packSaving()} € d’économie`,
     bookOne: 'Réserver 1 heure →',
     bookPack: 'Prendre le pack →',
   },
@@ -40,7 +41,7 @@ const T = {
     one: 'One hour',
     oneSub: 'Try it, no commitment',
     pack: '10-hour pack',
-    packSub: '€10/h · save €50',
+    packSub: `€${packHourly()}/h · save €${packSaving()}`,
     bookOne: 'Book 1 hour →',
     bookPack: 'Get the pack →',
   },

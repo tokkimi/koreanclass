@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { levels } from '../data'
 import { currentStreak, globalStats, levelStats, useCurrentUser, useProgress } from '../lib/store'
 import { computeBadges } from '../lib/badges'
 import { ProgressBar } from '../components/ProgressBar'
@@ -20,7 +19,9 @@ export default function Dashboard() {
   const badges = computeBadges(p, list)
   const history = p.history.filter(inLanguage(lang, list))
 
-  const startLevel = korean && p.placement ? p.placement.levelIndex : 0
+  // Positionnement propre à la langue : p.placement (coréen, historique) ou p.placements[langue].
+  const placement = korean ? p.placement : p.placements?.[lang.id] ?? null
+  const startLevel = placement ? Math.min(placement.levelIndex, list.length - 1) : 0
   const next =
     allLessons.find(({ level, lesson }) => level.index >= startLevel && !p.lessons[lesson.id]?.completed) ?? allLessons.find(({ lesson }) => !p.lessons[lesson.id]?.completed)
   const inProgress = stats.filter((s) => s.done > 0 && (s.done < s.total || !s.test?.passed))
@@ -67,7 +68,7 @@ export default function Dashboard() {
         <div className="card stat">
           <span className="stat-icon">🏅</span>
           <strong>
-            {g.passedLevels}/{levels.length}
+            {g.passedLevels}/{list.length}
           </strong>
           <span className="muted small">niveaux validés</span>
         </div>
@@ -96,7 +97,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {!(korean && p.placement) && (
+          {!placement && (
             <div className="card notice-card">
               <strong>🎯 Vous ne savez pas par où commencer ?</strong>
               <p className="small muted">Passez le test de positionnement (10 min) : nous adapterons votre parcours.</p>
@@ -225,17 +226,17 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {korean && p.placement && (
+          {placement && (
             <div className="card">
               <h2>Test de positionnement</h2>
               <p className="small">
-                Niveau recommandé : <strong>{levels[p.placement.levelIndex].name}</strong>
+                Niveau recommandé : <strong>{list[Math.min(placement.levelIndex, list.length - 1)].name}</strong>
                 <br />
                 <span className="muted">
-                  {p.placement.score}/{p.placement.total} · le {new Date(p.placement.date).toLocaleDateString('fr-FR')}
+                  {placement.score}/{placement.total} · le {new Date(placement.date).toLocaleDateString('fr-FR')}
                 </span>
               </p>
-              <Link to="/test-de-niveau" className="link small">
+              <Link to={`${base}/test-de-niveau`} className="link small">
                 Refaire le test
               </Link>
             </div>

@@ -8,6 +8,7 @@ import { JourneySnapshot } from '../components/JourneySnapshot'
 import { LevelCheckBanner } from '../components/LevelCheckBanner'
 import { PracticeVideoInvite } from '../components/PracticeVideoInvite'
 import { PRICING } from '../config'
+import { packHourly, packSaving } from '../lib/pricing'
 
 const chapters = ['Tes premiers caractères', 'Les bases pour discuter', 'Raconte ton quotidien', 'Trouve les bons mots', 'Affirme ton style', 'À toi les nuances']
 const GUIDED_HOURS = Math.round(allLessons.reduce((minutes, entry) => minutes + entry.lesson.duration, 0) / 60)
@@ -86,7 +87,7 @@ export default function Home() {
               to="/reserver?formule=pack10"
             >
               <ul>
-                <li>10 €/h · 50 € d’économie</li>
+                <li>{packHourly()} €/h · {packSaving()} € d’économie</li>
                 <li>Tes heures, quand tu veux</li>
               </ul>
             </TiltCard>

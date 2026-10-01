@@ -1,22 +1,22 @@
+import { OFFERS, paypalLink } from './lib/pricing'
+
 /**
  * Configuration du site. Les valeurs peuvent être surchargées par des variables
  * d'environnement Vite (à définir dans Vercel → Settings → Environment Variables).
  */
 const env = import.meta.env
 
-export const SITE_NAME = 'KoreanClass'
+export const SITE_NAME = 'TalkToMe Club'
 
 /** E-mail qui reçoit les demandes de réservation (VITE_CONTACT_EMAIL). */
 export const CONTACT_EMAIL: string = env.VITE_CONTACT_EMAIL ?? ''
 
-/** Liens de paiement optionnels (ex. Stripe Payment Links, PayPal.me). */
-export const PAYMENT_LINK_SINGLE: string = 'https://paypal.me/Siasiakorea/15EUR'
-export const PAYMENT_LINK_PACK: string = 'https://paypal.me/Siasiakorea/100EUR'
 
-export const PRICING = {
-  single: { label: 'Cours particulier 1 h', price: 15, hours: 1 },
-  pack10: { label: 'Pack 10 heures', price: 100, hours: 10 },
-} as const
+/** Liens PayPal calculés à partir des prix (src/lib/pricing.ts) : jamais un lien d'un autre montant. */
+export const PAYMENT_LINK_SINGLE: string = paypalLink('single')
+export const PAYMENT_LINK_PACK: string = paypalLink('pack10')
+
+export const PRICING = OFFERS
 
 /** Créneaux proposés à la réservation (heure de Paris). */
 export const TIME_SLOTS = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00']

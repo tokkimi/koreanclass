@@ -21,7 +21,7 @@ export function computeBadges(p: Progress, list?: Level[]): Badge[] {
     { id: 'ten', icon: '📚', name: 'Studieux', desc: 'Terminer 10 leçons', earned: completed >= 10 },
     { id: 'twentyfive', icon: '🔥', name: 'Passionné', desc: 'Terminer 25 leçons', earned: completed >= 25 },
     { id: 'perfect', icon: '💯', name: 'Sans faute', desc: 'Obtenir 100 % à une leçon', earned: perfect },
-    { id: 'placement', icon: '🎯', name: 'Positionné', desc: 'Passer le test de positionnement', earned: !!p.placement },
+    { id: 'placement', icon: '🎯', name: 'Positionné', desc: 'Passer le test de positionnement', earned: !!p.placement || Object.keys(p.placements ?? {}).length > 0 },
     { id: 'streak3', icon: '⚡', name: 'Régulier', desc: '3 jours de suite', earned: p.streak.count >= 3 },
     { id: 'streak7', icon: '🏆', name: 'Assidu', desc: '7 jours de suite', earned: p.streak.count >= 7 },
     { id: 'booking', icon: '🎓', name: 'Accompagné', desc: 'Réserver un cours particulier', earned: p.bookings.some((b) => b.status !== 'annulée') },

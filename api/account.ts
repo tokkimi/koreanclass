@@ -5,6 +5,8 @@ import { workshops } from '../src/data/workshops.js'
 import { courseScenes } from '../src/data/portal-content/index.js'
 import { compareSpeech } from '../src/lib/oral.js'
 import { recordAttempt } from '../server/progress.js'
+import { OFFERS, priceCents } from '../src/lib/pricing.js'
+import { parisToUtc } from '../src/lib/time.js'
 import { emptyProgress, shouldPromote, type User, type Booking } from '../src/lib/model.js'
 import { adminAction, adminSnapshot, AdminError } from '../server/admin.js'
 import { achievements, bookingWhen, notifyAchievements, notifyAdmins } from '../server/notify.js'
@@ -34,6 +36,12 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       if(req.url?.includes('view=admin')) {
         if(!a || a.user.role!=='admin')fail('Accès administrateur requis.',403)
         res.end(JSON.stringify(adminSnapshot(db)));return
+      }
+      if(req.url?.includes('view=availability')) {
+        if(!a)fail('Connexion requise.',401)
+        // Créneaux déjà confirmés (sans nom d'élève) : affichés comme indisponibles à la réservation.
+        const now=Date.now()
+        res.end(JSON.stringify(Object.values(db.accounts).flatMap(x=>x.progress.bookings).filter(b=>b.status==='confirmée'&&parisToUtc(b.date,b.time).getTime()>now).map(b=>`${b.date} ${b.time}`)));return
       }
       if(req.url?.includes('view=payments')) {
         if(!a)fail('Connexion requise.',401)
@@ -165,6 +173,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         if (!/^\d{4}-\d{2}-\d{2}$/.test(str(b.date)) || !/^\d{2}:00$/.test(str(b.time))) fail('Date ou créneau invalide.')
         if (!['single','pack10','credit'].includes(b.formula)) fail('Formule invalide.')
         if (account.progress.bookings.some(x => x.status !== 'annulée' && x.date === b.date && x.time === b.time)) fail('Ce créneau est déjà réservé.')
+        if (parisToUtc(str(b.date), str(b.time)).getTime() < Date.now() + 3600000) fail('Ce créneau est passé ou trop proche : choisis un autre horaire.')
+        if (Object.values(db.accounts).some(a => a.progress.bookings.some(x => x.status === 'confirmée' && x.date === b.date && x.time === b.time))) fail('Ce créneau n’est plus disponible : choisis un autre horaire.')
         if (b.formula === 'credit' && !account.user.isDemo) {
           if (account.progress.packCredits <= 0) fail('Plus de crédit disponible.')
           account.progress.packCredits--
@@ -177,7 +187,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         booking.usedCredit=b.formula==='credit'&&!account.user.isDemo
         if(b.formula!=='credit'&&!account.user.isDemo){
           booking.paymentId=operationId
-          ;(db.payments??=[]).push({id:operationId,userId:account.user.id,customer:account.user.displayName,bookingId:booking.id,amount:b.formula==='single'?1500:10000,currency:'EUR',status:'pending',createdAt:booking.createdAt})
+          ;(db.payments??=[]).push({id:operationId,userId:account.user.id,customer:account.user.displayName,bookingId:booking.id,amount:priceCents(booking.formula),hours:OFFERS[booking.formula].hours,currency:'EUR',status:'pending',createdAt:booking.createdAt})
         }
       } else if (action === 'respondProposal') {
         const booking = account.progress.bookings.find(x => x.id === body.id)
@@ -200,7 +210,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       } else if (action === 'cancelBooking') {
         const booking = account.progress.bookings.find(x => x.id === body.id)
         if (booking && booking.status !== 'annulée') {
-          if(new Date(`${booking.date}T${booking.time}:00Z`).getTime()-Date.now()<26*3600000)fail('Pour annuler à moins de 24 h du cours (heure de Paris), contacte le professeur.')
+          if(parisToUtc(booking.date,booking.time).getTime()-Date.now()<24*3600000)fail('Pour annuler à moins de 24 h du cours (heure de Paris), contacte le professeur.')
           booking.status = 'annulée'
           notifyAdmins(db, account.user.id, { kind: 'booking', title: `🚫 Cours annulé par ${account.user.displayName}`, body: bookingWhen(booking), link: '/admin?tab=agenda' })
           if(booking.usedCredit){account.progress.packCredits++;booking.usedCredit=false}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { readNotifications, useProgress, type AppNotification } from '../lib/store'
 import { useT } from '../lib/i18n'
+import { parisToUtc } from '../lib/time'
 
 const SEEN_KEY = 'kc:reminders-seen'
 function seenReminders(): string[] {
@@ -21,13 +22,13 @@ export function NotificationBell() {
   const now = Date.now()
   const reminders: AppNotification[] = p.bookings
     .filter((b) => b.status === 'confirmée')
-    .map((b) => ({ b, at: new Date(`${b.date}T${b.time}:00`).getTime() }))
+    .map((b) => ({ b, at: parisToUtc(b.date, b.time).getTime() }))
     .filter(({ at }) => at > now && at - now < 36 * 3600000)
-    .map(({ b }) => ({
+    .map(({ b, at }) => ({
       id: `reminder-${b.id}-${b.date}-${b.time}`,
       date: new Date().toISOString(),
       kind: 'booking' as const,
-      title: `⏰ ${t('Rappel : cours', 'Reminder: lesson')} ${new Date(b.date + 'T12:00').toDateString() === new Date().toDateString() ? t('aujourd’hui', 'today') : t('demain', 'tomorrow')} ${t('à', 'at')} ${b.time}`,
+      title: `⏰ ${t('Rappel : cours', 'Reminder: lesson')} ${new Date(at).toDateString() === new Date().toDateString() ? t('aujourd’hui', 'today') : t('demain', 'tomorrow')} ${t('à', 'at')} ${new Date(at).toLocaleTimeString(t('fr-FR', 'en-GB'), { hour: '2-digit', minute: '2-digit' })}`,
       body: b.teacherNote || b.topic,
       link: '/reservations',
       read: seen.includes(`reminder-${b.id}-${b.date}-${b.time}`),

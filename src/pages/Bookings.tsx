@@ -2,7 +2,9 @@ import { languageName } from '../data/languages'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import type { Payment } from '../../server/database'
-import { CONTACT_EMAIL, PRICING, PAYMENT_LINK_PACK, PAYMENT_LINK_SINGLE } from '../config'
+import { CONTACT_EMAIL, PRICING } from '../config'
+import { PAYPAL_ME } from '../lib/pricing'
+import { localSlot, parisToday } from '../lib/time'
 import { cancelBooking, respondProposal, shortRef, useCurrentUser, useProgress } from '../lib/store'
 import { MonthCalendar, statusClass } from '../components/MonthCalendar'
 import { bookingMailto } from './Booking'
@@ -14,7 +16,7 @@ export default function Bookings() {
   const [payments,setPayments]=useState<Payment[]>([])
   const [paymentError,setPaymentError]=useState('')
   useEffect(()=>{let active=true;fetch('/api/account?view=payments',{credentials:'same-origin',cache:'no-store'}).then(async r=>{if(!r.ok)throw Error();return r.json()}).then(d=>{if(active)setPayments(d)}).catch(()=>{if(active)setPaymentError('Le statut des règlements est indisponible. Actualise la page pour réessayer.')});return()=>{active=false}},[p.bookings])
-  const todayIso = new Date().toISOString().slice(0, 10)
+  const todayIso = parisToday()
   const upcoming = p.bookings.filter((b) => b.date >= todayIso).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
   const past = p.bookings.filter((b) => b.date < todayIso)
   const proposals = p.bookings.filter((b) => b.status === 'proposée' && b.date >= todayIso)
@@ -26,14 +28,15 @@ export default function Bookings() {
     <li className={`card booking-row ${b.status === 'annulée' ? 'cancelled' : b.status === 'proposée' ? 'proposal-card' : ''}`}>
       <div className="grow">
         <strong>
-          {new Date(b.date + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} à {b.time}
+          {new Date(b.date + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} à {b.time} (Paris)
         </strong>
+        {localSlot(b.date, b.time) && <div className="small muted">Chez toi : {localSlot(b.date, b.time)!.time}{localSlot(b.date, b.time)!.nextDay ? ' (le lendemain)' : localSlot(b.date, b.time)!.prevDay ? ' (la veille)' : ''}</div>}
         <div className="small muted">
           {languageName(b.language)} · {b.topic} · {b.formula === 'single' ? `${PRICING.single.label} (${PRICING.single.price} €)` : 'Pack 10 h'} · <span className={`booking-status ${statusClass(b.status)}`}>{statusLabel[b.status] ?? b.status}</span>
         </div>
         {b.message && <div className="small">« {b.message} »</div>}
         {b.teacherNote && <div className="small">💬 Professeur : {b.teacherNote}</div>}
-        {b.paymentId&&<div className="mt"><p className="small">Paiement : {({pending:'en attente de vérification',paid:'reçu et validé',refunded:'remboursé',cancelled:'annulé'} as Record<string,string>)[payments.find(x=>x.id===b.paymentId)?.status??'']??'chargement…'}</p>{payments.find(x=>x.id===b.paymentId)?.status==='pending'&&b.status!=='annulée'&&<><a className="btn ghost small" href={b.formula==='single'?PAYMENT_LINK_SINGLE:PAYMENT_LINK_PACK} target="_blank" rel="noreferrer">Payer avec PayPal · {b.formula==='single'?'15':'100'} €</a><p className="small">Indique cette référence dans PayPal : <strong>{shortRef(b.id)}</strong>. Si tu as déjà réglé, attends la validation du professeur.</p></>}</div>}
+        {b.paymentId&&<div className="mt"><p className="small">Paiement : {({pending:'en attente de vérification',paid:'reçu et validé',refunded:'remboursé',cancelled:'annulé'} as Record<string,string>)[payments.find(x=>x.id===b.paymentId)?.status??'']??'chargement…'}</p>{payments.find(x=>x.id===b.paymentId)?.status==='pending'&&b.status!=='annulée'&&<><a className="btn ghost small" href={`${PAYPAL_ME}/${payments.find(x=>x.id===b.paymentId)!.amount/100}EUR`} target="_blank" rel="noreferrer">Payer avec PayPal · {payments.find(x=>x.id===b.paymentId)!.amount/100} €</a><p className="small">Indique cette référence dans PayPal : <strong>{shortRef(b.id)}</strong>. Si tu as déjà réglé, attends la validation du professeur.</p></>}</div>}
       </div>
       {b.status === 'proposée' && b.date >= todayIso ? (
         <div className="row">

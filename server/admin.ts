@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { emptyProgress, pushNotification, type Booking } from '../src/lib/model.js'
 import { bookingWhen } from './notify.js'
+import { creditedHours } from '../src/lib/pricing.js'
 import type { Account, Database } from './database.js'
 import { passwordHash, randomToken } from './database.js'
 
@@ -104,7 +105,8 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   const account=db.accounts[p!.userId], booking=account?.progress.bookings.find(b=>b.id===p!.bookingId)
   requireValue(account&&booking&&booking.status!=='annulée','Réservation annulée ou introuvable : ne pas valider ce paiement.')
   p!.status='paid';p!.reference=reference;p!.fee=fee;p!.paidAt=now
-  if(booking!.formula==='pack10')account.progress.packCredits+=9
+  // Heures figées dans le paiement : une hausse de prix ne change pas un pack déjà commandé.
+  account.progress.packCredits+=creditedHours(p!.hours??(booking!.formula==='pack10'?10:1))
   pushNotification(account.progress,{kind:'payment',title:'💶 Paiement reçu, merci !',body:booking!.formula==='pack10'?'Ton pack de 10 heures est activé : propose tes créneaux.':'Ton cours est réglé.',link:'/reservations'})
   ;(db.ledger??=[]).push({id:op,date:now,kind:'income',amount:p!.amount,fee,label:booking!.formula==='pack10'?'Pack 10 heures':'Cours 1 heure',reference,paymentId:id,actor:actor.user.id})
   detail=`PayPal ${reference}; ${p!.amount} centimes; crédits activés`

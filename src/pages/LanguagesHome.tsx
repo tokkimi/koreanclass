@@ -4,6 +4,7 @@ import { languages, localized, type LanguageId } from '../data/languages'
 import { useSiteLang } from '../lib/i18n'
 import { PRICING } from '../config'
 import { ContainerScroll } from '../components/ui/container-scroll-animation'
+import { packHourly, packSaving } from '../lib/pricing'
 
 /**
  * Accueil de TalkToMe Club : présente les 5 langues. Chaque langue a sa
@@ -124,7 +125,7 @@ export default function LanguagesHome() {
             <div className="lh-offer featured">
               <span className="lh-offer-name">{t('Pack 10 heures', '10-hour pack')}</span>
               <span className="lh-offer-price">{PRICING.pack10.price} €</span>
-              <span className="muted small">{t('10 €/h · 50 € d’économie', '€10/h · save €50')}</span>
+              <span className="muted small">{t(`${packHourly()} €/h · ${packSaving()} € d’économie`, `€${packHourly()}/h · save €${packSaving()}`)}</span>
               <Link className="btn" to={`/reserver?langue=${lang}&formule=pack10`}>
                 {en ? `Get the ${name(chosen)} pack →` : `Prendre le pack de ${chosen.name.toLowerCase()} →`}
               </Link>

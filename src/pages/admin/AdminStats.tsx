@@ -47,7 +47,7 @@ export function AdminStats({ users, payments, ledger, onOpenUser, onGo }: { user
   const pending = payments.filter((p) => p.status === 'pending')
   const bookings = students.flatMap((u) => u.progress.bookings.map((b) => ({ ...b, user: u.user })))
   const live = bookings.filter((b) => b.status !== 'annulée')
-  const hoursSold = paid.reduce((n, p) => n + (p.amount >= 10000 ? 10 : 1), 0)
+  const hoursSold = paid.reduce((n, p) => n + (p.hours ?? (p.amount >= 10000 ? 10 : 1)), 0)
   const credits = students.reduce((n, u) => n + u.progress.packCredits, 0)
   const lastActivity = (p: Progress) => [...p.history.map((h) => h.date), ...(p.practice ?? []).map((x) => x.date)].sort().pop() ?? ''
   const active7 = students.filter((u) => lastActivity(u.progress) >= daysAgo(7)).length

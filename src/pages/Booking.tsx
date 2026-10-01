@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CONTACT_EMAIL, PAYMENT_LINK_PACK, PAYMENT_LINK_SINGLE, PRICING, TIME_SLOTS } from '../config'
 import { addBooking, bookWithCredit, shortRef, useCurrentUser, useProgress, type Booking as BookingT, type User } from '../lib/store'
@@ -6,6 +6,8 @@ import { addBooking, bookWithCredit, shortRef, useCurrentUser, useProgress, type
 type Choice = 'single' | 'pack10' | 'credit'
 
 import { getLanguage, languages, type LanguageId } from '../data/languages'
+import { creditedHours, packHourly } from '../lib/pricing'
+import { localSlot, visitorTz } from '../lib/time'
 
 function nextDays(n: number) {
   const out: Date[] = []
@@ -54,7 +56,15 @@ export default function Booking() {
   const [error, setError] = useState('')
   const [confirmed, setConfirmed] = useState<BookingT | null>(null)
   const days = useMemo(() => nextDays(28), [])
-  const taken = new Set(progress.bookings.filter((b) => b.status !== 'annulée').map((b) => `${b.date} ${b.time}`))
+  const [unavailable, setUnavailable] = useState<string[]>([])
+  useEffect(() => {
+    if (!user) return
+    let active = true
+    fetch('/api/account?view=availability', { credentials: 'same-origin', cache: 'no-store' }).then((r) => (r.ok ? r.json() : [])).then((d) => { if (active && Array.isArray(d)) setUnavailable(d) }).catch(() => undefined)
+    return () => { active = false }
+  }, [user?.id])
+  const mine = new Set(progress.bookings.filter((b) => b.status !== 'annulée').map((b) => `${b.date} ${b.time}`))
+  const others = new Set(unavailable)
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -164,7 +174,7 @@ export default function Booking() {
                 <input type="radio" name="f" checked={choice === 'pack10'} onChange={() => setChoice('pack10')} />
                 <strong>{PRICING.pack10.label}</strong>
                 <span className="price-sm">{PRICING.pack10.price} €</span>
-                <small className="muted">10 €/h · 1re séance maintenant, 9 h en crédit</small>
+                <small className="muted">{packHourly()} €/h · 1re séance maintenant, {creditedHours(PRICING.pack10.hours)} h en crédit</small>
               </label>
               {(user?.isDemo || progress.packCredits > 0) && (
                 <label className={`formula ${choice === 'credit' ? 'active' : ''}`}>
@@ -195,16 +205,20 @@ export default function Booking() {
 
           <div className="card">
             <h2>3. Créneau (heure de Paris)</h2>
+            {visitorTz() !== 'Europe/Paris' && <p className="small muted">Ton appareil est réglé sur le fuseau {visitorTz()} : l’heure locale est indiquée sous chaque créneau.</p>}
             {!date ? (
               <p className="muted small">Choisissez d'abord une date.</p>
             ) : (
               <div className="slots">
                 {TIME_SLOTS.map((t) => {
-                  const busy = taken.has(`${date} ${t}`)
+                  const own = mine.has(`${date} ${t}`)
+                  const busy = own || others.has(`${date} ${t}`)
+                  const local = localSlot(date, t)
                   return (
                     <button type="button" key={t} disabled={busy} className={`slot ${time === t ? 'active' : ''}`} onClick={() => setTime(t)}>
                       {t}
-                      {busy && ' · déjà réservé'}
+                      {local && <small className="slot-local">{local.time}{local.nextDay ? ' +1j' : local.prevDay ? ' −1j' : ''} chez toi</small>}
+                      {busy && <small>{own ? 'déjà demandé' : 'indisponible'}</small>}
                     </button>
                   )
                 })}

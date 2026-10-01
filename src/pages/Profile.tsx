@@ -24,6 +24,7 @@ export default function Profile() {
   if (!user) return <NotFound />
   const isMe = me?.id === user.id
   const list = levelsOf(lang)
+  const placement = lang.id === 'coreen' ? p.placement : p.placements?.[lang.id] ?? null
   const g = globalStats(p, list)
   const stats = levelStats(p, list)
   const badges = computeBadges(p, list)
@@ -168,9 +169,9 @@ export default function Profile() {
         </div>
       )}
 
-      {p.placement && (
+      {placement && (
         <p className="small muted center mt">
-          Test de positionnement : {levels[p.placement.levelIndex].name} ({p.placement.score}/{p.placement.total})
+          Test de positionnement ({lang.name}) : {list[Math.min(placement.levelIndex, list.length - 1)].name} ({placement.score}/{placement.total})
         </p>
       )}
     </div>

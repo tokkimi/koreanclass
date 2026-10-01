@@ -1,6 +1,7 @@
 import type { JourneyCopy } from '../components/JourneySnapshot'
 import type { LevelCheckCopy } from '../components/LevelCheckBanner'
 import type { PracticeCopy } from '../components/PracticeVideoInvite'
+import { packHourly, packSaving } from '../lib/pricing'
 
 /**
  * Textes des portails japonais, espagnol, anglais et français, construits
@@ -41,7 +42,7 @@ const frTeacher = (topic: string) => ({
   pack: 'Pack 10 heures',
   packSub: 'Pour progresser vraiment',
   packCta: 'Prendre le pack',
-  packList: ['10 €/h · 50 € d’économie', 'Tes heures, quand tu veux'] as [string, string],
+  packList: [`${packHourly()} €/h · ${packSaving()} € d’économie`, 'Tes heures, quand tu veux'] as [string, string],
   level: 'Déjà quelques bases ?',
   levelLink: 'Trouve ton niveau en 18 minutes →',
 })
@@ -299,7 +300,7 @@ export const portals: Record<string, PortalCopy> = {
       pack: '10-hour pack',
       packSub: 'To really make progress',
       packCta: 'Get the pack',
-      packList: ['€10/h · save €50', 'Your hours, whenever you want'],
+      packList: [`€${packHourly()}/h · save €${packSaving()}`, 'Your hours, whenever you want'],
       level: 'Already know some French?',
       levelLink: 'Find your level in 18 minutes →',
     },
@@ -330,7 +331,7 @@ const enTeacher = (topic: string) => ({
   pack: '10-hour pack',
   packSub: 'To really make progress',
   packCta: 'Get the pack',
-  packList: ['€10/h · save €50', 'Your hours, whenever you want'] as [string, string],
+  packList: [`€${packHourly()}/h · save €${packSaving()}`, 'Your hours, whenever you want'] as [string, string],
   level: 'Already know a bit?',
   levelLink: 'Find your level in 18 minutes →',
 })

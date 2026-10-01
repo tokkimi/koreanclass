@@ -4054,3 +4054,4 @@ main:has(.scroll-hero) .sync-status{position:fixed;z-index:60;top:78px;left:50%;
 .notif-toast span { font-size:.85rem; opacity:.85; }
 @keyframes notif-in { from { opacity:0; translate:0 -10px; } }
 @media (prefers-reduced-motion:reduce) { .notif-toast { animation:none; } }
+.slot small { display:block; font-size:.68rem; font-weight:500; opacity:.75; }
