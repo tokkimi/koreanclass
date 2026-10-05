@@ -6,6 +6,7 @@ import { PRICING } from '../config'
 import { ContainerScroll } from '../components/ui/container-scroll-animation'
 import { packHourly, packSaving } from '../lib/pricing'
 import { OWNER, TOKKIMI_URL } from '../config'
+import { HomePlans, HomeShowcase } from '../components/HomeShowcase'
 
 /**
  * Accueil de TalkToMe Club : présente les 5 langues. Chaque langue a sa
@@ -76,6 +77,8 @@ export default function LanguagesHome() {
         ))}
       </section>
 
+      <HomeShowcase t={t} en={en} />
+
       <section className="container lh-how">
         <div>
           <strong>{t('Cours en autonomie', 'Self-study courses')}</strong>
@@ -90,6 +93,8 @@ export default function LanguagesHome() {
           <p>{t('Une heure en visio avec un professeur, dans la langue de ton choix.', 'One hour on video with a teacher, in the language of your choice.')}</p>
         </div>
       </section>
+
+      <HomePlans t={t} en={en} />
 
       <section className="lh-book" id="tarifs" aria-labelledby="lh-book-title">
         <div className="container">
@@ -140,8 +145,8 @@ export default function LanguagesHome() {
           <summary>{t('Comment ça marche ?', 'How does it work?')}</summary>
           <p>
             {t(
-              'Choisis une langue pour découvrir son parcours. Les cours en autonomie sont gratuits. Pour un cours particulier, choisis la langue et la formule, puis ton créneau : le professeur confirme le rendez-vous par e-mail.',
-              'Pick a language to discover its path. Self-study courses are free. For a private lesson, choose the language and the plan, then your time slot: the teacher confirms the appointment by email.',
+              'Choisis une langue pour découvrir son parcours. La première leçon de chaque niveau et les tests de positionnement sont gratuits ; l’abonnement Autonomie débloque tout le reste. Pour un cours particulier, choisis la langue, la formule et ton créneau, puis paie en ligne : le professeur confirme ensuite le rendez-vous.',
+              'Pick a language to discover its path. The first lesson of each level and the placement tests are free; the Autonomie plan unlocks everything else. For a private lesson, choose the language, the plan and your slot, then pay online: the teacher then confirms the appointment.',
             )}
           </p>
         </details>
