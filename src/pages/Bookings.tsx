@@ -110,6 +110,21 @@ export default function Bookings() {
       ) : (
         <p className="muted small">Aucun cours ce jour-là.</p>
       )}
+      {payments.some((x) => !x.bookingId) && (
+        <>
+          <h2 className="mt">🧾 Mes achats</h2>
+          <ul className="stack plain">
+            {payments.filter((x) => !x.bookingId).map((x) => (
+              <li key={x.id} className="card booking-row">
+                <div className="grow">
+                  <strong>{x.label ?? 'Achat'}</strong>
+                  <div className="small muted">{(x.amount / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} · {x.status === 'paid' ? 'payé' : x.status === 'refunded' ? 'remboursé' : x.status} {x.method === 'virement' ? 'par virement' : x.method === 'especes' ? 'en espèces' : ''} · {new Date(x.paidAt ?? x.createdAt).toLocaleDateString('fr-FR')}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       <h2 className="mt">À venir</h2>
       {paymentError&&<p role="alert">{paymentError}</p>}
       {upcoming.length ? (

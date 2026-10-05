@@ -22,7 +22,8 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
  const target=db.accounts[id]
  let detail=''
  if(action==='adminCreate'||action==='adminPassword') {
-  const pass=typeof body.password==='string'?body.password:''
+  // Fiche client sans accès au site : mot de passe aléatoire, à remplacer plus tard si le client veut se connecter.
+  const pass=action==='adminCreate'&&!body.password?randomToken():typeof body.password==='string'?body.password:''
   requireValue(pass.length>=12&&pass.length<=128,'Mot de passe temporaire : 12 caractères minimum.')
   const salt=randomToken(),hash=await passwordHash(pass,salt)
   if(action==='adminPassword') {
@@ -30,8 +31,8 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
    target.password=hash;target.salt=salt;target.sessions={}
   } else {
    const email=text(body.email).toLowerCase(),username=text(body.username).toLowerCase(),displayName=text(body.displayName,40)
-   requireValue(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)&&/^[a-z0-9._]{3,20}$/.test(username)&&displayName,'E-mail, pseudo et nom valides requis.')
-   requireValue(!Object.values(db.accounts).some(a=>a.user.email===email||a.user.username===username),'E-mail ou pseudo déjà utilisé.')
+   requireValue((!email||/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))&&/^[a-z0-9._]{3,20}$/.test(username)&&displayName,'Nom et pseudo valides requis (e-mail facultatif).')
+   requireValue(!Object.values(db.accounts).some(a=>(email&&a.user.email===email)||a.user.username===username),'E-mail ou pseudo déjà utilisé.')
    const userId=randomUUID()
    db.accounts[userId]={user:{id:userId,email,username,displayName,createdAt:now,role:'student',avatar:null,bio:'',location:'',goal:'',website:''},password:hash,salt,progress:emptyProgress(),sessions:{},operations:[]}
    detail=`Création ${email}`
@@ -44,8 +45,8 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   requireValue(typeof patch.isDemo==='boolean'&&typeof patch.suspended==='boolean','Accès invalide.')
   const credits=cents(patch.packCredits)
   const email=text(patch.email).toLowerCase(),username=text(patch.username).toLowerCase()
-  requireValue(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)&&/^[a-z0-9._]{3,20}$/.test(username),'E-mail ou pseudo invalide.')
-  requireValue(!Object.values(db.accounts).some(a=>a.user.id!==id&&(a.user.email===email||a.user.username===username)),'E-mail ou pseudo déjà utilisé.')
+  requireValue((!email||/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))&&/^[a-z0-9._]{3,20}$/.test(username),'E-mail ou pseudo invalide.')
+  requireValue(!Object.values(db.accounts).some(a=>a.user.id!==id&&((email&&a.user.email===email)||a.user.username===username)),'E-mail ou pseudo déjà utilisé.')
   requireValue(credits<=10000,'Crédit trop élevé.')
   detail=`Crédits ${target.progress.packCredits} → ${credits}; illimité ${patch.isDemo}; suspendu ${patch.suspended}`
   if(credits>target.progress.packCredits)pushNotification(target.progress,{kind:'payment',title:'🎟️ Heures de cours ajoutées',body:`Tu as maintenant ${credits} h à planifier.`,link:'/reservations'})
@@ -114,6 +115,20 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   requireValue(['brouillon','à relire','validé'].includes(body.status),'Statut invalide.')
   ;(db.editorial??={})[id]={status:body.status,by:actor.user.displayName,date:now}
   detail=`Leçon ${id} : ${body.status}`
+ } else if(action==='adminManualPayment') {
+  // Achat réglé hors PayPal (virement, espèces…) : enregistré comme payé, au journal comptable, avec notification au client.
+  requireValue(target,'Profil introuvable.')
+  const label=text(body.label,120), amount=cents(body.amount), date=text(body.date,10), reference=text(body.reference,100)
+  const method=(['virement','especes','paypal','autre'] as const).find(m=>m===body.method)
+  requireValue(label&&amount>0&&method,'Libellé, montant et moyen de paiement requis.')
+  requireValue(/^\d{4}-\d{2}-\d{2}$/.test(date)&&!Number.isNaN(Date.parse(date))&&date<=now.slice(0,10),'Date de paiement invalide.')
+  const hours=Number.isInteger(body.hours)&&body.hours>=0&&body.hours<=100?body.hours as number:0
+  const paidAt=`${date}T12:00:00.000Z`
+  ;(db.payments??=[]).push({id:op,userId:id,customer:target.user.displayName,bookingId:'',amount,currency:'EUR',hours,method,label,status:'paid',createdAt:paidAt,paidAt,reference:reference||undefined,fee:0})
+  ;(db.ledger??=[]).push({id:op,date:paidAt,kind:'income',amount,fee:0,label:`${label} · ${target.user.displayName}`,reference:reference||`${method} ${date}`,paymentId:op,actor:actor.user.id})
+  if(hours)target.progress.packCredits+=hours
+  if(body.notify!==false){const via={virement:'par virement',especes:'en espèces',paypal:'par PayPal',autre:''}[method!];pushNotification(target.progress,{kind:'payment',title:`💶 Paiement reçu ${via}`.trim(),body:`${label} · ${(amount/100).toLocaleString('fr-FR')} € · ${new Date(paidAt).toLocaleDateString('fr-FR')}. Merci !`,link:'/reservations'})}
+  detail=`Paiement ${method} ${amount} centimes · ${label}`
  } else if(action==='adminPayment') {
   const p=(db.payments??[]).find(p=>p.id===id)
   requireValue(p&&p.status==='pending','Paiement introuvable ou déjà traité.')

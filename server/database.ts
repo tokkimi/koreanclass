@@ -4,7 +4,7 @@ import { promisify } from 'node:util'
 import type { User, Progress } from '../src/lib/model.js'
 
 export interface Account { user: User; password: string; salt: string; progress: Progress; sessions: Record<string, number>; operations: string[] }
-export interface Payment { id:string; userId:string; customer:string; bookingId:string; amount:number; currency:'EUR'; /** Heures achetées, figées à la commande (anciens paiements : déduites de la formule). */ hours?:number; status:'pending'|'paid'|'refunded'|'cancelled'; createdAt:string; paidAt?:string; reference?:string; fee?:number; refunded?:number }
+export interface Payment { id:string; userId:string; customer:string; bookingId:string; amount:number; currency:'EUR'; /** Heures achetées, figées à la commande (anciens paiements : déduites de la formule). */ hours?:number; /** Paiement saisi par l'administratrice hors PayPal (virement, espèces…). */ method?:'paypal'|'virement'|'especes'|'autre'; label?:string; status:'pending'|'paid'|'refunded'|'cancelled'; createdAt:string; paidAt?:string; reference?:string; fee?:number; refunded?:number }
 export interface LedgerEntry { id:string; date:string; kind:'income'|'refund'|'expense'; amount:number; fee:number; label:string; reference:string; paymentId?:string; actor:string }
 export interface AuditEntry { id:string; date:string; actor:string; action:string; target:string; detail:string }
 export interface ContentReport { id:string; date:string; userId:string; name:string; lessonId:string; title:string; message:string; status:'nouveau'|'traité'; reply?:string }
