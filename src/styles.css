@@ -4100,3 +4100,15 @@ button.link { background:none; border:0; padding:0; color:var(--primary); text-d
   .sheet-block, .sheet-exercises li { break-inside:avoid; }
   body { background:#fff; }
 }
+/* Tableau de bord : bloc Aujourd'hui */
+.today { margin-bottom:18px; }
+.today-grid { display:grid; grid-template-columns:1.3fr 1fr; gap:22px; }
+@media (max-width:760px) { .today-grid { grid-template-columns:1fr; } }
+.today h2 { margin:6px 0; }
+.skills { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
+.skill { display:flex; flex-direction:column; gap:4px; }
+.goal-form { display:grid; gap:8px; margin-top:8px; }
+.quiz-options { display:grid; gap:6px; margin-top:8px; }
+.quiz-options .option { text-align:left; min-height:0; padding:10px 12px; }
+.quiz-options .option.ok { border-color:#16a34a; background:#dcfce7; }
+.quiz-options .option.ko { border-color:#dc2626; background:#fee2e2; }

@@ -280,7 +280,44 @@ function ListenStep({ lines, lang, cls, t }: { lines: { text: string; meaning: s
           )
         })}
       </ol>
+      {canSpeak() && lines.length >= 4 && <ListeningQuiz lines={lines} lang={lang} t={t} />}
     </section>
+  )
+}
+
+/** Compréhension orale : la phrase est seulement lue, l'élève choisit son sens (score affiché, non enregistré). */
+function ListeningQuiz({ lines, lang, t }: { lines: { text: string; meaning: string }[]; lang: LanguageInfo; t: T }) {
+  const questions = useMemo(() => {
+    const pick = lines.filter((l, i, a) => a.findIndex((x) => x.meaning === l.meaning) === i).slice(0, 12)
+    return pick.slice(0, 4).map((l, n) => {
+      const others = pick.filter((x) => x !== l).map((x) => x.meaning)
+      const wrong = [others[(n + 1) % others.length], others[(n + 3) % others.length], others[(n + 5) % others.length]].filter((x, i, a) => x && a.indexOf(x) === i).slice(0, 3)
+      const options = [...wrong, l.meaning].sort((a, b) => ((a.length * 7 + n) % 5) - ((b.length * 7 + n) % 5))
+      return { text: l.text, answer: l.meaning, options }
+    })
+  }, [lines])
+  const [answers, setAnswers] = useState<Record<number, string>>({})
+  const done = Object.keys(answers).length
+  const score = questions.filter((q, n) => answers[n] === q.answer).length
+  return (
+    <div className="listening-quiz mt">
+      <h3>❓ {t('Compréhension orale', 'Listening comprehension')}</h3>
+      <p className="small muted">{t('Écoute sans lire, puis choisis le sens.', 'Listen without reading, then choose the meaning.')}</p>
+      {questions.map((q, n) => (
+        <div key={n} className="listen-line">
+          <button className="btn small" onClick={() => speak(q.text, { lang: lang.speech, rate: 0.9 })}>▶ {t('Écouter', 'Listen')} {n + 1}</button>
+          <div className="quiz-options">
+            {q.options.map((o) => {
+              const chosen = answers[n] === o
+              const state = answers[n] ? (o === q.answer ? 'ok' : chosen ? 'ko' : '') : ''
+              return <button key={o} type="button" disabled={!!answers[n]} className={`option ${state}`} onClick={() => setAnswers({ ...answers, [n]: o })}>{o}</button>
+            })}
+          </div>
+          {answers[n] && <p className="small" lang={lang.speech}>{q.text}</p>}
+        </div>
+      ))}
+      {done === questions.length && <p><strong>{score}/{questions.length}</strong> {t('bonnes réponses.', 'correct answers.')}</p>}
+    </div>
   )
 }
 

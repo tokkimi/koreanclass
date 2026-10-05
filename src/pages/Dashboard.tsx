@@ -4,6 +4,7 @@ import { computeBadges } from '../lib/badges'
 import { ProgressBar } from '../components/ProgressBar'
 import { Avatar } from '../components/Avatar'
 import { AccountTabs } from '../components/AccountTabs'
+import { TodayPanel } from '../components/TodayPanel'
 import { baseOf, inLanguage, levelsOf, useLastLang } from '../lib/lastLang'
 
 export default function Dashboard() {
@@ -39,6 +40,8 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+
+      <TodayPanel lang={lang} list={list} base={base} next={next} />
 
       <div className="stat-grid">
         <Link to={`${base}/pratique`} className="card"><h2>Mises en situation</h2><p>Commande au café, joue un dialogue et entraîne-toi à parler.</p><span className="link">Jouer une scène →</span></Link>
