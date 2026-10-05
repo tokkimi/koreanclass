@@ -132,6 +132,10 @@ export interface Progress {
   activity?: { path: string; title: string; date: string }
   /** Compteurs du jour (heure de Paris). */
   daily?: { day: string; reviews: number; activities: number }
+  /** Préférences suivies d'un appareil à l'autre. */
+  prefs?: { lang?: string; ui?: 'fr' | 'en' }
+  /** Étape atteinte dans chaque leçon (Apprendre, Écouter…). */
+  steps?: Record<string, string>
   /** Objectif choisi par l'élève. */
   goal?: { purpose: 'voyage' | 'quotidien' | 'travail' | 'examen'; dailyReviews: number }
 }

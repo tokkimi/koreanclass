@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { emptyProgress, type User, type Progress, type Booking } from './model.js'
+import { recentLocalChange } from './prefsSync'
 export * from './model.js'
 export const USERNAME_RE = /^[a-z0-9._]{3,20}$/
 type State = { user: User | null; progress: Progress; ready: boolean; error: string; saving: boolean }
@@ -22,9 +23,18 @@ async function request(body?:Record<string,unknown>) {
   if (!response.ok) throw new Error(data.error || 'Connexion indisponible. Réessaie.')
   return data as {user:User|null;progress:Progress}
 }
+/** Applique les préférences enregistrées sur le compte (autre appareil) : langue étudiée et langue du site. */
+async function applyServerPrefs(p:Progress|undefined) {
+  const prefs=p?.prefs
+  if(!prefs||recentLocalChange())return
+  const { setLastLang } = await import('./lastLang')
+  if(prefs.lang)setLastLang(prefs.lang,false)
+  const { setUiLang, siteLangAtStart } = await import('./i18n')
+  try{ if(prefs.ui&&prefs.ui!==siteLangAtStart()&&!sessionStorage.getItem('kc:ui-applied')){sessionStorage.setItem('kc:ui-applied','1');setUiLang(prefs.ui,false)} }catch{ /* facultatif */ }
+}
 export async function refreshSession() {
   if (pending) return
-  try { const data = await request(); if (!pending) emit({...data,ready:true,error:''}) }
+  try { const data = await request(); if (!pending) { emit({...data,ready:true,error:''}); void applyServerPrefs(data.progress) } }
   catch { emit({ready:true,error:'Connexion au serveur indisponible. Actualise pour réessayer.'}) }
 }
 export async function mutate(action:string, data:Record<string,unknown> = {}, operationId:string=crypto.randomUUID()) {
@@ -33,7 +43,7 @@ export async function mutate(action:string, data:Record<string,unknown> = {}, op
   catch(error) { emit({error:(error as Error).message}); throw error }
   finally { pending--; emit({saving:pending>0}) }
 }
-export async function login(identifier:string,password:string) { return (await mutate('login',{identifier,password})).user! }
+export async function login(identifier:string,password:string) { const r=await mutate('login',{identifier,password}); void applyServerPrefs(r.progress); return r.user! }
 export async function register(input:{username:string;email:string;displayName:string;password:string}) { return (await mutate('register',input)).user! }
 export async function logout() { await mutate('logout') }
 export async function updateProfile(patch:Partial<User>) { await mutate('profile',{patch}) }

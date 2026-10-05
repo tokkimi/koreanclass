@@ -3,6 +3,7 @@ import { languages, type LanguageInfo } from '../data/languages'
 import { courseLevels } from '../data/courses'
 import { levels } from '../data'
 import type { Level } from '../data/types'
+import { syncPref } from './prefsSync'
 
 /** Dernière langue étudiée : l'espace personnel (menu, parcours, profil) la suit. */
 const KEY = 'kc:lang'
@@ -14,11 +15,12 @@ function read(): LanguageInfo {
   return languages.find((l) => l.id === id) ?? languages[0]
 }
 
-export function setLastLang(id: string) {
+export function setLastLang(id: string, sync = true) {
   try {
     if (localStorage.getItem(KEY) === id) return
     localStorage.setItem(KEY, id)
   } catch { /* préférence facultative */ }
+  if (sync) syncPref({ lang: id })
   listeners.forEach((f) => f())
 }
 

@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { useCourseLang } from './courseLang'
+import { syncPref } from './prefsSync'
 
 /**
  * Langue de l'interface du site : français (par défaut) ou anglais.
@@ -25,8 +26,9 @@ let current: UiLang = typeof window === 'undefined' ? 'fr' : read()
 export const siteLangAtStart = () => current
 
 /** Change la langue du site. La page est rechargée pour traduire (ou retrouver) tout le contenu. */
-export function setUiLang(lang: UiLang) {
+export function setUiLang(lang: UiLang, sync = true) {
   const changed = lang !== current
+  if (changed && sync) syncPref({ ui: lang }, true)
   current = lang
   try {
     localStorage.setItem(KEY, lang)

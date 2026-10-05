@@ -15,6 +15,7 @@ import { lessonStatus, type LessonStatus } from '../lib/srs'
 import { useSiteLang } from '../lib/i18n'
 import { useValidated } from '../lib/editorial'
 import { useLessonAccess } from '../lib/plans'
+import { syncPref } from '../lib/prefsSync'
 import { Paywall } from './Paywall'
 import { mutate } from '../lib/store'
 
@@ -50,7 +51,8 @@ function LessonStudioInner({ lang, level, lesson, index, lessonPath, levelPath, 
   const t = (fr: string, english: string) => (en ? english : fr)
   const user = useCurrentUser()
   const progress = useProgress()
-  const stored = useMemo(() => { try { return localStorage.getItem(`kc:step:${lesson.id}`) as Step | null } catch { return null } }, [lesson.id])
+  // Étape enregistrée sur cet appareil, sinon sur le compte (reprise depuis un autre appareil).
+  const stored = useMemo(() => { try { return (localStorage.getItem(`kc:step:${lesson.id}`) ?? progress.steps?.[lesson.id] ?? null) as Step | null } catch { return (progress.steps?.[lesson.id] ?? null) as Step | null } }, [lesson.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const [step, setStep] = useState<Step>(stored && STEPS.includes(stored) ? stored : 'apprendre')
   // « Leçon complète » : toutes les étapes sur une seule page, comme l'ancienne présentation.
   const [full, setFull] = useState(() => { try { return localStorage.getItem('kc:lesson-full') === '1' } catch { return false } })
@@ -68,7 +70,10 @@ function LessonStudioInner({ lang, level, lesson, index, lessonPath, levelPath, 
   const cls = (s: string) => (script && script.test(s) ? 'ko-text' : '')
 
   useEffect(() => { if (user) visitLesson(lesson.id, lessonPath(lesson.id)) }, [user?.id, lesson.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { try { localStorage.setItem(`kc:step:${lesson.id}`, step) } catch { /* facultatif */ } }, [lesson.id, step])
+  useEffect(() => {
+    try { localStorage.setItem(`kc:step:${lesson.id}`, step) } catch { /* facultatif */ }
+    if (user && (progress.steps?.[lesson.id] ?? 'apprendre') !== step) syncPref({ step: { lesson: lesson.id, step } })
+  }, [lesson.id, step]) // eslint-disable-line react-hooks/exhaustive-deps
   const go = (s: Step) => { stopSpeaking(); setStep(s); if (full) document.getElementById(`etape-${s}`)?.scrollIntoView({ behavior: 'smooth' }); else window.scrollTo({ top: 0 }) }
 
   const labels: Record<Step, [string, string]> = {

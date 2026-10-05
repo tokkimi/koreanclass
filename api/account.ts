@@ -10,7 +10,7 @@ import { parisToUtc } from '../src/lib/time.js'
 import { emptyProgress, shouldPromote, type User, type Booking } from '../src/lib/model.js'
 import { adminAction, adminSnapshot, AdminError } from '../server/admin.js'
 import { achievements, bookingWhen, notifyAchievements, notifyAdmins } from '../server/notify.js'
-import { addLessonCards, bump, findLesson, recordMistakes, reviewCard } from '../server/learning.js'
+import { addLessonCards, applyPrefs, bump, findLesson, recordMistakes, reviewCard } from '../server/learning.js'
 import { grade } from '../server/progress.js'
 import { applyMigrations, pendingMigrations } from '../server/migrations.js'
 import { checkoutUrl, plans, portalUrl } from '../server/stripe.js'
@@ -263,6 +263,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         ;(account.progress.viewed ??= {})[found!.lesson.id] = new Date().toISOString()
         const path = str(body.path, 200)
         if (/^\/[a-z0-9/_-]*$/i.test(path)) account.progress.activity = { path, title: found!.lesson.title, date: new Date().toISOString() }
+      } else if (action === 'prefs') {
+        applyPrefs(account.progress, body)
       } else if (action === 'goal') {
         const purpose = (['voyage', 'quotidien', 'travail', 'examen'] as const).find(x => x === body.purpose)
         const daily = Number(body.dailyReviews)

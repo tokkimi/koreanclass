@@ -55,3 +55,18 @@ export function reviewCard(p: Progress, key: string, grade: number) {
   srs[key] = schedule(srs[key] ?? newCard(lessonId), grade as Grade)
   bump(p, 'reviews')
 }
+
+/** Préférences suivies d'un appareil à l'autre (langue étudiée, langue du site, étape de leçon). */
+export function applyPrefs(p: Progress, body: { lang?: unknown; ui?: unknown; step?: { lesson?: unknown; step?: unknown } }) {
+  const prefs = (p.prefs ??= {})
+  if (typeof body.lang === 'string' && ['coreen', 'japonais', 'espagnol', 'anglais', 'francais'].includes(body.lang)) prefs.lang = body.lang
+  if (body.ui === 'fr' || body.ui === 'en') prefs.ui = body.ui
+  const st = body.step
+  if (st && typeof st.lesson === 'string' && findLesson(st.lesson) && typeof st.step === 'string' && ['apprendre', 'ecouter', 'pratiquer', 'parler', 'reviser'].includes(st.step)) {
+    const steps = (p.steps ??= {})
+    delete steps[st.lesson]
+    steps[st.lesson] = st.step
+    const keys = Object.keys(steps)
+    for (const k of keys.slice(0, Math.max(0, keys.length - 300))) delete steps[k]
+  }
+}
