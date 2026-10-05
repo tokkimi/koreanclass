@@ -10,6 +10,8 @@ import { parisToUtc } from '../src/lib/time.js'
 import { emptyProgress, shouldPromote, type User, type Booking } from '../src/lib/model.js'
 import { adminAction, adminSnapshot, AdminError } from '../server/admin.js'
 import { achievements, bookingWhen, notifyAchievements, notifyAdmins } from '../server/notify.js'
+import { addLessonCards, bump, findLesson, recordMistakes, reviewCard } from '../server/learning.js'
+import { grade } from '../server/progress.js'
 
 const usernameRE = /^[a-z0-9._]{3,20}$/
 class HttpError extends Error { constructor(public status: number, message: string) { super(message) } }
@@ -205,6 +207,37 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
           booking!.status = 'annulée'
           notifyAdmins(db, account.user.id, { kind: 'booking', title: `❌ ${account.user.displayName} a refusé ton créneau`, body: `${bookingWhen(booking!)} · propose-lui un autre horaire`, link: '/admin?tab=users' })
         }
+      } else if (action === 'review') {
+        // Révision d'une carte : la date suivante est calculée par le serveur.
+        if (typeof body.card !== 'string' || body.card.length > 300) fail('Carte invalide.')
+        try { reviewCard(account.progress, body.card, Number(body.grade)) } catch (e) { fail((e as Error).message) }
+      } else if (action === 'addCards') {
+        const ids = Array.isArray(body.lessons) ? body.lessons.slice(0, 300).filter((x: unknown) => typeof x === 'string') : []
+        for (const id of ids) addLessonCards(account.progress, id)
+      } else if (action === 'drill') {
+        // Exercices du carnet d'erreurs, notés côté serveur.
+        const found = findLesson(str(body.refId))
+        const indexes = Array.isArray(body.indexes) ? body.indexes : []
+        if (!found || !indexes.length || indexes.length > 30 || !Array.isArray(body.answers) || body.answers.length !== indexes.length) fail('Exercices de révision invalides.')
+        const exercises = indexes.map((i: unknown) => (Number.isInteger(i) ? found!.lesson.exercises[i as number] : undefined))
+        if (exercises.some((x: unknown) => !x) || body.answers.some((x: unknown) => typeof x !== 'string' || (x as string).length > 3000)) fail('Exercices de révision invalides.')
+        const results = exercises.map((ex: any, i: number) => grade(ex, body.answers[i]))
+        recordMistakes(account.progress, found!.lesson.id, results, indexes)
+        const before = achievements(account.progress)
+        account.progress.xp += results.filter(Boolean).length * 2
+        notifyAchievements(account, before)
+        bump(account.progress, 'activities')
+      } else if (action === 'visit') {
+        const found = findLesson(str(body.refId))
+        if (!found) fail('Leçon inconnue.')
+        ;(account.progress.viewed ??= {})[found!.lesson.id] = new Date().toISOString()
+        const path = str(body.path, 200)
+        if (/^\/[a-z0-9/_-]*$/i.test(path)) account.progress.activity = { path, title: found!.lesson.title, date: new Date().toISOString() }
+      } else if (action === 'goal') {
+        const purpose = (['voyage', 'quotidien', 'travail', 'examen'] as const).find(x => x === body.purpose)
+        const daily = Number(body.dailyReviews)
+        if (!purpose || !Number.isInteger(daily) || daily < 5 || daily > 100) fail('Objectif invalide.')
+        account.progress.goal = { purpose: purpose!, dailyReviews: daily }
       } else if (action === 'readNotifications') {
         for (const n of account.progress.notifications ?? []) n.read = true
       } else if (action === 'cancelBooking') {

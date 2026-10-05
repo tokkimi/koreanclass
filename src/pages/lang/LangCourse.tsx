@@ -11,6 +11,7 @@ import { SpeakButton } from '../../components/Speak'
 import { ProgressBar } from '../../components/ProgressBar'
 import { PASS_MARK } from '../../lib/grading'
 import { useEn } from './LangPortal'
+import { LessonStudio } from '../../components/LessonStudio'
 import NotFound from '../NotFound'
 import { tr } from '../../i18n/translate'
 
@@ -131,7 +132,7 @@ const base = (lang: LanguageInfo) => `${lang.path}/cours`
 /** « Niveau 1 — Débutant » → « Débutant » */
 const shortName = (level: Level) => level.name.split('— ')[1] ?? level.name
 
-function CourseShell({ lang, children }: { lang: LanguageInfo; children: ReactNode }) {
+export function CourseShell({ lang, children }: { lang: LanguageInfo; children: ReactNode }) {
   const ui = useEn(lang) ? 'en' : 'fr'
   const value: CourseLang = { id: lang.id, speech: lang.speech, ui, keyboard: (ui === 'en' ? KEYBOARD_EN : KEYBOARD)[lang.id] ?? '' }
   return (
@@ -279,161 +280,23 @@ function LessonView({ lang }: { lang: LanguageInfo }) {
   const t = T[useEn(lang) ? 'en' : 'fr']
   const { levelId, lessonId } = useParams()
   const found = getCourseLesson(lang.id, levelId, lessonId)
-  const user = useCurrentUser()
-  const [finished, setFinished] = useState<{ score: number; total: number } | null>(null)
-  const [runKey, setRunKey] = useState(1)
-  const progress = useProgress()
   if (!found) return <NotFound />
   const { level, lesson, index } = found
-  const prev = level.lessons[index - 1]
-  const next = level.lessons[index + 1]
-  const p = progress.lessons[lesson.id]
   const root = base(lang)
-  const ja = lang.id === 'japonais'
-  /** En japonais on ne lit que le texte japonais ; ailleurs, la première colonne est dans la langue étudiée. */
-  const speakable = (s: string) => (ja ? JAPANESE.test(s) : true)
-  const script = (s: string) => (ja && JAPANESE.test(s) ? 'ko-text' : '')
-
   return (
     <CourseShell lang={lang}>
-      <div className="container page lesson">
-        <nav className="breadcrumb small">
-          <Link to={root}>{t.courses}</Link> › <Link to={`${root}/${level.id}`}>{level.name}</Link> › {t.lesson} {index + 1}
-        </nav>
-        <header className="lesson-head card" style={{ ['--accent' as string]: level.color }}>
-          <div className="row between">
-            <span className="pill">{t.lesson} {index + 1}/{level.lessons.length} · ⏱ {lesson.duration} {t.min}</span>
-            {p?.completed && <span className="pill ok">{t.done(p.bestScore)}</span>}
-          </div>
-          <h1>{lesson.title}</h1>
-          <p className={`subtitle ${script(lesson.subtitle)}`} lang={lang.speech}>{lesson.subtitle}</p>
-          <div className="objectives">
-            <strong>{t.goals}</strong>
-            <ul>{lesson.objectives.map((o) => <li key={o}>{o}</li>)}</ul>
-          </div>
-        </header>
-
-        <div className="lesson-layout">
-          <article className="lesson-body">
-            {lesson.sections.map((s, i) => (
-              <section key={i} className="card lesson-section">
-                <h2><span className="sec-num">{i + 1}</span> {s.title}</h2>
-                {s.body && <RichText text={s.body} />}
-                {s.table && (
-                  <div className="table-wrap">
-                    <table>
-                      <thead><tr>{s.table.head.map((h) => <th key={h}>{h}</th>)}</tr></thead>
-                      <tbody>
-                        {s.table.rows.map((r, ri) => (
-                          <tr key={ri}>
-                            {r.map((c, ci) => (
-                              <td key={ci} className={script(c)} lang={ci === 0 ? lang.speech : undefined}>
-                                <RichText text={c} />
-                                {ci === 0 && speakable(c) && <SpeakButton text={c.split('(')[0]} lang={lang.speech} />}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-                {s.examples && (
-                  <ul className="examples">
-                    {s.examples.map((e, ei) => (
-                      <li key={ei}>
-                        <div>
-                          <span className={`ex-ko ${script(e.ko)}`} lang={lang.speech}>{e.ko}</span> <SpeakButton text={e.ko} lang={lang.speech} />
-                        </div>
-                        {e.rom && <div className="muted small">{e.rom}</div>}
-                        <div className="ex-fr">{e.fr}</div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {s.tip && <div className="tip">💡 <RichText text={s.tip} /></div>}
-              </section>
-            ))}
-
-            {lesson.dialogue && (
-              <section className="card lesson-section">
-                <h2>{t.dialogue}</h2>
-                <div className="dialogue">
-                  {lesson.dialogue.map((d, i) => (
-                    <div key={i} className={`bubble ${i % 2 ? 'right' : ''}`}>
-                      <div className={`speaker ${script(d.speaker)}`}>{d.speaker}</div>
-                      <div className={`ex-ko ${script(d.ko)}`} lang={lang.speech}>
-                        {d.ko} <SpeakButton text={d.ko} lang={lang.speech} />
-                      </div>
-                      <div className="muted small">{d.fr}</div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            <section className="card lesson-section" id="exercices">
-              <h2>{t.exTitle}</h2>
-              {!user && (
-                <p className="notice">
-                  {t.guest} <Link to={`/connexion?next=${root}/${level.id}/${lesson.id}`}>{t.login}</Link>{t.or}
-                  <Link to="/inscription">{t.create}</Link>.
-                </p>
-              )}
-              <ExerciseRunner
-                key={runKey}
-                seed={runKey}
-                exercises={lesson.exercises}
-                passMark={70}
-                onFinish={async (score, total, _results, answers, operationId) => {
-                  if (user) await recordLesson(lesson.id, lesson.title, score, total, answers, operationId)
-                  setFinished({ score, total })
-                }}
-                onRestart={() => {
-                  setFinished(null)
-                  setRunKey(runKey + 1)
-                }}
-              />
-              {finished && finished.score / finished.total >= 0.7 && (
-                <div className="row center gap">
-                  {next ? (
-                    <Link to={`${root}/${level.id}/${next.id}`} className="btn">{t.next(next.title)}</Link>
-                  ) : (
-                    <Link to={`${lang.path}/tests/${level.id}`} className="btn">{t.takeTest}</Link>
-                  )}
-                </div>
-              )}
-            </section>
-          </article>
-
-          <aside className="lesson-aside">
-            <div className="card sticky">
-              <h3>{t.vocab}</h3>
-              <ul className="vocab">
-                {lesson.vocab.map((v) => (
-                  <li key={v.ko}>
-                    <div>
-                      <span className={script(v.ko)} lang={lang.speech}>{v.ko}</span> <SpeakButton text={v.ko.split('/')[0]} lang={lang.speech} />
-                    </div>
-                    {v.rom && <div className="muted small">{v.rom}</div>}
-                    <div className="small">{v.fr}</div>
-                  </li>
-                ))}
-              </ul>
-              <a href="#exercices" className="btn full small">{t.toEx}</a>
-            </div>
-          </aside>
-        </div>
-
-        <div className="lesson-nav">
-          {prev ? <Link to={`${root}/${level.id}/${prev.id}`} className="btn ghost">← {prev.title}</Link> : <span />}
-          {next ? (
-            <Link to={`${root}/${level.id}/${next.id}`} className="btn ghost">{next.title} →</Link>
-          ) : (
-            <Link to={`${lang.path}/tests/${level.id}`} className="btn ghost">{t.endTest} →</Link>
-          )}
-        </div>
-      </div>
+      <LessonStudio
+        key={lesson.id}
+        lang={lang}
+        level={level}
+        lesson={lesson}
+        index={index}
+        lessonPath={(id) => `${root}/${level.id}/${id}`}
+        levelPath={`${root}/${level.id}`}
+        coursesPath={root}
+        testPath={`${lang.path}/tests/${level.id}`}
+        historyTitle={lesson.title}
+      />
     </CourseShell>
   )
 }

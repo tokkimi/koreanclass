@@ -49,6 +49,13 @@ export async function bookWithCredit(b:Omit<Booking,'id'|'status'|'createdAt'|'f
 export async function cancelBooking(id:string) { await mutate('cancelBooking',{id}) }
 export async function respondProposal(id:string,accept:boolean) { await mutate('respondProposal',{id,accept}) }
 export async function readNotifications() { await mutate('readNotifications') }
+export async function reviewCard(card:string,grade:number) { await mutate('review',{card,grade}) }
+export async function addCards(lessons:string[]) { await mutate('addCards',{lessons}) }
+export async function drill(refId:string,indexes:number[],answers:string[],operationId:string) { await mutate('drill',{refId,indexes,answers},operationId) }
+export async function setGoal(purpose:string,dailyReviews:number) { await mutate('goal',{purpose,dailyReviews}) }
+/** Note la consultation d'une leçon (une fois par session et par leçon, pour limiter les écritures). */
+const visited=new Set<string>()
+export function visitLesson(refId:string,path:string) { if(!state.user||visited.has(refId))return; visited.add(refId); void mutate('visit',{refId,path}).catch(()=>visited.delete(refId)) }
 if (typeof window !== 'undefined') {
   void refreshSession()
   window.addEventListener('focus',()=>void refreshSession())

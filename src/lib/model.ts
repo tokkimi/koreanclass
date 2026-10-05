@@ -1,5 +1,6 @@
 import { levels, totalLessons } from '../data/index.js'
 import type { Level } from '../data/types.js'
+import type { CardState, MistakeEntry } from './srs.js'
 
 export interface User {
   id: string
@@ -106,6 +107,18 @@ export interface Progress {
   bookings: Booking[]
   packCredits: number
   notifications?: AppNotification[]
+  /** Révisions espacées : « idLeçon|mot » → état de la carte. */
+  srs?: Record<string, CardState>
+  /** Carnet d'erreurs : « idRéf#index » → exercice manqué. */
+  mistakes?: Record<string, MistakeEntry>
+  /** Leçons ouvertes (date de la dernière consultation). */
+  viewed?: Record<string, string>
+  /** Dernière activité, pour « reprendre ». */
+  activity?: { path: string; title: string; date: string }
+  /** Compteurs du jour (heure de Paris). */
+  daily?: { day: string; reviews: number; activities: number }
+  /** Objectif choisi par l'élève. */
+  goal?: { purpose: 'voyage' | 'quotidien' | 'travail' | 'examen'; dailyReviews: number }
 }
 
 

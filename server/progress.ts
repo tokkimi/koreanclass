@@ -4,6 +4,7 @@ import { languageName } from '../src/data/languages.js'
 import type { Exercise } from '../src/data/types.js'
 import { checkFill, PASS_MARK } from '../src/lib/grading.js'
 import { localDay, type Progress, type ResultEntry } from '../src/lib/model.js'
+import { addLessonCards, bump, recordMistakes } from './learning.js'
 
 export function grade(ex: Exercise, answer: string) {
   switch (ex.type) {
@@ -74,6 +75,10 @@ export function recordAttempt(p: Progress, input: { kind: ResultEntry['kind']; r
     title = 'Test de positionnement'
   }
   p.history = [{ id: input.id, kind: input.kind, refId: input.refId, title, score, total, date }, ...p.history].slice(0, 200)
+  // Carnet d'erreurs et cartes de révision (leçons et tests ; le positionnement n'alimente pas le carnet).
+  if (input.kind === 'lesson' || input.kind === 'test') recordMistakes(p, input.refId, results)
+  if (input.kind === 'lesson') { addLessonCards(p, input.refId); (p.viewed ??= {})[input.refId] = date }
+  bump(p, 'activities')
   const today = localDay()
   if (p.streak.lastDay !== today) p.streak = { lastDay: today, count: p.streak.lastDay === localDay(new Date(Date.now() - 86400000)) ? p.streak.count + 1 : 1 }
   return { score, total, pct }
