@@ -4123,3 +4123,5 @@ button.link { background:none; border:0; padding:0; color:var(--primary); text-d
 .lh-tokkimi-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
 .footer-bottom a { color:inherit; text-decoration:underline; }
 .footer-grid > div > span { display:block; margin-top:6px; line-height:1.4; }
+.terms-link { margin:20px 0; padding:18px 20px; border:2px solid var(--primary); border-radius:18px; background:var(--primary-soft, #eef2ff); }
+.terms-link h2 { margin-top:0; }
