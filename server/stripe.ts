@@ -2,7 +2,9 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import type { Account, Database } from './database.js'
 import type { PlanInfo } from '../src/lib/access.js'
 import { pushNotification, type Subscription } from '../src/lib/model.js'
-import { SUBSCRIPTION } from '../src/lib/pricing.js'
+import { SUBSCRIPTION, OFFERS, priceCents, creditedHours } from '../src/lib/pricing.js'
+import { languageName } from '../src/data/languages.js'
+import type { Booking } from '../src/lib/model.js'
 
 /**
  * Abonnement « Autonomie » via Stripe (Checkout + portail client + webhook signé).
@@ -17,9 +19,12 @@ const env = () => ({
   yearly: process.env.STRIPE_PRICE_YEARLY ?? '',
   launch: /^\d{4}-\d{2}-\d{2}$/.test(process.env.SUBSCRIPTION_LAUNCH ?? '') ? process.env.SUBSCRIPTION_LAUNCH! : '',
 })
+/** Paiement Stripe des cours particuliers (clé et webhook suffisent). */
+export const stripeReady = () => !!(env().key && env().webhook)
+
 export function plans(): PlanInfo {
   const e = env()
-  return { enabled: !!(e.key && e.webhook && e.monthly && e.yearly && e.launch), launch: e.launch || undefined, monthly: SUBSCRIPTION.monthly, yearly: SUBSCRIPTION.yearly }
+  return { enabled: !!(e.key && e.webhook && e.monthly && e.yearly && e.launch), launch: e.launch || undefined, monthly: SUBSCRIPTION.monthly, yearly: SUBSCRIPTION.yearly, payments: stripeReady() }
 }
 
 async function stripe(path: string, params?: Record<string, string>, method = params ? 'POST' : 'GET') {
@@ -50,6 +55,56 @@ export async function checkoutUrl(account: Account, plan: 'monthly' | 'yearly', 
   if (account.user.subscription?.customerId) params.customer = account.user.subscription.customerId
   else if (account.user.email && !account.user.email.endsWith('.invalid')) params.customer_email = account.user.email
   return (await stripe('checkout/sessions', params)).url as string
+}
+
+/** Paiement d'un cours ou d'un pack : la réservation n'est créée qu'après confirmation du paiement par Stripe. */
+export async function bookingCheckoutUrl(account: Account, b: Pick<Booking, 'language' | 'date' | 'time' | 'topic' | 'message'> & { formula: 'single' | 'pack10' }, origin: string) {
+  const offer = OFFERS[b.formula]
+  const params: Record<string, string> = {
+    mode: 'payment',
+    'line_items[0][quantity]': '1',
+    'line_items[0][price_data][currency]': 'eur',
+    'line_items[0][price_data][unit_amount]': String(priceCents(b.formula)),
+    'line_items[0][price_data][product_data][name]': `${offer.label} · ${languageName(b.language)}`,
+    'line_items[0][price_data][product_data][description]': `Cours particulier le ${b.date} à ${b.time} (heure de Paris)`,
+    client_reference_id: account.user.id,
+    'metadata[kind]': 'booking',
+    'metadata[userId]': account.user.id,
+    'metadata[formula]': b.formula,
+    'metadata[hours]': String(offer.hours),
+    'metadata[language]': b.language ?? 'coreen',
+    'metadata[date]': b.date,
+    'metadata[time]': b.time,
+    'metadata[topic]': (b.topic ?? '').slice(0, 100),
+    'metadata[message]': (b.message ?? '').slice(0, 450),
+    success_url: `${origin}/reservations?paiement=ok`,
+    cancel_url: `${origin}/reserver?paiement=annule`,
+    locale: 'fr',
+  }
+  if (account.user.email && !account.user.email.endsWith('.invalid')) params.customer_email = account.user.email
+  return (await stripe('checkout/sessions', params)).url as string
+}
+
+/** Paiement confirmé par Stripe : crée la réservation, le paiement, l'écriture comptable et les crédits (une seule fois). */
+export function createPaidBooking(db: Database, session: { id: string; amount_total?: number; payment_status?: string; metadata?: Record<string, string> }) {
+  const m = session.metadata ?? {}
+  const account = m.userId ? db.accounts[m.userId] : undefined
+  if (!account || session.payment_status !== 'paid' || account.progress.bookings.some((b) => b.id === session.id)) return false
+  const formula: 'single' | 'pack10' = m.formula === 'pack10' ? 'pack10' : 'single'
+  const hours = Number(m.hours) || OFFERS[formula].hours
+  const language = (['coreen', 'japonais', 'espagnol', 'anglais', 'francais'] as const).find((l) => l === m.language) ?? 'coreen'
+  const now = new Date().toISOString()
+  const taken = Object.values(db.accounts).some((a) => a.progress.bookings.some((b) => b.status === 'confirmée' && b.date === m.date && b.time === m.time))
+  const paymentId = `stripe-${session.id}`
+  const booking: Booking = { id: session.id, language, formula, date: m.date, time: m.time, topic: m.topic ?? '', message: m.message ?? '', status: 'demandée', createdAt: now, paymentId, usedCredit: false, ...(taken ? { teacherNote: 'Ce créneau vient d’être pris : le professeur te propose un autre horaire.' } : {}) }
+  account.progress.bookings.unshift(booking)
+  const amount = session.amount_total ?? priceCents(formula)
+  ;(db.payments ??= []).push({ id: paymentId, userId: account.user.id, customer: account.user.displayName, bookingId: booking.id, amount, currency: 'EUR', hours, method: 'stripe', label: OFFERS[formula].label, status: 'paid', createdAt: now, paidAt: now, reference: session.id, fee: 0 })
+  ;(db.ledger ??= []).push({ id: paymentId, date: now, kind: 'income', amount, fee: 0, label: `${OFFERS[formula].label} · ${account.user.displayName}`, reference: session.id, paymentId, actor: 'stripe' })
+  account.progress.packCredits += creditedHours(hours)
+  pushNotification(account.progress, { kind: 'payment', title: '💶 Paiement reçu, demande envoyée', body: `${m.date} à ${m.time} · le professeur confirme le créneau.${hours > 1 ? ` ${creditedHours(hours)} h ajoutées à ton crédit.` : ''}`, link: '/reservations' })
+  for (const a of Object.values(db.accounts)) if (a.user.role === 'admin') pushNotification(a.progress, { kind: 'booking', title: `📅 Demande payée · ${account.user.displayName}`, body: `${m.date} à ${m.time} · ${OFFERS[formula].label}`, link: '/admin?tab=agenda&filter=demandée' })
+  return true
 }
 
 export async function portalUrl(account: Account, origin: string) {
@@ -94,7 +149,9 @@ export function applySubscription(db: Database, s: StripeSub, userId?: string) {
 export async function handleEvent(db: Database & { stripeEvents?: string[] }, event: { id: string; type: string; data: { object: any } }, fetchSub: (id: string) => Promise<StripeSub> = (id) => stripe(`subscriptions/${id}`)) {
   if ((db.stripeEvents ?? []).includes(event.id)) return
   const o = event.data.object
-  if (event.type === 'checkout.session.completed' && o.mode === 'subscription' && o.subscription) {
+  if (event.type === 'checkout.session.completed' && o.mode === 'payment' && o.metadata?.kind === 'booking') {
+    createPaidBooking(db, o)
+  } else if (event.type === 'checkout.session.completed' && o.mode === 'subscription' && o.subscription) {
     applySubscription(db, await fetchSub(o.subscription), o.client_reference_id ?? o.metadata?.userId)
   } else if (event.type.startsWith('customer.subscription.')) {
     applySubscription(db, o)

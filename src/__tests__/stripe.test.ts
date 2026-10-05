@@ -29,3 +29,21 @@ describe('Stripe subscriptions', () => {
     expect(db.accounts.lea.progress.notifications!.map((n) => n.title).join(' ')).toContain('Abonnement Autonomie activé')
   })
 })
+
+import { createPaidBooking } from '../../server/stripe'
+describe('pay-first private lessons', () => {
+  it('creates the booking, payment, ledger entry and credits only after a paid session, once', () => {
+    const db: Database = { version: 1, accounts: { lea: account('lea'), sia: { ...account('sia'), user: { ...account('sia').user, role: 'admin' } } }, limits: {} }
+    const session = { id: 'cs_1', amount_total: 13000, payment_status: 'paid', metadata: { kind: 'booking', userId: 'lea', formula: 'pack10', hours: '10', language: 'japonais', date: '2026-10-20', time: '15:00', topic: 'Conversation', message: '' } }
+    expect(createPaidBooking(db, { ...session, payment_status: 'unpaid' })).toBe(false)
+    expect(db.accounts.lea.progress.bookings).toHaveLength(0)
+    expect(createPaidBooking(db, session)).toBe(true)
+    expect(createPaidBooking(db, session)).toBe(false)
+    expect(db.accounts.lea.progress.bookings).toHaveLength(1)
+    expect(db.accounts.lea.progress.bookings[0]).toMatchObject({ status: 'demandée', formula: 'pack10', language: 'japonais', paymentId: 'stripe-cs_1' })
+    expect(db.payments).toHaveLength(1)
+    expect(db.payments![0]).toMatchObject({ status: 'paid', amount: 13000, method: 'stripe' })
+    expect(db.accounts.lea.progress.packCredits).toBe(9)
+    expect(db.accounts.sia.progress.notifications![0].title).toContain('Demande payée')
+  })
+})

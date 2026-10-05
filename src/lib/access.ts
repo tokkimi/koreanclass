@@ -11,6 +11,8 @@ export interface PlanInfo {
   launch?: string
   monthly: number
   yearly: number
+  /** Paiement des cours particuliers par Stripe disponible. */
+  payments?: boolean
 }
 
 /** Mois offert aux élèves inscrits avant l'ouverture. */

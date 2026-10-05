@@ -1,5 +1,5 @@
 import { languageName } from '../data/languages'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import type { Payment } from '../../server/database'
 import { CONTACT_EMAIL, PRICING } from '../config'
@@ -13,6 +13,7 @@ import { AccountTabs } from '../components/AccountTabs'
 export default function Bookings() {
   const user = useCurrentUser()!
   const p = useProgress()
+  const [params] = useSearchParams()
   const [payments,setPayments]=useState<Payment[]>([])
   const [paymentError,setPaymentError]=useState('')
   useEffect(()=>{let active=true;fetch('/api/account?view=payments',{credentials:'same-origin',cache:'no-store'}).then(async r=>{if(!r.ok)throw Error();return r.json()}).then(d=>{if(active)setPayments(d)}).catch(()=>{if(active)setPaymentError('Le statut des règlements est indisponible. Actualise la page pour réessayer.')});return()=>{active=false}},[p.bookings])
@@ -71,6 +72,7 @@ export default function Bookings() {
   return (
     <div className="container page narrow">
       <AccountTabs />
+      {params.get('paiement') === 'ok' && <p className="notice">✅ Paiement reçu. Ta demande apparaît ci-dessous dans quelques secondes (recharge la page si besoin) ; le professeur confirme ensuite le créneau.</p>}
       <div className="page-head">
         <h1>Mes réservations</h1>
         <p className="muted">

@@ -13,7 +13,7 @@ import { achievements, bookingWhen, notifyAchievements, notifyAdmins } from '../
 import { addLessonCards, applyPrefs, bump, findLesson, recordMistakes, reviewCard } from '../server/learning.js'
 import { grade } from '../server/progress.js'
 import { applyMigrations, pendingMigrations } from '../server/migrations.js'
-import { checkoutUrl, plans, portalUrl } from '../server/stripe.js'
+import { bookingCheckoutUrl, checkoutUrl, plans, portalUrl, stripeReady } from '../server/stripe.js'
 import { canOpenLesson, hasFullAccess } from '../src/lib/access.js'
 import { allCourseLevels } from '../src/data/courses/index.js'
 import { levels as koreanLevels } from '../src/data/index.js'
@@ -118,6 +118,22 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     const { db: current } = await readDatabase()
     const currentAccount = findSession(current, token)
     if (!currentAccount) fail('Ta session a expiré. Reconnecte-toi pour enregistrer.', 401)
+    if (action === 'payBooking') {
+      // Cours ou pack : paiement Stripe d'abord ; la réservation est créée par le webhook après paiement.
+      if (!stripeReady()) fail('Paiement en ligne indisponible.')
+      const b = body.booking ?? {}
+      const date = str(b.date), time = str(b.time)
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:00$/.test(time)) fail('Date ou créneau invalide.')
+      if (b.formula !== 'single' && b.formula !== 'pack10') fail('Formule invalide.')
+      if (parisToUtc(date, time).getTime() < Date.now() + 3600000) fail('Ce créneau est passé ou trop proche : choisis un autre horaire.')
+      if (currentAccount!.progress.bookings.some(x => x.status !== 'annulée' && x.date === date && x.time === time)) fail('Ce créneau est déjà réservé.')
+      if (Object.values(current.accounts).some(a => a.progress.bookings.some(x => x.status === 'confirmée' && x.date === date && x.time === time))) fail('Ce créneau n’est plus disponible : choisis un autre horaire.')
+      const language = (['coreen','japonais','espagnol','anglais','francais'] as const).find(l => l === b.language) ?? 'coreen'
+      try {
+        const url = await bookingCheckoutUrl(currentAccount!, { formula: b.formula, language, date, time, topic: str(b.topic,100), message: str(b.message,450) }, `https://${host}`)
+        res.end(JSON.stringify({ url })); return
+      } catch (e) { fail(e instanceof Error ? e.message : 'Paiement indisponible.', 502) }
+    }
     if (action === 'checkout' || action === 'portal') {
       if (!plans().enabled) fail('L’abonnement n’est pas encore ouvert.')
       const origin = `https://${host}`
@@ -204,6 +220,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         const b = body.booking ?? {}
         if (!/^\d{4}-\d{2}-\d{2}$/.test(str(b.date)) || !/^\d{2}:00$/.test(str(b.time))) fail('Date ou créneau invalide.')
         if (!['single','pack10','credit'].includes(b.formula)) fail('Formule invalide.')
+        // Avec Stripe, aucune demande payante n'est enregistrée avant le paiement (voir payBooking).
+        if (b.formula !== 'credit' && stripeReady() && !account.user.isDemo) fail('Le paiement se fait avant la réservation : utilise « Payer et réserver ».')
         if (account.progress.bookings.some(x => x.status !== 'annulée' && x.date === b.date && x.time === b.time)) fail('Ce créneau est déjà réservé.')
         if (parisToUtc(str(b.date), str(b.time)).getTime() < Date.now() + 3600000) fail('Ce créneau est passé ou trop proche : choisis un autre horaire.')
         if (Object.values(db.accounts).some(a => a.progress.bookings.some(x => x.status === 'confirmée' && x.date === b.date && x.time === b.time))) fail('Ce créneau n’est plus disponible : choisis un autre horaire.')

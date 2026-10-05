@@ -8,6 +8,8 @@ type Choice = 'single' | 'pack10' | 'credit'
 import { getLanguage, languages, type LanguageId } from '../data/languages'
 import { creditedHours, packHourly } from '../lib/pricing'
 import { localSlot, visitorTz } from '../lib/time'
+import { usePlans } from '../lib/plans'
+import { mutate } from '../lib/store'
 
 function nextDays(n: number) {
   const out: Date[] = []
@@ -56,6 +58,7 @@ export default function Booking() {
   const [error, setError] = useState('')
   const [confirmed, setConfirmed] = useState<BookingT | null>(null)
   const days = useMemo(() => nextDays(28), [])
+  const plans = usePlans()
   const [unavailable, setUnavailable] = useState<string[]>([])
   useEffect(() => {
     if (!user) return
@@ -72,6 +75,11 @@ export default function Booking() {
     if (!user) return setError('Connectez-vous pour réserver.')
     if (!date || !time) return setError('Choisissez une date et un créneau.')
     try {
+      if (choice !== 'credit' && plans.payments && !user.isDemo) {
+        // Paiement d'abord : la demande n'est créée qu'après confirmation du paiement par Stripe.
+        const r = (await mutate('payBooking', { booking: { language, formula: choice, date, time, topic, message } })) as unknown as { url?: string }
+        if (r.url) { window.location.href = r.url; return }
+      }
       const b =
         choice === 'credit'
           ? await bookWithCredit({ language, date, time, topic, message })
@@ -270,9 +278,13 @@ export default function Booking() {
           <p className="small">Consultez les <Link className="link" to="/cgv" target="_blank">conditions de vente</Link> avant de réserver : report gratuit jusqu’à 24 h avant, pas de remboursement commercial, droits légaux réservés.</p><label className="small"><input type="checkbox" required /> J’ai lu et j’accepte les conditions de vente.</label>
           {error && <p className="error">{error}</p>}
           {user ? (
-            <button className="btn full big" disabled={!date || !time}>
-              Envoyer la demande
-            </button>
+            <>
+              {params.get('paiement') === 'annule' && <p className="notice small">Paiement annulé : aucune réservation n’a été enregistrée.</p>}
+              <button className="btn full big" disabled={!date || !time}>
+                {choice !== 'credit' && plans.payments && !user.isDemo ? `Payer ${choice === 'pack10' ? PRICING.pack10.price : PRICING.single.price} € et réserver` : 'Envoyer la demande'}
+              </button>
+              {choice !== 'credit' && plans.payments && !user.isDemo && <p className="small muted">Paiement sécurisé par Stripe. Ta demande est envoyée au professeur dès que le paiement est confirmé ; rien n’est enregistré avant.</p>}
+            </>
           ) : (
             <>
               <p className="small muted">Un compte est nécessaire pour réserver et suivre vos cours.</p>
