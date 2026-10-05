@@ -30,7 +30,9 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
    requireValue(target&&target.user.role!=='admin','Profil introuvable ou protégé.')
    target.password=hash;target.salt=salt;target.sessions={}
   } else {
-   const email=text(body.email).toLowerCase(),username=text(body.username).toLowerCase(),displayName=text(body.displayName,40)
+   const username=text(body.username).toLowerCase(),displayName=text(body.displayName,40)
+   // Sans e-mail : adresse fictive non routable (domaine .invalid réservé), jamais utilisée pour écrire au client.
+   const email=(text(body.email)||`${username}@clients.talktome-club.invalid`).toLowerCase()
    requireValue((!email||/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))&&/^[a-z0-9._]{3,20}$/.test(username)&&displayName,'Nom et pseudo valides requis (e-mail facultatif).')
    requireValue(!Object.values(db.accounts).some(a=>(email&&a.user.email===email)||a.user.username===username),'E-mail ou pseudo déjà utilisé.')
    const userId=randomUUID()

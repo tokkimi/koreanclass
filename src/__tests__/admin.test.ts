@@ -87,7 +87,7 @@ describe('administration and payment accounting',()=>{
   const {db,admin}=setup()
   await adminAction(db,admin,op('adminCreate',{displayName:'Johny Rajalu',username:'johny.rajalu',email:''}))
   const johny=Object.values(db.accounts).find(a=>a.user.username==='johny.rajalu')!
-  expect(johny.user.email).toBe('')
+  expect(johny.user.email).toBe('johny.rajalu@clients.talktome-club.invalid')
   const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10)
   const body=op('adminManualPayment',{id:johny.user.id,label:'Formation Clirus Global',amount:7000,method:'virement',date:yesterday})
   await adminAction(db,admin,body);await adminAction(db,admin,body)
