@@ -13,6 +13,10 @@ import { achievements, bookingWhen, notifyAchievements, notifyAdmins } from '../
 import { addLessonCards, bump, findLesson, recordMistakes, reviewCard } from '../server/learning.js'
 import { grade } from '../server/progress.js'
 import { applyMigrations, pendingMigrations } from '../server/migrations.js'
+import { checkoutUrl, plans, portalUrl } from '../server/stripe.js'
+import { canOpenLesson, hasFullAccess } from '../src/lib/access.js'
+import { allCourseLevels } from '../src/data/courses/index.js'
+import { levels as koreanLevels } from '../src/data/index.js'
 
 const usernameRE = /^[a-z0-9._]{3,20}$/
 class HttpError extends Error { constructor(public status: number, message: string) { super(message) } }
@@ -45,6 +49,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         if(!a || a.user.role!=='admin')fail('Accès administrateur requis.',403)
         res.end(JSON.stringify(adminSnapshot(db)));return
       }
+      if(req.url?.includes('view=plans')) { res.end(JSON.stringify(plans())); return }
       if(req.url?.includes('view=content')) {
         // Statut éditorial public : seules les leçons relues et validées sont signalées comme telles.
         res.end(JSON.stringify(Object.fromEntries(Object.entries(db.editorial??{}).filter(([,e])=>e.status==='validé').map(([k,e])=>[k,e.date.slice(0,10)]))));return
@@ -113,6 +118,14 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     const { db: current } = await readDatabase()
     const currentAccount = findSession(current, token)
     if (!currentAccount) fail('Ta session a expiré. Reconnecte-toi pour enregistrer.', 401)
+    if (action === 'checkout' || action === 'portal') {
+      if (!plans().enabled) fail('L’abonnement n’est pas encore ouvert.')
+      const origin = `https://${host}`
+      try {
+        const url = action === 'checkout' ? await checkoutUrl(currentAccount!, body.plan === 'yearly' ? 'yearly' : 'monthly', origin) : await portalUrl(currentAccount!, origin)
+        res.end(JSON.stringify({ url })); return
+      } catch (e) { fail(e instanceof Error ? e.message : 'Paiement indisponible.', 502) }
+    }
     if(typeof action==='string'&&action.startsWith('admin')) {
       if(currentAccount!.user.role!=='admin')fail('Accès administrateur requis.',403)
       const result=await transaction(async db=>{const actor=findSession(db,token);if(!actor||actor.user.role!=='admin')fail('Accès administrateur requis.',403);await adminAction(db,actor!,body);return adminSnapshot(db)})
@@ -133,6 +146,13 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       if (account.operations.includes(operationId)) return snapshot(account)
       if (action === 'attempt') {
         if (!Array.isArray(body.answers)) fail('Réponses manquantes.')
+        // Formule Découverte : leçons (hors première de chaque niveau) et tests de niveau réservés aux abonnés.
+        const pl = plans(), refId = str(body.refId)
+        if (body.kind === 'lesson') {
+          const found = findLesson(refId)
+          const index = found ? found.level.lessons.findIndex(l => l.id === refId) : 0
+          if (found && !canOpenLesson(account.user, pl, index)) fail('Cette leçon fait partie de la formule Autonomie.', 402)
+        } else if (body.kind === 'test' && [...koreanLevels, ...allCourseLevels.map(x => x.level)].some(l => l.id === refId) && !hasFullAccess(account.user, pl)) fail('Les tests de niveau font partie de la formule Autonomie.', 402)
         const before = achievements(account.progress)
         recordAttempt(account.progress, { kind: body.kind, refId: str(body.refId), answers: body.answers, id: operationId })
         notifyAchievements(account, before)

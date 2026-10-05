@@ -234,6 +234,7 @@ export function Layout() {
           </div>
           <div>
             <h4>{t('Infos', 'Info')}</h4>
+            <Link to="/abonnement">{t('Formules et abonnement', 'Plans')}</Link>
             <Link to="/#tarifs">{t('Tarifs', 'Prices')}</Link>
             <Link to="/#faq">FAQ</Link>
             <Link to="/cgv">{t('Conditions de vente & contact', 'Terms of sale & contact')}</Link>

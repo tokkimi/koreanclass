@@ -20,6 +20,9 @@ export const OFFERS: Record<Offer['id'], Offer> = {
   pack10: { id: 'pack10', label: 'Pack 10 heures', labelEn: '10-hour pack', price: 130, hours: 10 },
 }
 
+/** Abonnement « Autonomie » (prix affichés ; les prix facturés sont ceux configurés dans Stripe). */
+export const SUBSCRIPTION = { monthly: 9.9, yearly: 99 }
+
 export const priceCents = (id: Offer['id']) => OFFERS[id].price * 100
 export const paypalLink = (id: Offer['id']) => `${PAYPAL_ME}/${OFFERS[id].price}EUR`
 /** Prix horaire du pack et économie par rapport aux heures à l'unité. */

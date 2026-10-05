@@ -5,9 +5,13 @@ import { recordTest, useCurrentUser, useProgress } from '../lib/store'
 import { ExerciseRunner } from '../components/ExerciseRunner'
 import { PASS_MARK } from '../lib/grading'
 import NotFound from './NotFound'
+import { useFullAccess } from '../lib/plans'
+import { Paywall } from '../components/Paywall'
 
 export default function LevelTestRoute() {
   const { levelId } = useParams()
+  const open = useFullAccess()
+  if (!open) return <div className="container page"><Paywall what="Test de fin de niveau" /></div>
   return <LevelTest key={levelId} />
 }
 

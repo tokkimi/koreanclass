@@ -4128,3 +4128,11 @@ button.link { background:none; border:0; padding:0; color:var(--primary); text-d
 .full-toggle { margin:-4px 0 12px; gap:10px; flex-wrap:wrap; }
 .step-title { margin:22px 0 10px; font-size:1.4rem; }
 .step-block { scroll-margin-top:140px; }
+/* Formules et abonnement */
+.plans { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; margin-top:18px; }
+.plan { display:flex; flex-direction:column; gap:8px; }
+.plan.featured { border:2px solid var(--primary); }
+.plan-price { font-size:2rem; font-weight:800; margin:0; }
+.plan-price small { font-size:.9rem; font-weight:500; color:var(--muted); }
+.plan ul { padding-left:1.1rem; margin:6px 0 12px; }
+.paywall { text-align:left; max-width:640px; margin:30px auto; border:2px solid var(--primary); }

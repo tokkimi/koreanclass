@@ -12,6 +12,8 @@ import { ProgressBar } from '../../components/ProgressBar'
 import { PASS_MARK } from '../../lib/grading'
 import { useEn } from './LangPortal'
 import { LessonStudio } from '../../components/LessonStudio'
+import { useFullAccess } from '../../lib/plans'
+import { Paywall } from '../../components/Paywall'
 import NotFound from '../NotFound'
 import { tr } from '../../i18n/translate'
 
@@ -303,6 +305,9 @@ function LessonView({ lang }: { lang: LanguageInfo }) {
 
 export function LangTest({ lang }: { lang: LanguageInfo }) {
   const { levelId } = useParams()
+  const open = useFullAccess()
+  const en = useEn(lang)
+  if (!open) return <CourseShell lang={lang}><div className="container page"><Paywall what={en ? 'End-of-level test' : 'Test de fin de niveau'} /></div></CourseShell>
   return <TestView key={levelId} lang={lang} />
 }
 

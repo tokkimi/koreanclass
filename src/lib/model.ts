@@ -17,6 +17,18 @@ export interface User {
   goal: string
   website: string
   createdAt: string
+  /** Abonnement « Autonomie » (mis à jour uniquement par les événements Stripe vérifiés). */
+  subscription?: Subscription
+}
+
+export interface Subscription {
+  status: 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete' | 'unpaid'
+  plan: 'monthly' | 'yearly'
+  customerId: string
+  subscriptionId: string
+  /** Fin de la période payée (ISO). */
+  currentPeriodEnd: string
+  cancelAtPeriodEnd?: boolean
 }
 
 export interface LessonProgress {

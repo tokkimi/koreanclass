@@ -22,6 +22,7 @@ import LevelPage from './pages/LevelPage'
 import LessonPage from './pages/LessonPage'
 import Reviews from './pages/Reviews'
 import Sheet from './pages/Sheet'
+import Subscription from './pages/Subscription'
 import Tests from './pages/Tests'
 import LevelTest from './pages/LevelTest'
 import Placement from './pages/Placement'
@@ -87,6 +88,7 @@ export default function App() {
         <Route path="tableau-de-bord" element={<RequireAuth><Dashboard /></RequireAuth>} />
         <Route path="revisions" element={<Reviews />} />
         <Route path="fiche" element={<Sheet />} />
+        <Route path="abonnement" element={<Subscription />} />
         <Route path="profil" element={<RequireAuth><Profile /></RequireAuth>} />
         <Route path="profil/modifier" element={<RequireAuth><EditProfile /></RequireAuth>} />
         <Route path="u/:username" element={<Profile />} />

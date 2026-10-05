@@ -14,6 +14,8 @@ import { micConsent, recognitionSupported, setMicConsent, useRecognizer } from '
 import { lessonStatus, type LessonStatus } from '../lib/srs'
 import { useSiteLang } from '../lib/i18n'
 import { useValidated } from '../lib/editorial'
+import { useLessonAccess } from '../lib/plans'
+import { Paywall } from './Paywall'
 import { mutate } from '../lib/store'
 
 export type Step = 'apprendre' | 'ecouter' | 'pratiquer' | 'parler' | 'reviser'
@@ -36,7 +38,13 @@ interface Props {
 }
 
 /** Une leçon en 5 étapes, identique pour les cinq langues. */
-export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath, coursesPath, testPath, historyTitle }: Props) {
+export function LessonStudio(props: Props) {
+  const open = useLessonAccess(props.index)
+  if (!open) return <div className="container page lesson"><Paywall what={props.lesson.title} /></div>
+  return <LessonStudioInner {...props} />
+}
+
+function LessonStudioInner({ lang, level, lesson, index, lessonPath, levelPath, coursesPath, testPath, historyTitle }: Props) {
   const site = useSiteLang()
   const en = lang.taughtIn === 'en' || site === 'en'
   const t = (fr: string, english: string) => (en ? english : fr)
