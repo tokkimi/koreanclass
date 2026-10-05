@@ -118,7 +118,7 @@ export default function Bookings() {
               <li key={x.id} className="card booking-row">
                 <div className="grow">
                   <strong>{x.label ?? 'Achat'}</strong>
-                  <div className="small muted">{(x.amount / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} · {x.status === 'paid' ? 'payé' : x.status === 'refunded' ? 'remboursé' : x.status} {x.method === 'virement' ? 'par virement' : x.method === 'especes' ? 'en espèces' : ''} · {new Date(x.paidAt ?? x.createdAt).toLocaleDateString('fr-FR')}</div>
+                  <div className="small muted">{(x.amount / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} · {x.status === 'paid' ? 'payé' : x.status === 'refunded' ? 'remboursé' : x.status} {x.method === 'virement' ? 'par virement' : x.method === 'especes' ? 'en espèces' : ''} · {new Date(x.paidAt ?? x.createdAt).toLocaleDateString('fr-FR')}{x.reference ? ` · ${x.reference}` : ''}</div>
                 </div>
               </li>
             ))}

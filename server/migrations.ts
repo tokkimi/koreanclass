@@ -19,9 +19,21 @@ const MIGRATIONS: { id: string; run: (db: Database) => Promise<boolean> }[] = [
       }
       const id = johny.user.id
       if (!(db.payments ?? []).some((p) => p.userId === id && p.label === 'Formation Clirus Global'))
-        await adminAction(db, admin, { action: 'adminManualPayment', operationId: 'migration-johny-payment', id, label: 'Formation Clirus Global', amount: 7000, method: 'virement', date: '2026-10-04', reference: 'Virement du 4 octobre 2026', hours: 0, notify: true })
+        await adminAction(db, admin, { action: 'adminManualPayment', operationId: 'migration-johny-payment', id, label: 'Formation Clirus Global', amount: 7000, method: 'virement', date: '2026-10-04', reference: 'Facture N° UD-2026-012', hours: 0, notify: true })
       if (!johny.progress.bookings.some((b) => b.date === '2026-10-04' && b.time === '12:00'))
         await adminAction(db, admin, { action: 'adminPastLesson', operationId: 'migration-johny-lesson', id, date: '2026-10-04', time: '12:00', topic: 'Formation Clirus Global', note: 'Cours d’1 h · réglé avec la formation (virement)', useCredit: false })
+      return true
+    },
+  },
+  {
+    // Numéro de facture de l'achat de Johny Rajalu (si l'opération précédente a déjà été appliquée).
+    id: '2026-10-05-johny-facture',
+    async run(db) {
+      const johny = Object.values(db.accounts).find((a) => a.user.username === 'johny.rajalu')
+      const pay = johny && (db.payments ?? []).find((p) => p.userId === johny.user.id && p.label === 'Formation Clirus Global')
+      if (!pay) return false
+      pay.reference = 'Facture N° UD-2026-012'
+      for (const l of db.ledger ?? []) if (l.paymentId === pay.id) l.reference = 'Facture N° UD-2026-012'
       return true
     },
   },
