@@ -5,6 +5,7 @@ import { useSiteLang } from '../lib/i18n'
 import { PRICING } from '../config'
 import { ContainerScroll } from '../components/ui/container-scroll-animation'
 import { packHourly, packSaving } from '../lib/pricing'
+import { OWNER, TOKKIMI_URL } from '../config'
 
 /**
  * Accueil de TalkToMe Club : présente les 5 langues. Chaque langue a sa
@@ -154,6 +155,18 @@ export default function LanguagesHome() {
             ))}
           </p>
         </details>
+      </section>
+
+      <section className="container lh-tokkimi" aria-labelledby="lh-tokkimi-title">
+        <div className="lh-tokkimi-card">
+          <p className="hc-eyebrow">{t('Un projet Tokkimi', 'A Tokkimi project')}</p>
+          <h2 id="lh-tokkimi-title">{t('TalkToMe Club fait partie de tokkimi.com', 'TalkToMe Club is part of tokkimi.com')}</h2>
+          <p>{t(`TalkToMe Club est une extension du projet tokkimi.com, consacrée à l’apprentissage des langues et à la pratique orale. Les deux projets appartiennent à ${OWNER}.`, `TalkToMe Club is an extension of the tokkimi.com project, dedicated to language learning and speaking practice. Both projects belong to ${OWNER}.`)}</p>
+          <div className="lh-tokkimi-links">
+            <a className="btn" href={TOKKIMI_URL} target="_blank" rel="noopener">{t('Découvrir tokkimi.com ↗', 'Discover tokkimi.com ↗')}</a>
+            <Link className="btn ghost" to="/cgv">{t('Mentions et conditions', 'Legal notice and terms')}</Link>
+          </div>
+        </div>
       </section>
     </div>
   )

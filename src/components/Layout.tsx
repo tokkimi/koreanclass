@@ -6,7 +6,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { logout, useCurrentUser, useSyncStatus } from '../lib/store'
 import { Avatar } from './Avatar'
 import { NotificationBell } from './NotificationBell'
-import { SITE_NAME } from '../config'
+import { OWNER, SITE_NAME, TOKKIMI_URL } from '../config'
 import { Icon } from './Icon'
 import { setUiLang, useSiteLang } from '../lib/i18n'
 import { baseOf, setLastLang, useLastLang } from '../lib/lastLang'
@@ -239,8 +239,13 @@ export function Layout() {
             <Link to="/cgv">{t('Conditions de vente & contact', 'Terms of sale & contact')}</Link>
             <Link to="/confidentialite">{t('Confidentialité', 'Privacy')}</Link>
           </div>
+          <div>
+            <h4>Tokkimi</h4>
+            <a href={TOKKIMI_URL} target="_blank" rel="noopener">tokkimi.com ↗</a>
+            <span className="small muted">{t('TalkToMe Club est une extension du projet tokkimi.com.', 'TalkToMe Club is an extension of the tokkimi.com project.')}</span>
+          </div>
         </div>
-        <div className="container muted small footer-bottom">© {new Date().getFullYear()} {SITE_NAME}. {t('Tous droits réservés.', 'All rights reserved.')}</div>
+        <div className="container muted small footer-bottom">© {new Date().getFullYear()} {SITE_NAME} · {t('un projet', 'a project by')} {OWNER} · {t('extension de', 'extension of')} <a href={TOKKIMI_URL} target="_blank" rel="noopener">tokkimi.com</a>. {t('Tous droits réservés.', 'All rights reserved.')}</div>
       </footer>
     </div>
   )

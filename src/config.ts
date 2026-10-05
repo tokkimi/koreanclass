@@ -8,6 +8,10 @@ const env = import.meta.env
 
 export const SITE_NAME = 'TalkToMe Club'
 
+/** Projet principal dont TalkToMe Club est une extension. */
+export const TOKKIMI_URL = 'https://tokkimi.com'
+export const OWNER = 'Une Digitale, Naudy Alexia'
+
 /** E-mail qui reçoit les demandes de réservation (VITE_CONTACT_EMAIL). */
 export const CONTACT_EMAIL: string = env.VITE_CONTACT_EMAIL ?? ''
 
