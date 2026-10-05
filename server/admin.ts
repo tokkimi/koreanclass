@@ -117,6 +117,18 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   requireValue(['brouillon','à relire','validé'].includes(body.status),'Statut invalide.')
   ;(db.editorial??={})[id]={status:body.status,by:actor.user.displayName,date:now}
   detail=`Leçon ${id} : ${body.status}`
+ } else if(action==='adminPastLesson') {
+  // Cours déjà donné (ex. hier) : ajouté directement comme confirmé, sans débiter de crédit sauf demande.
+  requireValue(target,'Profil introuvable.')
+  const date=text(body.date,10),time=text(body.time,5)
+  requireValue(/^\d{4}-\d{2}-\d{2}$/.test(date)&&!Number.isNaN(Date.parse(date))&&date<=now.slice(0,10)&&/^([01]\d|2[0-3]):(00|30)$/.test(time),'Date (passée ou du jour) et heure valides requises.')
+  const language=(['coreen','japonais','espagnol','anglais','francais'] as const).find(l=>l===body.language)
+  const useCredit=body.useCredit===true&&!target.user.isDemo
+  if(useCredit)requireValue(target.progress.packCredits>0,'Ce client n’a plus de crédit d’heures.')
+  const booking:Booking={id:op,language,formula:'pack10',date,time,topic:text(body.topic,100)||'Cours particulier',message:'',teacherNote:text(body.note,500),status:'confirmée',proposedBy:'teacher',createdAt:now,usedCredit:useCredit}
+  if(useCredit)target.progress.packCredits--
+  target.progress.bookings.unshift(booking)
+  detail=`Cours passé ajouté ${date} ${time}`
  } else if(action==='adminManualPayment') {
   // Achat réglé hors PayPal (virement, espèces…) : enregistré comme payé, au journal comptable, avec notification au client.
   requireValue(target,'Profil introuvable.')

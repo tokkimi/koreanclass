@@ -98,4 +98,12 @@ describe('administration and payment accounting',()=>{
   await expect(adminAction(db,admin,op('adminManualPayment',{id:johny.user.id,label:'X',amount:7000,method:'virement',date:'2999-01-01'}))).rejects.toThrow('Date')
   await expect(adminAction(db,admin,op('adminCreate',{displayName:'Autre',username:'johny.rajalu',email:''}))).rejects.toThrow('déjà')
  })
+ it('records a lesson that already took place without using credit',async()=>{
+  const {db,admin,student}=setup()
+  const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10)
+  await adminAction(db,admin,op('adminPastLesson',{id:'student',date:yesterday,time:'12:00',topic:'Formation'}))
+  expect(student.progress.bookings[0]).toMatchObject({date:yesterday,time:'12:00',status:'confirmée',usedCredit:false})
+  expect(student.progress.packCredits).toBe(0)
+  await expect(adminAction(db,admin,op('adminPastLesson',{id:'student',date:'2999-01-01',time:'12:00'}))).rejects.toThrow()
+ })
 })
