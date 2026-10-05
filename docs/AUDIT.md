@@ -65,3 +65,45 @@ Légende : **OK** présente et fonctionnelle · **Incomplet** présente mais lim
 ## 7. Fiabilité
 
 Le stockage est un unique fichier JSON privé (Vercel Blob) réécrit à chaque opération avec contrôle ETag (6 tentatives). Il convient à un pilote de quelques centaines d'élèves actifs. Les révisions espacées et les notifications augmentent la taille par compte et le nombre d'écritures ; au-delà de ~500 élèves actifs simultanés ou avant d'ouvrir des abonnements, il faudra une base de données (Postgres / Neon, ou KV par compte).
+
+---
+
+# Livraison (octobre 2026)
+
+## Ce qui a été réalisé et vérifié
+
+| Étape | Fonction | Vérification |
+|---|---|---|
+| 1 | Prix centralisés (`src/lib/pricing.ts`), liens PayPal calculés, heures figées dans chaque paiement | tests serveur (crédits 9 h une seule fois, montants) |
+| 1 | Heure de Paris exacte, heure locale affichée, créneaux confirmés / passés refusés | `time.test.ts` (été, hiver, La Réunion, Séoul) ; navigateur en fuseau Réunion |
+| 1 | Positionnement et niveaux par langue sur le tableau de bord et le profil | navigateur (japonais) |
+| 1 | Comparaison orale valable pour toutes les écritures | `oralScripts.test.ts` |
+| 2 | Leçon en 5 étapes (Apprendre, Écouter, Pratiquer, Parler, Réviser), sommaire, reprise, précédent / suivant — pour les 5 langues | navigateur 390 px (japonais, coréen) |
+| 2 | Flashcards texte + audio avec rappel actif (réponse tapée avant de retourner la carte) | navigateur |
+| 2 | Répétition espacée calculée et enregistrée côté serveur (`progress.srs`), file du jour (mots les plus oubliés d'abord), prévision sur 7 jours | `srs.test.ts`, `learning.test.ts` |
+| 2 | Carnet d'erreurs alimenté par la notation serveur des leçons et tests, reprise sans réponse visible, notation serveur | `learning.test.ts` (coréen, japonais, français) |
+| 2 | Statuts distincts : consultée / exercices réussis / notion maîtrisée | `srs.test.ts` |
+| 2 | Fiche imprimable (notions, vocabulaire, exemples, exercices, corrigé sur une page séparée) — `/fiche?lecon=…` | navigateur |
+| 2 | Migration : champs facultatifs ; anciens profils inchangés ; bouton « ajouter les mots des leçons déjà réussies » | test de compatibilité |
+| 3 | Tableau de bord : prochaine action, objectif du jour, difficultés, compétences réellement mesurées, suggestions selon l'objectif (voyage, quotidien, travail, examen) | navigateur |
+| 3 | Écoute avant lecture, vitesse normale / lente, quiz de compréhension orale, répétition phrase par phrase, jeu de rôle, production personnelle ; auto-évaluation si le navigateur ne reconnaît pas la voix | navigateur |
+| 5 | Signalement d'erreur relié à la leçon → onglet admin « Contenus » → réponse et notification à l'élève | test serveur, navigateur |
+| 5 | Statut éditorial (brouillon / à relire / validé) ; badge « relu et validé » affiché seulement après validation enregistrée | test serveur |
+| 5 | Bilan de séance et activités conseillées, avec difficultés et objectif de l'élève affichés au professeur | test serveur, navigateur |
+
+## Ce qui dépend encore d'un service externe, d'un budget ou de contenus
+
+| Élément | Dépendance | État actuel |
+|---|---|---|
+| Abonnement « Autonomie » (9,90 €/mois, 99 €/an) | Prestataire de paiement récurrent (PayPal Subscriptions ou Stripe Billing) avec webhook serveur, gestion des droits, renouvellements, résiliation, CGV mises à jour | Non achetable ; affiché seulement dans l'admin comme proposition |
+| Pack à 130 € | Décision tarifaire (marge) | Prix en vigueur : 100 €. Changer `OFFERS.pack10.price` suffit ; les packs déjà commandés gardent leurs heures |
+| Offre « Découverte » limitée | Choix des contenus gratuits ; nécessite l'abonnement pour avoir un sens | Tous les cours en autonomie restent gratuits |
+| Confirmation automatique des paiements | Webhook PayPal/Stripe et clés serveur | Rapprochement manuel par l'administratrice (inchangé, fiable) |
+| Tuteur IA | Service d'IA côté serveur (clé protégée), quotas, budget | **Non développé** : aucune fausse IA. À brancher dans une fonction serveur avec contexte de la leçon, indices avant réponse, quotas et désactivation propre |
+| Note de prononciation | Service d'évaluation phonétique payant | Le site n'affiche qu'une correspondance textuelle, clairement présentée comme telle |
+| Correction grammaticale automatique | Service externe | Non proposée (texte explicite dans l'étape Parler) |
+| Vidéos pédagogiques | Production de contenus | Aucune ; aucun onglet vidéo |
+| Relecture des leçons | Travail pédagogique humain (≈ 560 leçons) | Outil de statut prêt dans l'admin ; aucune leçon n'est marquée « validée » par défaut |
+| Notifications hors du site (push, e-mail) | Service d'envoi (ex. Resend, Web Push + clés VAPID) | Notifications dans le site uniquement |
+| Base de données | Au-delà d'un pilote (~500 élèves actifs) ou avant les abonnements | Fichier JSON unique (Vercel Blob) avec ETag ; migration vers Postgres recommandée |
+| Reprise d'étape sur plusieurs appareils | Choix volontaire | La leçon consultée et la dernière activité sont sur le serveur ; l'étape précise (1 à 5) reste dans l'appareil pour limiter les écritures |

@@ -184,7 +184,7 @@ export function Layout() {
             <div className="dock-picker-backdrop" onClick={() => setAdminMore(false)}>
               <div className="dock-picker" role="group" aria-label="Autres rubriques" onClick={(e) => e.stopPropagation()}>
                 <p className="dock-picker-title">Administration</p>
-                {[['bookings', '📋 Toutes les réservations'], ['ledger', '📒 Comptabilité'], ['audit', '🕘 Historique des actions']].map(([id, label]) => (
+                {[['bookings', '📋 Toutes les réservations'], ['content', '🚩 Contenus et signalements'], ['ledger', '📒 Comptabilité'], ['audit', '🕘 Historique des actions']].map(([id, label]) => (
                   <button key={id} type="button" className={adminTab === id ? 'active' : ''} onClick={() => { setAdminMore(false); navigate(`/admin?tab=${id}`); window.scrollTo(0, 0) }}>{label}</button>
                 ))}
                 <button type="button" onClick={() => navigate('/')}>← Quitter l’administration</button>
@@ -195,7 +195,7 @@ export function Layout() {
             {([['stats', 'chart', 'Stats'], ['agenda', 'calendar', 'Agenda'], ['users', 'users', 'Clients'], ['payments', 'euro', 'Paiements']] as const).map(([id, icon, label]) => (
               <Link key={id} to={`/admin?tab=${id}`} className={adminTab === id ? 'active' : ''} onClick={() => window.scrollTo(0, 0)}><Icon name={icon} /><span>{label}</span></Link>
             ))}
-            <button type="button" className={`dock-lang ${adminMore || ['bookings', 'ledger', 'audit'].includes(adminTab) ? 'active' : ''}`} aria-expanded={adminMore} onClick={() => setAdminMore(!adminMore)}><Icon name="more" /><span>Plus</span></button>
+            <button type="button" className={`dock-lang ${adminMore || ['bookings', 'ledger', 'audit', 'content'].includes(adminTab) ? 'active' : ''}`} aria-expanded={adminMore} onClick={() => setAdminMore(!adminMore)}><Icon name="more" /><span>Plus</span></button>
           </nav>
         </>
       ) : (

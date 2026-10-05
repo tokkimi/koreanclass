@@ -73,6 +73,9 @@ export interface Booking {
   proposedBy?: 'student' | 'teacher'
   /** Note du professeur visible par l'élève. */
   teacherNote?: string
+  /** Bilan après la séance et activités conseillées. */
+  summary?: string
+  recommended?: string
   createdAt: string
 }
 

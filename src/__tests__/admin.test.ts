@@ -69,4 +69,18 @@ describe('administration and payment accounting',()=>{
   expect(titles).toContain('Paiement reçu');expect(titles).toContain('Nouveau créneau proposé');expect(titles).toContain('Cours confirmé')
   expect(student.progress.notifications!.every(n=>n.read===false)).toBe(true)
  })
+ it('handles content reports, editorial status and lesson summaries',async()=>{
+  const {db,admin,student}=setup()
+  const {allLessons}=await import('../data')
+  const lessonId=allLessons[0].lesson.id
+  db.reports=[{id:'r1',date:'2026-10-01',userId:'student',name:'Student',lessonId,title:'L',message:'Faute de frappe',status:'nouveau'}]
+  await adminAction(db,admin,op('adminReport',{id:'r1',status:'traité',reply:'Corrigé, merci'}))
+  expect(db.reports[0]).toMatchObject({status:'traité',reply:'Corrigé, merci'})
+  expect(student.progress.notifications!.some(n=>n.title.includes('signalement'))).toBe(true)
+  await adminAction(db,admin,op('adminEditorial',{id:lessonId,status:'validé'}))
+  expect(db.editorial![lessonId].status).toBe('validé')
+  await expect(adminAction(db,admin,op('adminEditorial',{id:'inconnue',status:'validé'}))).rejects.toThrow()
+  await adminAction(db,admin,op('adminBooking',{id:'booking',status:'demandée',summary:'Bonne séance, revoir les particules',recommended:'Leçon 3'}))
+  expect(student.progress.bookings[0]).toMatchObject({summary:'Bonne séance, revoir les particules',recommended:'Leçon 3'})
+ })
 })

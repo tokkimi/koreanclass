@@ -36,6 +36,7 @@ export default function Bookings() {
         </div>
         {b.message && <div className="small">« {b.message} »</div>}
         {b.teacherNote && <div className="small">💬 Professeur : {b.teacherNote}</div>}
+        {b.summary && <div className="booking-summary-note small"><strong>📝 Bilan :</strong> {b.summary}{b.recommended && <><br /><strong>À travailler ensuite :</strong> {b.recommended}</>}</div>}
         {b.paymentId&&<div className="mt"><p className="small">Paiement : {({pending:'en attente de vérification',paid:'reçu et validé',refunded:'remboursé',cancelled:'annulé'} as Record<string,string>)[payments.find(x=>x.id===b.paymentId)?.status??'']??'chargement…'}</p>{payments.find(x=>x.id===b.paymentId)?.status==='pending'&&b.status!=='annulée'&&<><a className="btn ghost small" href={`${PAYPAL_ME}/${payments.find(x=>x.id===b.paymentId)!.amount/100}EUR`} target="_blank" rel="noreferrer">Payer avec PayPal · {payments.find(x=>x.id===b.paymentId)!.amount/100} €</a><p className="small">Indique cette référence dans PayPal : <strong>{shortRef(b.id)}</strong>. Si tu as déjà réglé, attends la validation du professeur.</p></>}</div>}
       </div>
       {b.status === 'proposée' && b.date >= todayIso ? (

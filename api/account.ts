@@ -39,6 +39,10 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         if(!a || a.user.role!=='admin')fail('Accès administrateur requis.',403)
         res.end(JSON.stringify(adminSnapshot(db)));return
       }
+      if(req.url?.includes('view=content')) {
+        // Statut éditorial public : seules les leçons relues et validées sont signalées comme telles.
+        res.end(JSON.stringify(Object.fromEntries(Object.entries(db.editorial??{}).filter(([,e])=>e.status==='validé').map(([k,e])=>[k,e.date.slice(0,10)]))));return
+      }
       if(req.url?.includes('view=availability')) {
         if(!a)fail('Connexion requise.',401)
         // Créneaux déjà confirmés (sans nom d'élève) : affichés comme indisponibles à la réservation.
@@ -238,6 +242,15 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         const daily = Number(body.dailyReviews)
         if (!purpose || !Number.isInteger(daily) || daily < 5 || daily > 100) fail('Objectif invalide.')
         account.progress.goal = { purpose: purpose!, dailyReviews: daily }
+      } else if (action === 'report') {
+        const found = findLesson(str(body.refId))
+        const message = str(body.message, 1000)
+        if (!found || message.length < 5) fail('Décris l’erreur en quelques mots.')
+        const reports = (db.reports ??= [])
+        if (reports.filter(r => r.userId === account.user.id && r.status === 'nouveau').length >= 20) fail('Tu as déjà 20 signalements en attente : merci, nous les traitons.')
+        reports.push({ id: operationId, date: new Date().toISOString(), userId: account.user.id, name: account.user.displayName, lessonId: found!.lesson.id, title: found!.lesson.title, message, status: 'nouveau' })
+        if (reports.length > 1000) reports.splice(0, reports.length - 1000)
+        notifyAdmins(db, account.user.id, { kind: 'info', title: `🚩 Erreur signalée · ${found!.lesson.title}`, body: message.slice(0, 120), link: '/admin?tab=content' })
       } else if (action === 'readNotifications') {
         for (const n of account.progress.notifications ?? []) n.read = true
       } else if (action === 'cancelBooking') {

@@ -1,4 +1,5 @@
 import { languages } from '../../data/languages'
+import { PROPOSED_PLANS } from '../../lib/pricing'
 import type { Progress, User } from '../../lib/model'
 import type { LedgerEntry, Payment } from '../../../server/database'
 
@@ -137,6 +138,11 @@ export function AdminStats({ users, payments, ledger, onOpenUser, onGo }: { user
           ))}
         </section>
       </div>
+      <section className="card">
+        <h2>Grille tarifaire à l’étude (non publiée)</h2>
+        <p className="small muted">Proposition non validée économiquement. Rien ici n’est achetable sur le site tant que le paiement récurrent, les droits d’accès et les renouvellements ne sont pas en place. Prix en vigueur : voir src/lib/pricing.ts.</p>
+        <ul className="plain stack">{PROPOSED_PLANS.map((o) => <li key={o.id}><strong>{o.label}</strong> · {o.price} <span className={`booking-status ${o.available ? 'confirmed' : 'cancelled'}`}>{o.available ? 'en vente' : 'non achetable'}</span><br /><small className="muted">{o.detail}</small></li>)}</ul>
+      </section>
     </div>
   )
 }

@@ -7,7 +7,9 @@ export interface Account { user: User; password: string; salt: string; progress:
 export interface Payment { id:string; userId:string; customer:string; bookingId:string; amount:number; currency:'EUR'; /** Heures achetées, figées à la commande (anciens paiements : déduites de la formule). */ hours?:number; status:'pending'|'paid'|'refunded'|'cancelled'; createdAt:string; paidAt?:string; reference?:string; fee?:number; refunded?:number }
 export interface LedgerEntry { id:string; date:string; kind:'income'|'refund'|'expense'; amount:number; fee:number; label:string; reference:string; paymentId?:string; actor:string }
 export interface AuditEntry { id:string; date:string; actor:string; action:string; target:string; detail:string }
-export interface Database { version: 1; accounts: Record<string, Account>; limits: Record<string, { count: number; until: number }>; payments?:Payment[]; ledger?:LedgerEntry[]; audit?:AuditEntry[] }
+export interface ContentReport { id:string; date:string; userId:string; name:string; lessonId:string; title:string; message:string; status:'nouveau'|'traité'; reply?:string }
+export interface EditorialState { status:'brouillon'|'à relire'|'validé'; by:string; date:string }
+export interface Database { version: 1; reports?:ContentReport[]; editorial?:Record<string,EditorialState>; accounts: Record<string, Account>; limits: Record<string, { count: number; until: number }>; payments?:Payment[]; ledger?:LedgerEntry[]; audit?:AuditEntry[] }
 export const DB_PATH = 'koreanclass/accounts-v1.json'
 export const digest = (s: string) => createHash('sha256').update(s).digest('hex')
 const scrypt = promisify(scryptCallback)

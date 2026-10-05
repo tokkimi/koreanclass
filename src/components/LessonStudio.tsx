@@ -13,6 +13,8 @@ import { compareSpeech } from '../lib/oral'
 import { micConsent, recognitionSupported, setMicConsent, useRecognizer } from '../lib/recognition'
 import { lessonStatus, type LessonStatus } from '../lib/srs'
 import { useSiteLang } from '../lib/i18n'
+import { useValidated } from '../lib/editorial'
+import { mutate } from '../lib/store'
 
 export type Step = 'apprendre' | 'ecouter' | 'pratiquer' | 'parler' | 'reviser'
 const STEPS: Step[] = ['apprendre', 'ecouter', 'pratiquer', 'parler', 'reviser']
@@ -80,6 +82,7 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
   }, [lesson])
   const tips = lesson.sections.map((s) => s.tip).filter(Boolean) as string[]
   const i = STEPS.indexOf(step)
+  const validated = useValidated(lesson.id)
 
   return (
     <div className="container page lesson lesson-studio">
@@ -93,6 +96,7 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
         </div>
         <h1>{lesson.title}</h1>
         <p className={`subtitle ${cls(lesson.subtitle)}`} lang={lang.speech}>{lesson.subtitle}</p>
+        {validated && <p className="small ok-text">✔︎ {t(`Contenu relu et validé par l’équipe le ${new Date(validated).toLocaleDateString('fr-FR')}`, `Content reviewed and approved by the team on ${new Date(validated).toLocaleDateString('en-GB')}`)}</p>}
         {resumed && <p className="small muted">↩︎ {t('Reprise à l’étape où tu t’étais arrêté(e).', 'Picking up at the step where you stopped.')}</p>}
       </header>
 
@@ -237,6 +241,8 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
           </div>
         </aside>
       </div>
+
+      <ReportError lessonId={lesson.id} t={t} />
 
       <div className="lesson-nav">
         {prev ? <Link to={lessonPath(prev.id)} className="btn ghost">← {prev.title}</Link> : <span />}
@@ -442,5 +448,30 @@ function LessonMistakes({ lessonId, t }: { lessonId: string; t: T }): ReactNode 
         <p className="small muted">{t('Aucune erreur en attente pour cette leçon.', 'No pending mistakes for this lesson.')}</p>
       )}
     </section>
+  )
+}
+
+/** Signaler une erreur dans la leçon : enregistré côté serveur, traité dans l'administration. */
+function ReportError({ lessonId, t }: { lessonId: string; t: T }) {
+  const user = useCurrentUser()
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState('')
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
+  if (!user) return null
+  return (
+    <div className="report-error">
+      {sent ? (
+        <p className="small ok-text">{t('Merci ! Ton signalement a été transmis à l’équipe.', 'Thanks! Your report has been sent to the team.')}</p>
+      ) : open ? (
+        <form className="card" onSubmit={async (e) => { e.preventDefault(); setError(''); try { await mutate('report', { refId: lessonId, message: text }); setSent(true) } catch (err) { setError((err as Error).message) } }}>
+          <label>{t('Quelle erreur as-tu repérée ? (étape, phrase, exercice…)', 'What mistake did you spot? (step, sentence, exercise…)')}<textarea className="input" rows={3} maxLength={1000} value={text} onChange={(e) => setText(e.target.value)} required minLength={5} /></label>
+          {error && <p className="error small">{error}</p>}
+          <div className="row"><button className="btn small">{t('Envoyer', 'Send')}</button><button type="button" className="btn small ghost" onClick={() => setOpen(false)}>{t('Annuler', 'Cancel')}</button></div>
+        </form>
+      ) : (
+        <button className="link small" onClick={() => setOpen(true)}>🚩 {t('Signaler une erreur dans cette leçon', 'Report a mistake in this lesson')}</button>
+      )}
+    </div>
   )
 }

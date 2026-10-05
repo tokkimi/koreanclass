@@ -3,6 +3,7 @@ import { languageName, languages } from '../../data/languages'
 import { shortRef, type Booking, type Progress, type User } from '../../lib/model'
 import { MonthCalendar, statusClass } from '../../components/MonthCalendar'
 import type { Payment } from '../../../server/database'
+import { findLesson } from '../../lib/lessonIndex'
 
 type Row = { user: User; progress: Progress; activeSessions: number }
 type Request = (body: Record<string, unknown>) => Promise<boolean>
@@ -45,8 +46,11 @@ export function ProposeForm({ users, request, userId, date }: { users: Row[]; re
 }
 
 /** Une réservation côté administrateur : valider, déplacer, annuler. */
-export function AdminBookingCard({ b, owner, payment, request }: { b: Booking; owner: User; payment?: Payment; request: Request }) {
+export function AdminBookingCard({ b, owner, payment, request, progress }: { b: Booking; owner: User; payment?: Payment; request: Request; progress?: Progress }) {
   const [edit, setEdit] = useState(false)
+  const [report, setReport] = useState(false)
+  // Besoins réels de l'élève : notions avec erreurs ouvertes et objectif choisi.
+  const needs = progress ? [...new Set(Object.values(progress.mistakes ?? {}).filter((m) => !m.resolved).map((m) => findLesson(m.ref)?.lesson.title).filter(Boolean))].slice(0, 3) : []
   const closed = b.status === 'annulée'
   return (
     <article className="card admin-booking">
@@ -60,12 +64,29 @@ export function AdminBookingCard({ b, owner, payment, request }: { b: Booking; o
       </p>
       {b.message && <p className="small">« {b.message} »</p>}
       {b.teacherNote && <p className="small">💬 {b.teacherNote}</p>}
+      {(needs.length > 0 || progress?.goal) && <p className="small">🎯 {progress?.goal ? `Objectif : ${progress.goal.purpose}. ` : ''}{needs.length ? `Difficultés : ${needs.join(' · ')}` : ''}</p>}
+      {b.summary && <p className="small">📝 Bilan : {b.summary}{b.recommended ? ` · À travailler : ${b.recommended}` : ''}</p>}
       {!closed && (
         <div className="row">
           {b.status !== 'confirmée' && <button className="btn small" onClick={() => void request({ action: 'adminBooking', id: b.id, status: 'confirmée' })}>✓ Valider l’horaire</button>}
           <button className="btn small ghost" onClick={() => setEdit(!edit)}>Déplacer / note</button>
+          {b.status === 'confirmée' && <button className="btn small ghost" onClick={() => setReport(!report)}>📝 Bilan</button>}
           <button className="btn small ghost" onClick={() => { if (confirm('Annuler ce cours ? Un crédit utilisé sera restitué. Un paiement PayPal doit être remboursé séparément.')) void request({ action: 'adminBooking', id: b.id, status: 'annulée' }) }}>Annuler</button>
         </div>
+      )}
+      {report && !closed && (
+        <form
+          className="admin-form mt"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            const f = new FormData(e.currentTarget)
+            if (await request({ action: 'adminBooking', id: b.id, status: b.status, summary: f.get('summary'), recommended: f.get('recommended') })) setReport(false)
+          }}
+        >
+          <label>Bilan de la séance (visible par l’élève)<textarea name="summary" className="input" rows={3} maxLength={1500} defaultValue={b.summary ?? ''} required /></label>
+          <label>Activités conseillées<input name="recommended" className="input" maxLength={500} defaultValue={b.recommended ?? ''} placeholder={needs[0] ? `Ex. : revoir « ${needs[0]} », 10 min de révisions par jour` : 'Ex. : leçon 4, révisions quotidiennes'} /></label>
+          <button className="btn small">Envoyer le bilan</button>
+        </form>
       )}
       {edit && !closed && (
         <form
@@ -104,13 +125,13 @@ export function AdminAgenda({ users, payments, request, initialFilter }: { users
         {filter !== 'actifs' && filter !== 'tous' && (
           <section className="stack">
             <h2>{filter === 'demandée' ? 'À valider' : filter === 'proposée' ? 'Proposés, en attente de l’élève' : 'Confirmés à venir'}</h2>
-            {shown.filter(({ b }) => filter !== 'confirmée' || b.date >= new Date().toISOString().slice(0, 10)).sort((x, y) => (x.b.date + x.b.time).localeCompare(y.b.date + y.b.time)).map(({ b, owner }) => <AdminBookingCard key={b.id} b={b} owner={owner} payment={payments.find((p) => p.id === b.paymentId)} request={request} />)}
+            {shown.filter(({ b }) => filter !== 'confirmée' || b.date >= new Date().toISOString().slice(0, 10)).sort((x, y) => (x.b.date + x.b.time).localeCompare(y.b.date + y.b.time)).map(({ b, owner }) => <AdminBookingCard key={b.id} b={b} owner={owner} progress={users.find((u) => u.user.id === owner.id)?.progress} payment={payments.find((p) => p.id === b.paymentId)} request={request} />)}
             {!shown.length && <p className="muted">Rien pour le moment.</p>}
           </section>
         )}
         <MonthCalendar events={shown.map(({ b, owner }) => ({ id: b.id, date: b.date, time: b.time, status: b.status, label: owner.displayName }))} selected={day} onSelect={setDay} />
         <h2>{new Date(day + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</h2>
-        {ofDay.length ? ofDay.map(({ b, owner }) => <AdminBookingCard key={b.id} b={b} owner={owner} payment={payments.find((p) => p.id === b.paymentId)} request={request} />) : <p className="muted">Aucun cours ce jour-là.</p>}
+        {ofDay.length ? ofDay.map(({ b, owner }) => <AdminBookingCard key={b.id} b={b} owner={owner} progress={users.find((u) => u.user.id === owner.id)?.progress} payment={payments.find((p) => p.id === b.paymentId)} request={request} />) : <p className="muted">Aucun cours ce jour-là.</p>}
       </div>
       <div className="stack">
         <details className="card" open>
@@ -119,7 +140,7 @@ export function AdminAgenda({ users, payments, request, initialFilter }: { users
         </details>
         <section className="card">
           <h2>Demandes à valider ({waiting.length})</h2>
-          {waiting.length ? waiting.map(({ b, owner }) => <AdminBookingCard key={b.id} b={b} owner={owner} payment={payments.find((p) => p.id === b.paymentId)} request={request} />) : <p className="muted">Aucune demande en attente.</p>}
+          {waiting.length ? waiting.map(({ b, owner }) => <AdminBookingCard key={b.id} b={b} owner={owner} progress={users.find((u) => u.user.id === owner.id)?.progress} payment={payments.find((p) => p.id === b.paymentId)} request={request} />) : <p className="muted">Aucune demande en attente.</p>}
         </section>
       </div>
     </div>

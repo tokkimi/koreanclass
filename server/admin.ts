@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { emptyProgress, pushNotification, type Booking } from '../src/lib/model.js'
 import { bookingWhen } from './notify.js'
+import { findLesson } from './learning.js'
 import { creditedHours } from '../src/lib/pricing.js'
 import type { Account, Database } from './database.js'
 import { passwordHash, randomToken } from './database.js'
@@ -10,7 +11,7 @@ const requireValue = (ok:unknown, message:string) => { if(!ok) throw new AdminEr
 const text = (v:unknown,max=300) => typeof v==='string'?v.trim().slice(0,max):''
 const cents = (v:unknown) => { requireValue(Number.isSafeInteger(v)&&Number(v)>=0&&Number(v)<=100000000,'Montant invalide.');return Number(v) }
 export function adminSnapshot(db:Database) {
- return {users:Object.values(db.accounts).map(a=>({user:a.user,progress:a.progress,activeSessions:Object.values(a.sessions).filter(x=>x>Date.now()).length})),payments:db.payments??[],ledger:db.ledger??[],audit:(db.audit??[]).slice(-500).reverse()}
+ return {reports:(db.reports??[]).slice(-300).reverse(),editorial:db.editorial??{},users:Object.values(db.accounts).map(a=>({user:a.user,progress:a.progress,activeSessions:Object.values(a.sessions).filter(x=>x>Date.now()).length})),payments:db.payments??[],ledger:db.ledger??[],audit:(db.audit??[]).slice(-500).reverse()}
 }
 export async function adminAction(db:Database, actor:Account, body:Record<string,any>) {
  requireValue(actor.user.role==='admin','Accès administrateur requis.')
@@ -70,6 +71,11 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
    b!.date=date;b!.time=time
   }
   if(typeof body.note==='string')b!.teacherNote=text(body.note,500)
+  // Bilan de séance (après le cours) : visible par l'élève, avec les activités conseillées.
+  if(typeof body.summary==='string'&&body.summary.trim()){
+   b!.summary=text(body.summary,1500);b!.recommended=text(body.recommended,500)
+   pushNotification(account!.progress,{kind:'info',title:'📝 Bilan de ton cours',body:`${bookingWhen(b!)} · ${b!.summary.slice(0,90)}`,link:'/reservations'})
+  }
   if(body.status==='confirmée'&&b!.status==='proposée'&&!account!.user.isDemo){
    requireValue(account!.progress.packCredits>0,'Cet élève n’a plus de crédit : valide d’abord son paiement.')
    account!.progress.packCredits--;b!.usedCredit=true
@@ -95,6 +101,19 @@ export async function adminAction(db:Database, actor:Account, body:Record<string
   target.progress.bookings.unshift(booking)
   pushNotification(target.progress,{id:`prop-${op}`,kind:'booking',title:'📩 Nouveau créneau proposé',body:`${bookingWhen(booking)} · à accepter dans Mes réservations`,link:'/reservations'})
   detail=`Proposition ${date} ${time}`
+ } else if(action==='adminReport') {
+  const r=(db.reports??[]).find(x=>x.id===id)
+  requireValue(r,'Signalement introuvable.')
+  requireValue(['nouveau','traité'].includes(body.status),'Statut invalide.')
+  r!.status=body.status;const reply=text(body.reply,500);if(reply)r!.reply=reply
+  const author=db.accounts[r!.userId]
+  if(author&&body.status==='traité')pushNotification(author.progress,{kind:'info',title:'✅ Ton signalement a été traité',body:`${r!.title}${reply?` · ${reply}`:''}`})
+  detail=`Signalement ${r!.status}`
+ } else if(action==='adminEditorial') {
+  requireValue(findLesson(id),'Leçon introuvable.')
+  requireValue(['brouillon','à relire','validé'].includes(body.status),'Statut invalide.')
+  ;(db.editorial??={})[id]={status:body.status,by:actor.user.displayName,date:now}
+  detail=`Leçon ${id} : ${body.status}`
  } else if(action==='adminPayment') {
   const p=(db.payments??[]).find(p=>p.id===id)
   requireValue(p&&p.status==='pending','Paiement introuvable ou déjà traité.')
