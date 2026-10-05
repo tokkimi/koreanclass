@@ -44,6 +44,10 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
   const progress = useProgress()
   const stored = useMemo(() => { try { return localStorage.getItem(`kc:step:${lesson.id}`) as Step | null } catch { return null } }, [lesson.id])
   const [step, setStep] = useState<Step>(stored && STEPS.includes(stored) ? stored : 'apprendre')
+  // « Leçon complète » : toutes les étapes sur une seule page, comme l'ancienne présentation.
+  const [full, setFull] = useState(() => { try { return localStorage.getItem('kc:lesson-full') === '1' } catch { return false } })
+  const toggleFull = () => { const v = !full; setFull(v); try { localStorage.setItem('kc:lesson-full', v ? '1' : '0') } catch { /* facultatif */ } }
+  const show = (s: Step) => full || step === s
   const [resumed] = useState(!!stored && stored !== 'apprendre')
   const [finished, setFinished] = useState<{ score: number; total: number } | null>(null)
   const [runKey, setRunKey] = useState(1)
@@ -57,7 +61,7 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
 
   useEffect(() => { if (user) visitLesson(lesson.id, lessonPath(lesson.id)) }, [user?.id, lesson.id]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { try { localStorage.setItem(`kc:step:${lesson.id}`, step) } catch { /* facultatif */ } }, [lesson.id, step])
-  const go = (s: Step) => { stopSpeaking(); setStep(s); window.scrollTo({ top: 0 }) }
+  const go = (s: Step) => { stopSpeaking(); setStep(s); if (full) document.getElementById(`etape-${s}`)?.scrollIntoView({ behavior: 'smooth' }); else window.scrollTo({ top: 0 }) }
 
   const labels: Record<Step, [string, string]> = {
     apprendre: [t('Apprendre', 'Learn'), '📘'],
@@ -75,8 +79,8 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
 
   // Phrases à écouter et à répéter : exemples puis dialogue.
   const lines = useMemo(() => {
-    const out: { text: string; meaning: string; who?: string }[] = []
-    for (const s of lesson.sections) for (const e of s.examples ?? []) out.push({ text: e.ko, meaning: e.fr })
+    const out: { text: string; meaning: string; who?: string; rom?: string }[] = []
+    for (const s of lesson.sections) for (const e of s.examples ?? []) out.push({ text: e.ko, meaning: e.fr, rom: e.rom })
     for (const d of lesson.dialogue ?? []) out.push({ text: d.ko, meaning: d.fr, who: d.speaker })
     return out
   }, [lesson])
@@ -102,17 +106,21 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
 
       <nav className="step-nav" aria-label={t('Étapes de la leçon', 'Lesson steps')}>
         {STEPS.map((s, n) => (
-          <button key={s} type="button" className={s === step ? 'active' : ''} aria-current={s === step ? 'step' : undefined} onClick={() => go(s)}>
+          <button key={s} type="button" className={!full && s === step ? 'active' : ''} aria-current={!full && s === step ? 'step' : undefined} onClick={() => go(s)}>
             <span aria-hidden="true">{labels[s][1]}</span>
             <span>{n + 1}. {labels[s][0]}</span>
           </button>
         ))}
       </nav>
+      <div className="row between full-toggle">
+        <span className="small muted">{full ? t('Toutes les étapes sont affichées sur cette page.', 'All steps are shown on this page.') : t(`Étape ${STEPS.indexOf(step) + 1} sur 5`, `Step ${STEPS.indexOf(step) + 1} of 5`)}</span>
+        <button type="button" className="btn ghost small" onClick={toggleFull} aria-pressed={full}>{full ? t('Afficher étape par étape', 'Show step by step') : t('📄 Voir la leçon complète', '📄 See the full lesson')}</button>
+      </div>
 
       <div className="lesson-layout">
         <article className="lesson-body">
-          {step === 'apprendre' && (
-            <>
+          {show('apprendre') && (
+            <div id="etape-apprendre" className="step-block">{full && <h2 className="step-title">{labels['apprendre'][1]} {labels['apprendre'][0]}</h2>}<>
               <section className="card lesson-section">
                 <h2>🎯 {t('Objectifs', 'Objectives')}</h2>
                 <ul>{lesson.objectives.map((o) => <li key={o}>{o}</li>)}</ul>
@@ -161,13 +169,27 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
                   <ul>{tips.map((tip, n) => <li key={n}><RichText text={tip} /></li>)}</ul>
                 </section>
               )}
-            </>
+              {lesson.dialogue && lesson.dialogue.length > 0 && (
+                <section className="card lesson-section">
+                  <h2>💬 {t('Dialogue', 'Dialogue')}</h2>
+                  <div className="dialogue">
+                    {lesson.dialogue.map((d, n) => (
+                      <div key={n} className={`bubble ${n % 2 ? 'right' : ''}`}>
+                        <div className={`speaker ${cls(d.speaker)}`}>{d.speaker}</div>
+                        <div className={`ex-ko ${cls(d.ko)}`} lang={lang.speech}>{d.ko} <SpeakButton text={d.ko} lang={lang.speech} /></div>
+                        <div className="muted small">{d.fr}</div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </></div>
           )}
 
-          {step === 'ecouter' && <ListenStep lines={lines} lang={lang} cls={cls} t={t} />}
+          {show('ecouter') && <div id="etape-ecouter" className="step-block">{full && <h2 className="step-title">{labels.ecouter[1]} {labels.ecouter[0]}</h2>}<ListenStep lines={lines} lang={lang} cls={cls} t={t} /></div>}
 
-          {step === 'pratiquer' && (
-            <section className="card lesson-section" id="exercices">
+          {show('pratiquer') && (
+            <div id="etape-pratiquer" className="step-block">{full && <h2 className="step-title">{labels['pratiquer'][1]} {labels['pratiquer'][0]}</h2>}<section className="card lesson-section" id="exercices">
               <h2>✏️ {t('Exercices', 'Exercises')}</h2>
               {!user && (
                 <p className="notice">
@@ -188,13 +210,13 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
                 onRestart={() => { setFinished(null); setRunKey(runKey + 1) }}
               />
               {finished && <div className="row center gap mt"><button className="btn" onClick={() => go('parler')}>{t('Étape suivante : parler →', 'Next step: speak →')}</button></div>}
-            </section>
+            </section></div>
           )}
 
-          {step === 'parler' && <SpeakStep lines={lines} lesson={lesson} lang={lang} cls={cls} t={t} />}
+          {show('parler') && <div id="etape-parler" className="step-block">{full && <h2 className="step-title">{labels.parler[1]} {labels.parler[0]}</h2>}<SpeakStep lines={lines} lesson={lesson} lang={lang} cls={cls} t={t} /></div>}
 
-          {step === 'reviser' && (
-            <>
+          {show('reviser') && (
+            <div id="etape-reviser" className="step-block">{full && <h2 className="step-title">{labels['reviser'][1]} {labels['reviser'][0]}</h2>}<>
               <section className="card lesson-section">
                 <h2>📝 {t('Synthèse', 'Summary')}</h2>
                 <ul>{lesson.objectives.map((o) => <li key={o}>{o}</li>)}</ul>
@@ -211,7 +233,7 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
                 <p className="small">{t('Les mots de cette leçon reviennent dans ta file de révision aux dates calculées (1 jour, 3 jours, puis de plus en plus espacées). Un mot est « mémorisé » quand il revient tous les 14 jours ou plus.', 'This lesson’s words come back in your review queue on calculated dates (1 day, 3 days, then further apart). A word counts as memorised once its interval reaches 14 days.')}</p>
                 <Link className="btn small" to="/revisions">{t('Ouvrir mes révisions', 'Open my reviews')}</Link>
               </section>
-            </>
+            </></div>
           )}
 
           <div className="step-footer">
@@ -255,7 +277,7 @@ export function LessonStudio({ lang, level, lesson, index, lessonPath, levelPath
 type T = (fr: string, en: string) => string
 
 /** Écouter : le texte est masqué tant que l'élève ne l'a pas demandé ; vitesse normale ou lente. */
-function ListenStep({ lines, lang, cls, t }: { lines: { text: string; meaning: string; who?: string }[]; lang: LanguageInfo; cls: (s: string) => string; t: T }) {
+function ListenStep({ lines, lang, cls, t }: { lines: { text: string; meaning: string; who?: string; rom?: string }[]; lang: LanguageInfo; cls: (s: string) => string; t: T }) {
   const [shown, setShown] = useState<Record<number, boolean>>({})
   const [all, setAll] = useState(false)
   if (!lines.length) return <section className="card lesson-section"><p className="muted">{t('Pas de phrase audio dans cette leçon.', 'No audio sentences in this lesson.')}</p></section>
@@ -279,6 +301,7 @@ function ListenStep({ lines, lang, cls, t }: { lines: { text: string; meaning: s
                 <div className="listen-text">
                   {l.who && <span className="muted small">{l.who} · </span>}
                   <span className={cls(l.text)} lang={lang.speech}>{l.text}</span>
+                  {l.rom && <div className="small muted">{l.rom}</div>}
                   <div className="small muted">{l.meaning}</div>
                 </div>
               )}
@@ -328,7 +351,7 @@ function ListeningQuiz({ lines, lang, t }: { lines: { text: string; meaning: str
 }
 
 /** Parler : répétition phrase par phrase, jeu de rôle sur le dialogue, production personnelle. */
-function SpeakStep({ lines, lesson, lang, cls, t }: { lines: { text: string; meaning: string; who?: string }[]; lesson: Lesson; lang: LanguageInfo; cls: (s: string) => string; t: T }) {
+function SpeakStep({ lines, lesson, lang, cls, t }: { lines: { text: string; meaning: string; who?: string; rom?: string }[]; lesson: Lesson; lang: LanguageInfo; cls: (s: string) => string; t: T }) {
   const supported = recognitionSupported()
   const [consent, setConsent] = useState(micConsent())
   const [selfCheck, setSelfCheck] = useState<Record<number, 'ok' | 'again'>>({})
@@ -354,6 +377,7 @@ function SpeakStep({ lines, lesson, lang, cls, t }: { lines: { text: string; mea
           {lines.slice(0, 10).map((l, n) => (
             <li key={n} className="listen-line">
               <div><span className={cls(l.text)} lang={lang.speech}>{l.text}</span> <SpeakButton text={l.text} lang={lang.speech} /></div>
+              {l.rom && <div className="small muted">{l.rom}</div>}
               <div className="small muted">{l.meaning}</div>
               {supported && consent ? (
                 <RepeatButton text={l.text} lang={lang} t={t} />
