@@ -17,7 +17,7 @@ export interface Offer {
 
 export const OFFERS: Record<Offer['id'], Offer> = {
   single: { id: 'single', label: 'Cours particulier 1 h', labelEn: 'Private lesson 1 h', price: 15, hours: 1 },
-  pack10: { id: 'pack10', label: 'Pack 10 heures', labelEn: '10-hour pack', price: 100, hours: 10 },
+  pack10: { id: 'pack10', label: 'Pack 10 heures', labelEn: '10-hour pack', price: 130, hours: 10 },
 }
 
 export const priceCents = (id: Offer['id']) => OFFERS[id].price * 100
@@ -37,5 +37,5 @@ export const PROPOSED_PLANS = [
   { id: 'decouverte', label: 'Découverte', price: 'Gratuit', detail: 'Accès limité à définir (ex. premières leçons de chaque niveau, tests de positionnement).', available: false },
   { id: 'autonomie', label: 'Autonomie', price: '9,90 €/mois ou 99 €/an', detail: 'Tous les cours, révisions et fiches. Nécessite un abonnement récurrent (PayPal Subscriptions ou Stripe) et une gestion des droits.', available: false },
   { id: 'single', label: 'Cours particulier', price: '15 €/h (lancement)', detail: 'Inchangé.', available: true },
-  { id: 'pack10', label: 'Pack 10 heures', price: '130 € pour les nouvelles commandes', detail: 'Sous réserve de marge. Les packs déjà achetés restent aux conditions d’achat.', available: false },
+  { id: 'pack10', label: 'Pack 10 heures', price: '130 € (en vigueur depuis le 5 octobre 2026)', detail: 'Les packs commandés avant gardent leur prix et leurs heures.', available: true },
 ] as const

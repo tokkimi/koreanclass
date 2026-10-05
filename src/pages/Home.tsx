@@ -87,7 +87,7 @@ export default function Home() {
               to="/reserver?formule=pack10"
             >
               <ul>
-                <li>{packHourly()} €/h · {packSaving()} € d’économie</li>
+                <li>{`${packHourly()} €/h · ${packSaving()} € d’économie`}</li>
                 <li>Tes heures, quand tu veux</li>
               </ul>
             </TiltCard>
