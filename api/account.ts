@@ -12,6 +12,7 @@ import { adminAction, adminSnapshot, AdminError } from '../server/admin.js'
 import { achievements, bookingWhen, notifyAchievements, notifyAdmins } from '../server/notify.js'
 import { addLessonCards, bump, findLesson, recordMistakes, reviewCard } from '../server/learning.js'
 import { grade } from '../server/progress.js'
+import { applyMigrations, pendingMigrations } from '../server/migrations.js'
 
 const usernameRE = /^[a-z0-9._]{3,20}$/
 class HttpError extends Error { constructor(public status: number, message: string) { super(message) } }
@@ -29,7 +30,12 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     if (!['GET','POST'].includes(req.method ?? '')) fail('Méthode non autorisée.', 405)
     const token = sessionToken(req)
     if (req.method === 'GET') {
-      const { db } = await readDatabase()
+      let { db } = await readDatabase()
+      // Opérations ponctuelles en attente : appliquées une fois, dans une transaction (écriture conditionnelle).
+      if (pendingMigrations(db).length && Object.values(db.accounts).some(x => x.user.role === 'admin')) {
+        try { await transaction(async latest => { await applyMigrations(latest) }); ({ db } = await readDatabase()) }
+        catch (e) { console.error('Migration:', e instanceof Error ? e.message : 'erreur') } // le site continue normalement
+      }
       let a = findSession(db, token)
       if (a && shouldPromote(a.user)) {
         const id = a.user.id

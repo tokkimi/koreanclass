@@ -9,7 +9,7 @@ export interface LedgerEntry { id:string; date:string; kind:'income'|'refund'|'e
 export interface AuditEntry { id:string; date:string; actor:string; action:string; target:string; detail:string }
 export interface ContentReport { id:string; date:string; userId:string; name:string; lessonId:string; title:string; message:string; status:'nouveau'|'traité'; reply?:string }
 export interface EditorialState { status:'brouillon'|'à relire'|'validé'; by:string; date:string }
-export interface Database { version: 1; reports?:ContentReport[]; editorial?:Record<string,EditorialState>; accounts: Record<string, Account>; limits: Record<string, { count: number; until: number }>; payments?:Payment[]; ledger?:LedgerEntry[]; audit?:AuditEntry[] }
+export interface Database { version: 1; /** Opérations ponctuelles déjà appliquées. */ migrations?:string[]; reports?:ContentReport[]; editorial?:Record<string,EditorialState>; accounts: Record<string, Account>; limits: Record<string, { count: number; until: number }>; payments?:Payment[]; ledger?:LedgerEntry[]; audit?:AuditEntry[] }
 export const DB_PATH = 'koreanclass/accounts-v1.json'
 export const digest = (s: string) => createHash('sha256').update(s).digest('hex')
 const scrypt = promisify(scryptCallback)
