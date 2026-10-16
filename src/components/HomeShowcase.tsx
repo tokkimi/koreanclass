@@ -3,6 +3,9 @@ import { levels } from '../data'
 import { courseLevels } from '../data/courses'
 import { usePlans } from '../lib/plans'
 import { OFFERS } from '../lib/pricing'
+import { HomeMethod } from './HomeMethod'
+import { Icon } from './Icon'
+import './HomeExperience.css'
 
 type T = (fr: string, en: string) => string
 
@@ -31,38 +34,7 @@ export function HomeShowcase({ t, en }: { t: T; en: boolean }) {
         <div><strong>{nf(n.words, en)}+</strong><span>{t('mots avec audio', 'words with audio')}</span></div>
       </section>
 
-      <section className="container hs-steps" aria-labelledby="hs-steps-title">
-        <p className="hc-eyebrow">{t('Une méthode claire', 'A clear method')}</p>
-        <h2 id="hs-steps-title">{t('Chaque leçon en 5 étapes', 'Every lesson in 5 steps')}</h2>
-        <p className="hc-lead">{t('Comprendre, écouter, s’entraîner, parler, puis retenir : le même parcours dans les cinq langues, sur téléphone comme sur ordinateur.', 'Understand, listen, practise, speak, then remember: the same path in all five languages, on phone or computer.')}</p>
-        <ol className="hs-step-list">
-          <li>
-            <div className="hs-illu hs-illu-learn" aria-hidden="true"><span className="hs-line w80" /><span className="hs-line w60" /><span className="hs-chip">💡 {t('À retenir', 'Key point')}</span><span className="hs-line w70" /></div>
-            <strong>1. {t('Apprendre', 'Learn')}</strong>
-            <p>{t('Objectifs, explications, tableaux, exemples et erreurs fréquentes.', 'Objectives, explanations, tables, examples and common mistakes.')}</p>
-          </li>
-          <li>
-            <div className="hs-illu hs-illu-listen" aria-hidden="true"><span className="hs-play">▶</span><span className="hs-wave">{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ height: `${20 + ((i * 37) % 60)}%` }} />)}</span><span className="hs-chip">🐢 {t('Lent', 'Slow')}</span></div>
-            <strong>2. {t('Écouter', 'Listen')}</strong>
-            <p>{t('Phrases et dialogues en vitesse normale ou lente, texte affiché à la demande.', 'Sentences and dialogues at normal or slow speed, text on demand.')}</p>
-          </li>
-          <li>
-            <div className="hs-illu hs-illu-practice" aria-hidden="true"><span className="hs-opt ok">✓ 안녕하세요</span><span className="hs-opt">こんにちは</span><span className="hs-opt">Hola</span></div>
-            <strong>3. {t('Pratiquer', 'Practise')}</strong>
-            <p>{t('QCM, phrases à compléter, mots à remettre dans l’ordre, corrigés et expliqués.', 'Quizzes, gap fills and word ordering, corrected and explained.')}</p>
-          </li>
-          <li>
-            <div className="hs-illu hs-illu-speak" aria-hidden="true"><span className="hs-mic">🎙️</span><span className="hs-bubble">« Un café, s’il vous plaît »</span><span className="hs-chip">{t('Jeu de rôle', 'Role play')}</span></div>
-            <strong>4. {t('Parler', 'Speak')}</strong>
-            <p>{t('Répétition phrase par phrase, jeux de rôle et ta propre phrase.', 'Sentence-by-sentence repetition, role plays and your own sentence.')}</p>
-          </li>
-          <li>
-            <div className="hs-illu hs-illu-review" aria-hidden="true"><span className="hs-card back" /><span className="hs-card front">맛있어요<small>{t('délicieux', 'delicious')}</small></span></div>
-            <strong>5. {t('Réviser', 'Review')}</strong>
-            <p>{t('Flashcards, révisions espacées et carnet d’erreurs pour retenir pour de bon.', 'Flashcards, spaced reviews and a mistake notebook to remember for good.')}</p>
-          </li>
-        </ol>
-      </section>
+      <HomeMethod t={t} en={en} />
 
       <section className="hs-tools" aria-labelledby="hs-tools-title">
         <div className="container">
@@ -85,7 +57,7 @@ export function HomeShowcase({ t, en }: { t: T; en: boolean }) {
               <p>{t('Notions, vocabulaire, exemples et exercices, avec le corrigé à part.', 'Key points, vocabulary, examples and exercises, with a separate answer key.')}</p>
             </article>
             <article>
-              <div className="hs-illu hs-illu-teacher" aria-hidden="true"><span className="hs-face">👩‍🏫</span><span className="hs-face">🙂</span><span className="hs-chip">{t('Visio · 1 h', 'Video · 1 h')}</span></div>
+              <div className="hs-illu hs-illu-teacher" aria-hidden="true"><img src="/images/online-korean-lesson.png" alt="" loading="lazy" /><span className="hs-chip">{t('Visio · 1 h', 'Video · 1 h')}</span></div>
               <h3>{t('Un professeur quand tu veux', 'A teacher whenever you want')}</h3>
               <p>{t('Cours particulier en visio, bilan après chaque séance et activités conseillées.', 'Private video lesson, a summary after each session and suggested activities.')}</p>
             </article>
@@ -98,12 +70,12 @@ export function HomeShowcase({ t, en }: { t: T; en: boolean }) {
         <h2 id="hs-goals-title">{t('Quel est ton objectif ?', 'What is your goal?')}</h2>
         <div className="hs-goal-grid">
           {[
-            ['✈️', t('Voyager', 'Travel'), t('Commander, demander ton chemin, te débrouiller sur place.', 'Order, ask the way, get by on the spot.')],
-            ['🏠', t('Vie quotidienne', 'Daily life'), t('Te présenter, parler de ta journée, de ta famille, de tes goûts.', 'Introduce yourself, talk about your day, family and tastes.')],
-            ['💼', t('Travail', 'Work'), t('Registre poli, réunions, e-mails et entretiens.', 'Polite register, meetings, emails and interviews.')],
-            ['🎓', t('Examen', 'Exam'), t('Grammaire structurée et tests par niveau (CECRL, TOPIK, JLPT, DELE, Cambridge, DELF).', 'Structured grammar and level tests (CEFR, TOPIK, JLPT, DELE, Cambridge, DELF).')],
+            ['calendar', t('Voyager', 'Travel'), t('Commander, demander ton chemin, te débrouiller sur place.', 'Order, ask the way, get by on the spot.')],
+            ['home', t('Vie quotidienne', 'Daily life'), t('Te présenter, parler de ta journée, de ta famille, de tes goûts.', 'Introduce yourself, talk about your day, family and tastes.')],
+            ['users', t('Travail', 'Work'), t('Registre poli, réunions, e-mails et entretiens.', 'Polite register, meetings, emails and interviews.')],
+            ['book', t('Examen', 'Exam'), t('Grammaire structurée et tests par niveau (CECRL, TOPIK, JLPT, DELE, Cambridge, DELF).', 'Structured grammar and level tests (CEFR, TOPIK, JLPT, DELE, Cambridge, DELF).')],
           ].map(([icon, title, text]) => (
-            <div key={title} className="hs-goal"><span aria-hidden="true">{icon}</span><strong>{title}</strong><p>{text}</p></div>
+            <div key={title} className="hs-goal"><span className="hs-goal-icon"><Icon name={icon as 'calendar' | 'home' | 'users' | 'book'} /></span><strong>{title}</strong><p>{text}</p></div>
           ))}
         </div>
         <p className="small muted">{t('Les tests du site te situent et te préparent ; ce ne sont pas des examens officiels.', 'The site’s tests place and prepare you; they are not official exams.')}</p>

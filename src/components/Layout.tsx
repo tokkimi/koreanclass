@@ -85,6 +85,8 @@ export function Layout() {
                 <NavLink to="/vocabulaire">{t('Vocabulaire', 'Vocabulary')}</NavLink>
                 <NavLink to="/couleurs">{t('Couleurs', 'Colours')}</NavLink>
                 <NavLink to="/structures">{t('Phrases & grammaire', 'Sentences & grammar')}</NavLink>
+                <NavLink to="/coreen/tournures-de-phrases">{t('Tournures de phrases', 'Sentence patterns')}</NavLink>
+                <NavLink to="/coreen/lecture">{t('Lecture & compréhension', 'Reading & comprehension')}</NavLink>
                 <NavLink to="/tests">{t('Tests & QCM', 'Tests & quizzes')}</NavLink>
                 <NavLink to="/pratique">{t('En situation', 'Real-life practice')}</NavLink>
               </>

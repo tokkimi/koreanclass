@@ -7,6 +7,7 @@ import { ContainerScroll } from '../components/ui/container-scroll-animation'
 import { packHourly, packSaving } from '../lib/pricing'
 import { OWNER, TOKKIMI_URL } from '../config'
 import { HomePlans, HomeShowcase } from '../components/HomeShowcase'
+import { HomeFaq } from '../components/HomeFaq'
 
 /**
  * Accueil de TalkToMe Club : présente les 5 langues. Chaque langue a sa
@@ -140,27 +141,7 @@ export default function LanguagesHome() {
         </div>
       </section>
 
-      <section className="container hc-faq" id="faq">
-        <details>
-          <summary>{t('Comment ça marche ?', 'How does it work?')}</summary>
-          <p>
-            {t(
-              'Choisis une langue pour découvrir son parcours. La première leçon de chaque niveau et les tests de positionnement sont gratuits ; l’abonnement Autonomie débloque tout le reste. Pour un cours particulier, choisis la langue, la formule et ton créneau, puis paie en ligne : le professeur confirme ensuite le rendez-vous.',
-              'Pick a language to discover its path. The first lesson of each level and the placement tests are free; the Autonomie plan unlocks everything else. For a private lesson, choose the language, the plan and your slot, then pay online: the teacher then confirms the appointment.',
-            )}
-          </p>
-        </details>
-        <details>
-          <summary>{t('Dire bonjour en 5 langues', 'Say hello in 5 languages')}</summary>
-          <p>
-            {languages.map((l) => (
-              <span key={l.id} className="lh-hello-line">
-                <strong lang={l.speech}>{l.hello}</strong> ({name(l)}, {en ? `“${l.helloRead}”` : `« ${l.helloRead} »`})
-              </span>
-            ))}
-          </p>
-        </details>
-      </section>
+      <HomeFaq t={t} />
 
       <section className="container lh-tokkimi" aria-labelledby="lh-tokkimi-title">
         <div className="lh-tokkimi-card">

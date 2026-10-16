@@ -27,6 +27,10 @@ export default function Tests() {
         <span className="btn">Commencer</span>
       </Link>
 
+      <section className="course-tools mt" aria-label="Compléments de lecture et de phrases">
+        <Link className="card" to="/coreen/tournures-de-phrases"><h2>Tests de tournures de phrases</h2><p>6 tests dédiés, des phrases simples aux raisonnements complexes : sens, connecteurs et ordre des mots.</p><span className="link">Choisir un palier →</span></Link>
+        <Link className="card" to="/coreen/lecture"><h2>Lire et comprendre après le test</h2><p>Un texte par niveau, des questions de compréhension et des traductions expliquées pour remettre tes acquis en contexte.</p><span className="link">Choisir ma lecture →</span></Link>
+      </section>
       <h2 className="mt">Tests de fin de niveau</h2>
       <div className="level-grid">
         {levels.map((l) => {

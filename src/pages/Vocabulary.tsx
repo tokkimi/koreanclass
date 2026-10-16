@@ -175,7 +175,7 @@ export default function Vocabulary() {
           <CardFan cards={cards} onSelect={choose} />
         </div>
         <p className="container hc-level">
-          <a href="#photo-quiz">Quiz en photos</a> · <a href="#vocab-quizzes">QCM par thème</a> · <Link to="/couleurs">Les couleurs</Link>
+          <a href="#photo-quiz">Quiz en photos</a> · <a href="#vocab-quizzes">QCM par thème</a> · <Link to="/couleurs">Les couleurs</Link> · <Link to="/coreen/lecture">Lecture & compréhension</Link>
         </p>
       </section>
 

@@ -33,6 +33,8 @@ export default function LevelPage() {
             <Link to={`/tests/${level.id}`} className="btn ghost">
               Test de fin de niveau
             </Link>
+            <Link className="btn ghost" to={`/coreen/tournures-de-phrases?palier=${level.index}`}>Tournures de phrases</Link>
+            <Link className="btn ghost" to={`/coreen/lecture?texte=level-${level.index}`}>Lecture du niveau</Link>
           </div>
         </div>
         <div className="level-hero-stats">

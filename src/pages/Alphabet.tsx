@@ -1,3 +1,5 @@
+import { KoreanReadingPanel } from '../components/KoreanReading'
+import { levelReadings } from '../data/koreanReading'
 import { recognition } from '../data/recognition'
 import { ExerciseRunner } from '../components/ExerciseRunner'
 import { recordLesson, useCurrentUser } from '../lib/store'
@@ -108,6 +110,7 @@ export default function Alphabet() {
           </div>
         </div>
       </section>
+      <KoreanReadingPanel reading={levelReadings[0]} />
     </div>
   )
 }

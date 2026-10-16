@@ -53,6 +53,8 @@ export default function Courses() {
       </section>
 
       <section className="course-tools" aria-label="Ateliers complémentaires">
+        <Link to="/coreen/tournures-de-phrases" className="card"><h2>Tournures de phrases</h2><p>6 paliers, 24 ateliers et 96 exemples : phrase simple, lieux, mais, pourquoi, parce que, relatives et argumentation. Tests dédiés, lecture et traduction.</p><span className="link">Construire mes phrases →</span></Link>
+        <Link to="/coreen/lecture" className="card"><h2>Lecture & compréhension</h2><p>Des textes progressifs par niveau et par thème, avec audio, QCM, résumé libre et traductions expliquées.</p><span className="link">Lire en coréen →</span></Link>
         <Link to="/vocabulaire" className="card"><h2>Vocabulaire thématique</h2><p>Des mots en contexte, des phrases modèles et des QCM pour les mémoriser activement.</p><span className="link">Découvrir les mots →</span></Link>
         <Link to="/nombres" className="card"><h2>Chiffres & nombres</h2><p>Deux systèmes, âge, heure, dates, prix et monnaie avec exercices progressifs.</p><span className="link">Apprendre à compter →</span></Link>
         <Link to="/structures" className="card"><h2>Toutes les structures de phrase</h2><p>{structureUnits.length} ateliers : phrase simple, temps, cause, liaison, registre, oral et argumentation. Chaque forme est expliquée, décomposée et exercée.</p><span className="link">Explorer les structures →</span></Link>

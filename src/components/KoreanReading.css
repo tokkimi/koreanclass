@@ -1,0 +1,35 @@
+.kr-panel { margin: 28px 0; border: 1px solid var(--border); border-radius: 20px; background: var(--card, #fff); overflow: hidden; text-align: left; }
+.kr-panel > summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; list-style: none; cursor: pointer; padding: 22px; }
+.kr-panel > summary::-webkit-details-marker { display: none; }
+.kr-panel > summary small { display: block; font-weight: 400; color: var(--muted); margin-top: 6px; }
+.kr-panel > summary > span:last-child { font-size: 1.5rem; }
+.kr-reading { padding: clamp(18px, 4vw, 32px); text-align: left; min-width: 0; }
+.kr-reading h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
+.kr-reading header > p { line-height: 1.7; }
+.kr-text { padding: clamp(16px, 3vw, 26px); background: #f5f6fa; border: 1px solid #dfe3ed; border-radius: 18px; margin-top: 20px; }
+.kr-text ol { margin: 0; padding-left: 24px; }
+.kr-text li { margin: 20px 0; padding-left: 6px; }
+.kr-text li::marker { color: #69728a; font-size: .72rem; }
+.kr-line { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.kr-line .ko-text { font-size: clamp(1.05rem, 2.3vw, 1.35rem); line-height: 1.9; word-break: keep-all; overflow-wrap: anywhere; margin: 0 0 8px; }
+.kr-line .speech-control { flex-shrink: 0; }
+.kr-help { padding: 6px 0; cursor: pointer; background: transparent; border: 0; color: #465779; font: inherit; font-size: .8rem; text-decoration: underline; text-underline-offset: 4px; }
+.kr-explanation { background: #edf2f3; color: #253647; padding: 16px; border-radius: 12px; line-height: 1.7; margin: 12px 0; font-size: .9rem; }
+.kr-explanation p { margin: 6px 0; }
+.kr-glossary { padding: 18px 0; border-bottom: 1px solid var(--border); }
+.kr-glossary summary { cursor: pointer; font-weight: 650; }
+.kr-glossary dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.kr-glossary dt { font-weight: 750; }.kr-glossary dd { margin: 4px 0; font-size: .85rem; color: var(--muted); }
+.kr-tip { padding-left: 16px; border-left: 3px solid #7b8eae; font-size: .9rem; line-height: 1.7; }
+.kr-read-check { display: flex; gap: 10px; align-items: baseline; font-size: .85rem; }
+.kr-recorder { margin: 20px 0; padding: 18px; border: 1px solid var(--border); border-radius: 14px; }.kr-recorder h4 { margin: 0; }.kr-recorder audio { max-width: 100%; display: block; margin-bottom: 10px; }.kr-recorder p { line-height: 1.7; }
+.kr-task { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); }
+.kr-task textarea { width: 100%; margin: 12px 0; resize: vertical; min-height: 70px; box-sizing: border-box; font-family: inherit; }
+.kr-question { border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin: 22px 0; min-width: 0; }
+.kr-question legend { font-weight: 650; font-size: .9rem; padding: 0 6px; }
+.kr-question label { display: flex; align-items: baseline; gap: 12px; padding: 11px 10px; border-radius: 8px; font-size: .9rem; cursor: pointer; }
+.kr-question input { flex-shrink: 0; }.kr-correct { background: #eaf4ed; color: #265333; }
+.kr-translation { padding: 18px 0; border-bottom: 1px solid var(--border); }
+.kr-translation label > p { margin: 14px 0 0; font-weight: 600; line-height: 1.8; }
+.kr-reading button:focus-visible, .kr-panel summary:focus-visible { outline: 2px solid #6479a0; outline-offset: 3px; }
+@media(max-width: 600px) { .kr-panel > summary { padding: 18px; }.kr-text > .row { align-items: flex-start; gap: 12px; flex-wrap: wrap; }.kr-task .btn { max-width: 100%; white-space: normal; }.kr-text { padding: 14px; }.kr-reading .kr-line .ko-text { word-break: normal; } }

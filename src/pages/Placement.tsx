@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { levels, placementTest } from '../data'
 import { recordPlacement, useCurrentUser } from '../lib/store'
 import { ExerciseRunner } from '../components/ExerciseRunner'
+import { KoreanReadingPanel } from '../components/KoreanReading'
+import { levelReadings } from '../data/koreanReading'
 
 /** Niveau recommandé : premier palier dont les bases ou structures ne sont pas encore stables. */
 export function recommendLevel(correctByLevel: number[], perLevel: number[]): number {
@@ -47,6 +49,7 @@ export default function Placement() {
           }}
         />
       )}
+      {result && <KoreanReadingPanel key={result.levelIndex} reading={levelReadings[result.levelIndex]} />}
       {result && (
         <div className="card result-card">
           <p className="muted">Votre score : {result.score}/{result.total}</p>

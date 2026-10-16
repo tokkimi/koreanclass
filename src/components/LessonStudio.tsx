@@ -17,6 +17,8 @@ import { useValidated } from '../lib/editorial'
 import { useLessonAccess } from '../lib/plans'
 import { syncPref } from '../lib/prefsSync'
 import { Paywall } from './Paywall'
+import { KoreanReadingPanel } from './KoreanReading'
+import { koreanLessonReading } from '../data/koreanReadingCatalog'
 import { mutate } from '../lib/store'
 
 export type Step = 'apprendre' | 'ecouter' | 'pratiquer' | 'parler' | 'reviser'
@@ -100,6 +102,7 @@ function LessonStudioInner({ lang, level, lesson, index, lessonPath, levelPath, 
   const tips = lesson.sections.map((s) => s.tip).filter(Boolean) as string[]
   const i = STEPS.indexOf(step)
   const validated = useValidated(lesson.id)
+  const reading = lang.id === 'coreen' ? koreanLessonReading(lesson, level.index) : undefined
 
   return (
     <div className="container page lesson lesson-studio">
@@ -222,6 +225,7 @@ function LessonStudioInner({ lang, level, lesson, index, lessonPath, levelPath, 
                 }}
                 onRestart={() => { setFinished(null); setRunKey(runKey + 1) }}
               />
+              {reading && <KoreanReadingPanel reading={reading} />}
               {finished && <div className="row center gap mt"><button className="btn" onClick={() => go('parler')}>{t('Étape suivante : parler →', 'Next step: speak →')}</button></div>}
             </section></div>
           )}

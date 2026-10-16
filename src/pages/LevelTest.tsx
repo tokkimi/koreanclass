@@ -5,6 +5,8 @@ import { recordTest, useCurrentUser, useProgress } from '../lib/store'
 import { ExerciseRunner } from '../components/ExerciseRunner'
 import { PASS_MARK } from '../lib/grading'
 import NotFound from './NotFound'
+import { KoreanReadingPanel } from '../components/KoreanReading'
+import { levelReadings } from '../data/koreanReading'
 import { useFullAccess } from '../lib/plans'
 import { Paywall } from '../components/Paywall'
 
@@ -69,6 +71,7 @@ function LevelTest() {
           }}
         />
       )}
+      <KoreanReadingPanel reading={levelReadings[level.index]} />
       {result && (
         <div className="row center gap mt">
           {passed && nextLevel ? (

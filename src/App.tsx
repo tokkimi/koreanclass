@@ -6,6 +6,8 @@ import type { ReactNode } from 'react'
 import { Layout } from './components/Layout'
 import { useCurrentUser, useReady } from './lib/store'
 import Home from './pages/Home'
+import KoreanSentences from './pages/KoreanSentences'
+import KoreanReadingPage from './pages/KoreanReadingPage'
 import LanguagesHome from './pages/LanguagesHome'
 import LanguagePage from './pages/LanguagePage'
 import { languages } from './data/languages'
@@ -51,6 +53,8 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<LanguagesHome />} />
         <Route path="coreen" element={<Home />} />
+        <Route path="coreen/tournures-de-phrases" element={<KoreanSentences />} />
+        <Route path="coreen/lecture" element={<KoreanReadingPage />} />
         {languages
           .filter((l) => l.id !== 'coreen')
           .flatMap((l) => [
