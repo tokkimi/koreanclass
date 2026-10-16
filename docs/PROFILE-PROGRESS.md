@@ -6,7 +6,7 @@
 - Les nouvelles tentatives enregistrent leurs réponses et une signature du contenu pour le bilan détaillé privé. Les anciennes tentatives restent lisibles avec leur score, sans inventer leurs réponses.
 - Les six bilans coréens de tournures de phrases sont enregistrés dans la progression coréenne.
 
-Vérification : 79 tests automatisés, compilation TypeScript/Vite, profil mobile avec test validé/raté, bilan détaillé et reprise après actualisation via un serveur de test local sans compte de production.
+Vérification : 80 tests automatisés, compilation TypeScript/Vite, chargement des modules serveur avec Node ESM, profil mobile avec test validé/raté, bilan détaillé et reprise après actualisation via un serveur de test local sans compte de production.
 
 ## Source de référence
 

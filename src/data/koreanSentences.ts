@@ -1,7 +1,7 @@
-import type { Exercise } from './types'
-import { order, qcm } from './helpers'
-import { passage, readingQuestion, type KoreanReading } from './koreanReading'
-import { levelReadings } from './koreanReading'
+import type { Exercise } from './types.js'
+import { order, qcm } from './helpers.js'
+import { passage, readingQuestion, type KoreanReading } from './koreanReading.js'
+import { levelReadings } from './koreanReading.js'
 
 type Example = [ko: string, fr: string, en: string]
 export interface SentenceUnit {

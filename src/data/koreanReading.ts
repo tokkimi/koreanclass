@@ -1,5 +1,5 @@
-import type { Lesson } from './types'
-import { qcm } from './helpers'
+import type { Lesson } from './types.js'
+import { qcm } from './helpers.js'
 
 export interface ReadingQuestion {
   q: string
