@@ -13,6 +13,8 @@ import { JourneySnapshot } from '../../components/JourneySnapshot'
 import { LevelCheckBanner } from '../../components/LevelCheckBanner'
 import { PracticeVideoInvite } from '../../components/PracticeVideoInvite'
 import { ExerciseRunner } from '../../components/ExerciseRunner'
+import { AssessmentProgress } from '../../components/ActivityProgress'
+import { readQuizDraft } from '../../lib/quizDraft'
 import { recommendLevel } from '../Placement'
 import { PRICING } from '../../config'
 import type { Progress } from '../../lib/model'
@@ -255,15 +257,17 @@ export function LangPlacement({ lang }: { lang: LanguageInfo }) {
               ? `${test.length} questions, from the very basics to advanced level. Each level mixes vocabulary, situations and sentence structures. Allow about 18 minutes. At the end, we recommend a starting point.`
               : `${test.length} questions, des bases au niveau avancé. Chaque niveau combine vocabulaire, situations et structures de phrase. Comptez environ 18 minutes. À la fin, nous vous recommandons un point de départ.`}
           </p>
+          <AssessmentProgress refId={placementRef(lang.id)} kind="placement" />
           {!started && (
             <button className="btn big" onClick={() => setStarted(true)}>
-              {en ? 'Start the test' : 'Commencer le test'}
+              {readQuizDraft(placementRef(lang.id), user?.id, test.map(x => x.exercise)) ? (en ? 'Resume the test' : 'Reprendre le test') : (en ? 'Start the test' : 'Commencer le test')}
             </button>
           )}
         </div>
         {started && !result && (
           <ExerciseRunner
-            key={runKey}
+            key={`${runKey}-${user?.id ?? "guest"}`}
+            draftKey={placementRef(lang.id)}
             seed={runKey + 99}
             exercises={test.map((x) => x.exercise)}
             onFinish={async (score, total, results, answers, operationId) => {

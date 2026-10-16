@@ -35,6 +35,7 @@ import Bookings from './pages/Bookings'
 import { Login, Register } from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
+import ActivityResult from './pages/ActivityResult'
 import EditProfile from './pages/EditProfile'
 import Privacy from './pages/Privacy'
 import NotFound from './pages/NotFound'
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="revisions" element={<Reviews />} />
         <Route path="fiche" element={<Sheet />} />
         <Route path="abonnement" element={<Subscription />} />
+        <Route path="resultats/:resultId" element={<RequireAuth><ActivityResult /></RequireAuth>} />
         <Route path="profil" element={<RequireAuth><Profile /></RequireAuth>} />
         <Route path="profil/modifier" element={<RequireAuth><EditProfile /></RequireAuth>} />
         <Route path="u/:username" element={<Profile />} />

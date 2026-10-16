@@ -4,6 +4,7 @@ import { computeBadges } from '../lib/badges'
 import { ProgressBar } from '../components/ProgressBar'
 import { Avatar } from '../components/Avatar'
 import { AccountTabs } from '../components/AccountTabs'
+import { LevelProgressCard, ResultHistoryLink, KoreanSpecialProgress } from '../components/ActivityProgress'
 import { TodayPanel } from '../components/TodayPanel'
 import { baseOf, inLanguage, levelsOf, useLastLang } from '../lib/lastLang'
 
@@ -113,17 +114,7 @@ export default function Dashboard() {
           <div className="card">
             <h2>Progression par niveau</h2>
             <div className="level-progress">
-              {stats.map((s) => (
-                <Link to={`${base}/cours/${s.level.id}`} key={s.level.id} className="lp-row">
-                  <div className="row between small">
-                    <strong>{s.level.name}</strong>
-                    <span className="muted">
-                      {s.done}/{s.total} · {s.test?.passed ? '🏅' : s.test ? `test ${s.test.best} %` : ''}
-                    </span>
-                  </div>
-                  <ProgressBar value={s.pct} color={s.level.color} />
-                </Link>
-              ))}
+              {stats.map((s) => <LevelProgressCard key={s.level.id} stat={s} base={base} progress={p} userId={user.id} />)}
             </div>
           </div>
 
@@ -151,41 +142,14 @@ export default function Dashboard() {
             </div>
           )}
 
+          {korean && <KoreanSpecialProgress />}
           <div className="card">
             <h2>Mes résultats</h2>
             <Link to={`${base}/pratique`} className="link">Jeux et prises de parole : {p.practice?.length ?? 0} activités enregistrées →</Link>
             {history.length === 0 ? (
               <p className="muted">Aucun résultat pour l'instant. Terminez une leçon ou un test pour voir vos scores ici.</p>
             ) : (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Type</th>
-                      <th>Intitulé</th>
-                      <th>Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {history.slice(0, 30).map((h) => {
-                      const pct = Math.round((h.score / h.total) * 100)
-                      return (
-                        <tr key={h.id}>
-                          <td className="nowrap">{new Date(h.date).toLocaleDateString('fr-FR')}</td>
-                          <td>{h.kind === 'lesson' ? 'Leçon' : h.kind === 'test' ? 'Test de niveau' : 'Positionnement'}</td>
-                          <td>{h.title}</td>
-                          <td>
-                            <span className={`score ${pct >= 70 ? 'ok' : 'ko'}`}>
-                              {h.score}/{h.total} ({pct} %)
-                            </span>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <ul className="results-list">{history.slice(0, 30).map((h) => <li key={h.id}><ResultHistoryLink entry={h} /></li>)}</ul>
             )}
           </div>
         </div>

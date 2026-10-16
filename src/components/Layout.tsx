@@ -34,7 +34,7 @@ export function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
   const last = useLastLang()
-  const inAccount = ACCOUNT_PATHS.includes(location.pathname)
+  const inAccount = ACCOUNT_PATHS.includes(location.pathname) || location.pathname.startsWith('/resultats/')
   // Dans l'espace personnel, le menu reste celui de la dernière langue étudiée.
   const section = sectionOf(location.pathname) ?? (inAccount ? (last.id === 'coreen' ? 'coreen' : last) : null)
   const current = section && section !== 'coreen' ? section : null

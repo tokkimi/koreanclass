@@ -5,6 +5,8 @@ import { recordPlacement, useCurrentUser } from '../lib/store'
 import { ExerciseRunner } from '../components/ExerciseRunner'
 import { KoreanReadingPanel } from '../components/KoreanReading'
 import { levelReadings } from '../data/koreanReading'
+import { AssessmentProgress } from '../components/ActivityProgress'
+import { readQuizDraft } from '../lib/quizDraft'
 
 /** Niveau recommandé : premier palier dont les bases ou structures ne sont pas encore stables. */
 export function recommendLevel(correctByLevel: number[], perLevel: number[]): number {
@@ -29,15 +31,17 @@ export default function Placement() {
           {exercises.length} questions, du hangeul au niveau avancé. Chaque niveau combine des bases, une situation et des structures de phrase
           (temps, cause, opposition, registre, nuance). Comptez environ 18 minutes. À la fin, nous vous recommandons un point de départ et vous gardez le détail par niveau.
         </p>
+        <AssessmentProgress refId="placement" kind="placement" />
         {!started && (
           <button className="btn big" onClick={() => setStarted(true)}>
-            Commencer le test
+            {readQuizDraft('placement', user?.id, exercises) ? 'Reprendre le test' : 'Commencer le test'}
           </button>
         )}
       </div>
       {started && !result && (
         <ExerciseRunner
-          key={runKey}
+          key={`${runKey}-${user?.id ?? "guest"}`}
+          draftKey="placement"
           seed={runKey + 99}
           exercises={exercises}
           onFinish={async (score, total, results, answers, operationId) => {

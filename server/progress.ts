@@ -4,6 +4,8 @@ import { languageName } from '../src/data/languages.js'
 import type { Exercise } from '../src/data/types.js'
 import { checkFill, PASS_MARK } from '../src/lib/grading.js'
 import { localDay, type Progress, type ResultEntry } from '../src/lib/model.js'
+import { learningActivity } from '../src/lib/activityLinks.js'
+import { exerciseSignature } from '../src/lib/quizDraft.js'
 import { addLessonCards, bump, recordMistakes } from './learning.js'
 
 export function grade(ex: Exercise, answer: string) {
@@ -27,7 +29,8 @@ export function recordAttempt(p: Progress, input: { kind: ResultEntry['kind']; r
   // Le coréen d'abord (inchangé), puis les autres langues dont les identifiants sont préfixés (ja-, es-, en-, fr-).
   const lesson = allLessons.find(x => x.lesson.id === input.refId) ?? allCourseLessons.find(x => x.lesson.id === input.refId)
   const level = levels.find(x => x.id === input.refId) ?? allCourseLevels.find(x => x.level.id === input.refId)?.level
-  const exercises = input.kind === 'lesson' ? lesson?.lesson.exercises : input.kind === 'test' ? level?.test : input.kind === 'placement' ? (placementLanguage(input.refId) ? coursePlacement(placementLanguage(input.refId)!).map(x => x.exercise) : placementTest.map(x => x.exercise)) : undefined
+  const special = input.kind === 'test' && input.refId.startsWith('ko-sentence-stage-') ? learningActivity('test', input.refId) : undefined
+  const exercises = special?.exercises ?? (input.kind === 'lesson' ? lesson?.lesson.exercises : input.kind === 'test' ? level?.test : input.kind === 'placement' ? (placementLanguage(input.refId) ? coursePlacement(placementLanguage(input.refId)!).map(x => x.exercise) : placementTest.map(x => x.exercise)) : undefined)
   if (!exercises || input.answers.length !== exercises.length || input.answers.some(x => typeof x !== 'string' || x.length > 3000)) throw new Error('Les réponses du quiz sont incomplètes.')
   const results = exercises.map((ex, i) => grade(ex, input.answers[i]))
   const score = results.filter(Boolean).length
@@ -46,9 +49,9 @@ export function recordAttempt(p: Progress, input: { kind: ResultEntry['kind']; r
     const prev = p.tests[input.refId]
     const passed = (prev?.passed ?? false) || pct >= PASS_MARK
     const improvement = Math.max(0, score - Math.round((prev?.best ?? 0) * total / 100))
-    p.xp += improvement * 15 + (passed && !prev?.passed ? 200 : 0)
+    p.xp += improvement * 15 + (passed && !prev?.passed && !special ? 200 : 0)
     p.tests[input.refId] = { passed, best: Math.max(prev?.best ?? 0, pct), last: pct, attempts: (prev?.attempts ?? 0) + 1, lastAt: date }
-    title = `${langPrefix(input.refId)}Test ${level!.name}`
+    title = special?.title ?? `${langPrefix(input.refId)}Test ${level!.name}`
   } else if (placementLanguage(input.refId)) {
     // Test de positionnement d'une autre langue : même règle (75 % par niveau) que le coréen.
     const lang = placementLanguage(input.refId)!
@@ -74,9 +77,9 @@ export function recordAttempt(p: Progress, input: { kind: ResultEntry['kind']; r
     p.placement = { levelIndex, score, total, date }
     title = 'Test de positionnement'
   }
-  p.history = [{ id: input.id, kind: input.kind, refId: input.refId, title, score, total, date }, ...p.history].slice(0, 200)
+  p.history = [{ id: input.id, kind: input.kind, refId: input.refId, title, score, total, date, answers: [...input.answers], exerciseSignature: exerciseSignature(exercises) }, ...p.history].slice(0, 200)
   // Carnet d'erreurs et cartes de révision (leçons et tests ; le positionnement n'alimente pas le carnet).
-  if (input.kind === 'lesson' || input.kind === 'test') recordMistakes(p, input.refId, results)
+  if (!special && (input.kind === 'lesson' || input.kind === 'test')) recordMistakes(p, input.refId, results)
   if (input.kind === 'lesson') { addLessonCards(p, input.refId); (p.viewed ??= {})[input.refId] = date }
   bump(p, 'activities')
   const today = localDay()

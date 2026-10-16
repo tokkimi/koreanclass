@@ -1,14 +1,17 @@
 import { Link } from 'react-router-dom'
-import { useMemo, useState, useRef } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import type { Exercise } from '../data/types'
 import { checkFill, checkMatch, checkOrder, scoreLabel, seededShuffle, shuffleDifferent } from '../lib/grading'
 import { SpeakButton } from './Speak'
 import { isTargetScript, spokenPart, useCourseLang } from '../lib/courseLang'
 import { useT, useUiLang } from '../lib/i18n'
 import { OFFERS, euro } from '../lib/pricing'
+import { useCurrentUser } from '../lib/store'
+import { exerciseSignature, readQuizDraft, saveQuizDraft } from '../lib/quizDraft'
 
 interface Props {
   exercises: Exercise[]
+  draftKey?: string
   seed?: number
   onFinish: (score: number, total: number, results: boolean[], answers: string[], operationId: string) => void | Promise<void>
   onRestart?: () => void
@@ -25,18 +28,26 @@ const hasHangul = (s: string) => /[가-힣ㄱ-ㆎ]/.test(s)
 const koreanOnly = (s: string) => (s.match(/[가-힣ㄱ-ㆎ][가-힣ㄱ-ㆎ\s]*/g) ?? []).join(", ")
 const otherLabel = (pct: number, en: boolean) => (pct >= 90 ? (en ? 'Excellent!' : 'Excellent !') : pct >= 70 ? (en ? 'Well done!' : 'Très bien !') : pct >= 50 ? (en ? 'Not bad, keep going!' : 'Pas mal, continue !') : en ? 'Needs more practice' : 'À retravailler')
 
-export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passMark }: Props) {
+export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passMark, draftKey }: Props) {
   const course = useCourseLang()
   const t = useT()
   const ui = useUiLang()
-  const [index, setIndex] = useState(0)
-  const [answers, setAnswers] = useState<Answer[]>([])
-  const [checked, setChecked] = useState<Answer | null>(null)
+  const user = useCurrentUser()
+  const signature = exerciseSignature(exercises)
+  const ref = draftKey ?? `auto-${signature}`
+  const [initialDraft] = useState(() => readQuizDraft(ref, user?.id, exercises))
+  const [resumed, setResumed] = useState(!!initialDraft)
+  const [index, setIndex] = useState(initialDraft?.index ?? 0)
+  const [answers, setAnswers] = useState<Answer[]>(initialDraft?.answers ?? [])
+  const [checked, setChecked] = useState<Answer | null>(initialDraft?.checked ?? null)
   const [done, setDone] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const busy = useRef(false)
-  const attempt = useRef(crypto.randomUUID())
+  const attempt = useRef(initialDraft?.attempt ?? crypto.randomUUID())
+  useEffect(() => {
+    saveQuizDraft(ref, user?.id, done || (!answers.length && !checked) ? null : { signature, index, answers, checked, attempt: attempt.current, savedAt: new Date().toISOString() })
+  }, [ref, user?.id, signature, index, answers, checked, done])
 
   const ex = exercises[index]
   const score = answers.filter((a) => a.correct).length
@@ -52,6 +63,8 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
       busy.current = true; setSaving(true); setError('')
       try {
         await onFinish(all.filter(a=>a.correct).length, exercises.length, all.map(a=>a.correct), all.map(a=>a.given), attempt.current)
+        // The parent may unmount the runner as soon as onFinish resolves.
+        saveQuizDraft(ref, user?.id, null)
         setAnswers(all); setChecked(null); setDone(true)
       } catch(e) { setError((e as Error).message) }
       finally { busy.current = false; setSaving(false) }
@@ -59,6 +72,8 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
   }
 
   function restart() {
+    saveQuizDraft(ref, user?.id, null)
+    setResumed(false)
     attempt.current = crypto.randomUUID()
     setError('')
     setIndex(0)
@@ -107,6 +122,7 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
 
   return (
     <div className="card runner">
+      {resumed && <div className="notice small">{t(`Reprise de ta tentative à la question ${initialDraft!.index + 1}. Ce brouillon est conservé sur cet appareil.`, `Resuming your attempt at question ${initialDraft!.index + 1}. This draft is kept on this device.`)} <button className="kr-help" type="button" onClick={restart}>{t("Repartir de zéro", "Start over")}</button></div>}
       <div className="runner-head">
         <span className="pill">
           {t('Question', 'Question')} {index + 1} / {exercises.length}
@@ -119,6 +135,7 @@ export function ExerciseRunner({ exercises, seed = 1, onFinish, onRestart, passM
       <ExerciseView key={`${seed}-${index}`} ex={ex} seed={seed * 100 + index} disabled={!!checked} onSubmit={submit} />
       {checked && (
         <div role="status" aria-live="polite" className={`feedback ${checked.correct ? 'ok' : 'ko'}`}>
+          {resumed && <p className="small">{t('Ta réponse conservée : ', 'Your saved answer: ')}{checked.given}</p>}
           <strong>{checked.correct ? t('Bonne réponse ! 👏', 'Correct! 👏') : t('Pas tout à fait…', 'Not quite…')}</strong>
           {!checked.correct && <div>{t('Réponse attendue', 'Expected answer')} : <span className="ko-text">{correctAnswer(ex)}</span></div>}
           {'explain' in ex && ex.explain && <div className="small">{ex.explain}</div>}

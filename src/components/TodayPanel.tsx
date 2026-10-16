@@ -91,12 +91,12 @@ export function TodayPanel({ lang, list, base, next }: { lang: LanguageInfo; lis
       )}
 
       <div className="skills mt">
-        {skills.map((s) => (
-          <div key={s.name} className="skill">
+        {skills.map((s, index) => (
+          <Link key={s.name} className="skill" to={index === 0 ? "/revisions" : index === 1 ? `${base}/cours` : `${base}/pratique`}>
             <div className="row between small"><strong>{s.name}</strong><span>{s.value === null ? '—' : `${s.value} %`}</span></div>
             <ProgressBar value={s.value ?? 0} />
-            <small className="muted">{s.value === null ? 'Pas encore de données' : s.detail}</small>
-          </div>
+            <small className="muted">{s.value === null ? 'Pas encore de données' : s.detail} · Ouvrir →</small>
+          </Link>
         ))}
       </div>
 

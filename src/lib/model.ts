@@ -48,6 +48,9 @@ export interface TestProgress {
 }
 
 export interface ResultEntry {
+  /** Réponses des nouvelles tentatives, uniquement pour le bilan du compte. */
+  answers?: string[]
+  exerciseSignature?: string
   id: string
   kind: 'lesson' | 'test' | 'placement'
   refId: string

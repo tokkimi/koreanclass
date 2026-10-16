@@ -16,6 +16,8 @@ import { useFullAccess } from '../../lib/plans'
 import { Paywall } from '../../components/Paywall'
 import NotFound from '../NotFound'
 import { tr } from '../../i18n/translate'
+import { AssessmentProgress } from '../../components/ActivityProgress'
+import { readQuizDraft } from '../../lib/quizDraft'
 
 /** Pages de cours communes au japonais, à l'espagnol, à l'anglais et au français. */
 
@@ -312,7 +314,8 @@ export function LangTest({ lang }: { lang: LanguageInfo }) {
 }
 
 function TestView({ lang }: { lang: LanguageInfo }) {
-  const t = T[useEn(lang) ? 'en' : 'fr']
+  const en = useEn(lang)
+  const t = T[en ? 'en' : 'fr']
   const { levelId } = useParams()
   const level = getCourseLevel(lang.id, levelId)
   const user = useCurrentUser()
@@ -333,6 +336,7 @@ function TestView({ lang }: { lang: LanguageInfo }) {
         <div className="card test-head" style={{ ['--accent' as string]: level.color }}>
           <h1>{t.testTitle(level.name)}</h1>
           <p className="muted">{t.testLead(level.test.length, level.cefr, tr(level.topik))}</p>
+          <AssessmentProgress refId={level.id} />
           {record && (
             <p className="small">
               {t.best} : <strong>{record.best} %</strong> · {t.attempts(record.attempts)} {record.passed && `· ${t.validated}`}
@@ -343,11 +347,12 @@ function TestView({ lang }: { lang: LanguageInfo }) {
               {t.loginTest} <Link to={`/connexion?next=${lang.path}/tests/${level.id}`}>{t.loginWord}</Link>
             </p>
           )}
-          {!started && <button className="btn big" onClick={() => setStarted(true)}>{t.startTest}</button>}
+          {!started && <button className="btn big" onClick={() => setStarted(true)}>{readQuizDraft(level.id, user?.id, level.test) ? (en ? 'Resume the test' : 'Reprendre le test') : t.startTest}</button>}
         </div>
         {started && (
           <ExerciseRunner
-            key={runKey}
+            key={`${runKey}-${user?.id ?? "guest"}`}
+            draftKey={level.id}
             seed={runKey + 50}
             exercises={level.test}
             passMark={PASS_MARK}

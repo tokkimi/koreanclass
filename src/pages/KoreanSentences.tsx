@@ -4,6 +4,8 @@ import { sentenceStages, sentenceExercises, sentenceAssessment, sentenceReading,
 import { KoreanReadingPanel } from '../components/KoreanReading'
 import { ExerciseRunner } from '../components/ExerciseRunner'
 import { SpeakButton } from '../components/Speak'
+import { recordTest, useCurrentUser } from '../lib/store'
+import { AssessmentProgress } from '../components/ActivityProgress'
 import { useSiteLang } from '../lib/i18n'
 import './KoreanSentences.css'
 
@@ -24,13 +26,16 @@ export default function KoreanSentences() {
   const selected = stage.units.find((unit) => unit.id === params.get('atelier')) ?? stage.units[0]
   const site = useSiteLang()
   const [explanation, setExplanation] = useState<'fr' | 'en'>(site)
-  const [tab, setTab] = useState<'learn' | 'test'>('learn')
+  const tab = params.get('mode') === 'test' ? 'test' : 'learn'
+  const setTab = (value: 'learn' | 'test') => setParams(previous => { const next = new URLSearchParams(previous); if(value === 'test') next.set('mode','test'); else next.delete('mode'); return next })
+  const user = useCurrentUser()
+  const assessmentRef = `ko-sentence-stage-${stageIndex}`
   const [run, setRun] = useState(0)
   const [testResult, setTestResult] = useState<{ score: number; total: number } | null>(null)
   const en = explanation === 'en'
   const t = (fr: string, english: string) => en ? english : fr
   const layer = layers[stageIndex]
-  function changeStage(index: number) { setParams({ palier: String(index) }); setRun((v) => v + 1); setTestResult(null); setTab('learn') }
+  function changeStage(index: number) { setParams({ palier: String(index) }); setRun((v) => v + 1); setTestResult(null) }
 
   return <div className="container page sentence-lab">
     <Link className="link small" to="/coreen">← {t('Coréen', 'Korean')}</Link>
@@ -46,6 +51,6 @@ export default function KoreanSentences() {
       <details className="sentence-practice"><summary>{t('M’entraîner à reconstruire ces phrases', 'Practise rebuilding these sentences')} · 4 {t('exercices', 'exercises')}</summary><ExerciseRunner key={`${selected.id}-${explanation}`} exercises={sentenceExercises(selected, en)} onFinish={() => {}} /></details>
       <KoreanReadingPanel reading={sentenceReading(selected, stageIndex)} />
       <p className="small muted">{t('Les corrigés détaillés des lectures et des tests sont en français ; les règles et les exemples de cet onglet sont aussi disponibles en anglais.', 'Detailed reading and test feedback is in French; this tab’s rules and examples are also available in English.')}</p>
-    </article></div> : <section className="sentence-test"><h2>{t('Test de tournures — palier', 'Sentence patterns test — stage')} {stageIndex + 1}</h2><p>{t('Vérifie le sens, le choix de la tournure et l’ordre des mots. Objectif : 70 %. Ce test complémentaire ne remplace pas ton test de cursus et n’en modifie pas le résultat.', 'Check meaning, pattern choice and word order. Target: 70%. This additional test does not replace or change your course test result.')}</p><p className="small muted">{t('Le bilan du test reste affiché pendant cette séance. Les brouillons de lecture sont gardés sur cet appareil.', 'The test result stays visible during this session. Reading drafts are kept on this device.')}</p><ExerciseRunner key={`${stageIndex}-${run}`} exercises={sentenceAssessment(stage)} passMark={70} onFinish={(score, total) => setTestResult({ score, total })} onRestart={() => { setTestResult(null); setRun((v) => v + 1) }} />{testResult && <div className="kr-explanation" role="status"><strong>{testResult.score} / {testResult.total}</strong><p>{testResult.score / testResult.total >= .7 ? t('Tu peux approfondir avec le texte de lecture ci-dessous ou passer au palier suivant.', 'Continue with the reading below or move to the next stage.') : t('Reprends les quatre tournures du palier, puis refais ce test. Lis aussi le texte pour les repérer en contexte.', 'Review the four stage patterns, then try again. Also read the text to spot them in context.')}</p>{stageIndex < 5 && <button className="btn ghost small" onClick={() => changeStage(stageIndex + 1)}>{t('Palier suivant', 'Next stage')} →</button>}</div>}<KoreanReadingPanel reading={sentenceStageReadings[stageIndex]} /></section>}
+    </article></div> : <section className="sentence-test"><h2>{t('Test de tournures — palier', 'Sentence patterns test — stage')} {stageIndex + 1}</h2><p>{t('Vérifie le sens, le choix de la tournure et l’ordre des mots. Objectif : 70 %. Ce test complémentaire ne remplace pas ton test de cursus et n’en modifie pas le résultat.', 'Check meaning, pattern choice and word order. Target: 70%. This additional test does not replace or change your course test result.')}</p><p className="small muted">{t(user ? 'Ton résultat est enregistré sur ton compte et accessible depuis le profil. Les brouillons de lecture restent sur cet appareil.' : 'Connecte-toi pour garder le résultat dans ton profil. La tentative en cours est gardée sur cet appareil.', user ? 'Your result is saved to your account and accessible from your profile. Reading drafts stay on this device.' : 'Sign in to save the result to your profile. The current attempt is kept on this device.')}</p><AssessmentProgress refId={assessmentRef}/><ExerciseRunner key={`${stageIndex}-${run}-${user?.id ?? "guest"}`} draftKey={assessmentRef} exercises={sentenceAssessment(stage)} passMark={70} onFinish={async (score, total, _results, answers, operationId) => { if(user) await recordTest(assessmentRef, stage.title, score, total, 70, answers, operationId); setTestResult({ score, total }) }} onRestart={() => { setTestResult(null); setRun((v) => v + 1) }} />{testResult && <div className="kr-explanation" role="status"><strong>{testResult.score} / {testResult.total}</strong><p>{testResult.score / testResult.total >= .7 ? t('Tu peux approfondir avec le texte de lecture ci-dessous ou passer au palier suivant.', 'Continue with the reading below or move to the next stage.') : t('Reprends les quatre tournures du palier, puis refais ce test. Lis aussi le texte pour les repérer en contexte.', 'Review the four stage patterns, then try again. Also read the text to spot them in context.')}</p>{stageIndex < 5 && <button className="btn ghost small" onClick={() => changeStage(stageIndex + 1)}>{t('Palier suivant', 'Next stage')} →</button>}</div>}<KoreanReadingPanel reading={sentenceStageReadings[stageIndex]} /></section>}
   </div>
 }

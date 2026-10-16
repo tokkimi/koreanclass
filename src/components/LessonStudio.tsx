@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import type { LanguageInfo } from '../data/languages'
 import type { Lesson, Level } from '../data/types'
 import { ExerciseRunner } from './ExerciseRunner'
@@ -48,6 +48,8 @@ export function LessonStudio(props: Props) {
 }
 
 function LessonStudioInner({ lang, level, lesson, index, lessonPath, levelPath, coursesPath, testPath, historyTitle }: Props) {
+  const [search] = useSearchParams()
+  const requestedStep = search.get("etape")
   const site = useSiteLang()
   const en = lang.taughtIn === 'en' || site === 'en'
   const t = (fr: string, english: string) => (en ? english : fr)
@@ -55,7 +57,7 @@ function LessonStudioInner({ lang, level, lesson, index, lessonPath, levelPath, 
   const progress = useProgress()
   // Étape enregistrée sur cet appareil, sinon sur le compte (reprise depuis un autre appareil).
   const stored = useMemo(() => { try { return (localStorage.getItem(`kc:step:${lesson.id}`) ?? progress.steps?.[lesson.id] ?? null) as Step | null } catch { return (progress.steps?.[lesson.id] ?? null) as Step | null } }, [lesson.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const [step, setStep] = useState<Step>(stored && STEPS.includes(stored) ? stored : 'apprendre')
+  const [step, setStep] = useState<Step>(requestedStep && STEPS.includes(requestedStep as Step) ? requestedStep as Step : stored && STEPS.includes(stored) ? stored : 'apprendre')
   // « Leçon complète » : toutes les étapes sur une seule page, comme l'ancienne présentation.
   const [full, setFull] = useState(() => { try { return localStorage.getItem('kc:lesson-full') === '1' } catch { return false } })
   const toggleFull = () => { const v = !full; setFull(v); try { localStorage.setItem('kc:lesson-full', v ? '1' : '0') } catch { /* facultatif */ } }
@@ -215,7 +217,8 @@ function LessonStudioInner({ lang, level, lesson, index, lessonPath, levelPath, 
               )}
               <p className="small muted">{t('Chaque erreur est ajoutée à ton carnet d’erreurs ; les mots de la leçon entrent dans tes révisions.', 'Each mistake goes into your mistake notebook; the lesson words join your reviews.')}</p>
               <ExerciseRunner
-                key={runKey}
+                key={`${runKey}-${user?.id ?? "guest"}`}
+                draftKey={lesson.id}
                 seed={runKey}
                 exercises={lesson.exercises}
                 passMark={70}

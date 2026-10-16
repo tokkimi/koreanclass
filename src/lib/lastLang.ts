@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { languages, type LanguageInfo } from '../data/languages'
-import { courseLevels } from '../data/courses'
+import { courseLevels, placementRef } from '../data/courses'
 import { levels } from '../data'
 import type { Level } from '../data/types'
 import { syncPref } from './prefsSync'
@@ -40,5 +40,5 @@ export const baseOf = (lang: LanguageInfo) => (lang.id === 'coreen' ? '' : lang.
 /** Résultats (historique) appartenant à cette langue. */
 export function inLanguage(lang: LanguageInfo, list: Level[]) {
   const ids = new Set(list.flatMap((l) => [l.id, ...l.lessons.map((x) => x.id)]))
-  return (h: { refId?: string; kind: string }) => (h.kind === 'placement' ? lang.id === 'coreen' : !!h.refId && ids.has(h.refId))
+  return (h: { refId?: string; kind: string }) => (h.kind === 'placement' ? (lang.id === 'coreen' ? h.refId === 'placement' || !h.refId : h.refId === placementRef(lang.id)) : !!h.refId && (ids.has(h.refId) || (lang.id === 'coreen' && /^ko-sentence-stage-[0-5]$/.test(h.refId))))
 }

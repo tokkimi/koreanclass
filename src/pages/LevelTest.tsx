@@ -9,6 +9,8 @@ import { KoreanReadingPanel } from '../components/KoreanReading'
 import { levelReadings } from '../data/koreanReading'
 import { useFullAccess } from '../lib/plans'
 import { Paywall } from '../components/Paywall'
+import { AssessmentProgress } from '../components/ActivityProgress'
+import { readQuizDraft } from '../lib/quizDraft'
 
 export default function LevelTestRoute() {
   const { levelId } = useParams()
@@ -44,6 +46,7 @@ function LevelTest() {
             Meilleur score : <strong>{t.best} %</strong> · {t.attempts} tentative{t.attempts > 1 ? 's' : ''} {t.passed && '· 🏅 Niveau validé'}
           </p>
         )}
+        <AssessmentProgress refId={level.id} />
         {!user && (
           <p className="notice">
             Connectez-vous pour enregistrer votre résultat : <Link to={`/connexion?next=/tests/${level.id}`}>connexion</Link>
@@ -51,13 +54,14 @@ function LevelTest() {
         )}
         {!started && (
           <button className="btn big" onClick={() => setStarted(true)}>
-            Démarrer le test
+            {readQuizDraft(level.id, user?.id, level.test) ? 'Reprendre le test' : 'Démarrer le test'}
           </button>
         )}
       </div>
       {started && (
         <ExerciseRunner
-          key={runKey}
+          key={`${runKey}-${user?.id ?? "guest"}`}
+          draftKey={level.id}
           seed={runKey + 50}
           exercises={level.test}
           passMark={PASS_MARK}

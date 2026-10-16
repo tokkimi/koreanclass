@@ -1,13 +1,12 @@
-import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { levels } from '../data'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { currentStreak, globalStats, levelStats, useCurrentUser, useProgressOf, useUserByUsername } from '../lib/store'
 import { computeBadges } from '../lib/badges'
 import { Avatar } from '../components/Avatar'
 import { ProgressBar } from '../components/ProgressBar'
 import { AccountTabs } from '../components/AccountTabs'
-import { inLanguage, levelsOf, useLastLang } from '../lib/lastLang'
+import { baseOf, inLanguage, levelsOf, useLastLang } from '../lib/lastLang'
 import NotFound from './NotFound'
+import { LevelProgressCard, ResultHistoryLink, KoreanSpecialProgress } from '../components/ActivityProgress'
 
 type Tab = 'progression' | 'resultats' | 'badges'
 
@@ -17,7 +16,10 @@ export default function Profile() {
   const other = useUserByUsername(username)
   const user = username ? other : me
   const p = useProgressOf(user?.id)
-  const [tab, setTab] = useState<Tab>('progression')
+  const [params, setParams] = useSearchParams()
+  const requestedTab = params.get('onglet')
+  const tab: Tab = requestedTab === 'resultats' || requestedTab === 'badges' ? requestedTab : 'progression'
+  const setTab = (value: Tab) => setParams({ onglet: value }, { replace: true })
   const lang = useLastLang()
 
 
@@ -106,24 +108,14 @@ export default function Profile() {
 
       {tab === 'progression' && (
         <div className="profile-levels">
-          {stats.map((s) => (
-            <div key={s.level.id} className="card profile-level" style={{ ['--accent' as string]: s.level.color }}>
-              <div className="row between">
-                <strong>{s.level.name}</strong>
-                <span className="small muted">{s.test?.passed ? '🏅 validé' : `${s.done}/${s.total}`}</span>
-              </div>
-              <ProgressBar value={s.pct} color={s.level.color} />
-              <div className="small muted">
-                {s.avg !== null ? `Score moyen ${s.avg} %` : 'Pas encore commencé'}
-                {s.test && ` · test : ${s.test.best} %`}
-              </div>
-            </div>
-          ))}
-          <div className="card center">
+          {stats.map((s) => <LevelProgressCard key={s.level.id} stat={s} base={baseOf(lang)} progress={p} userId={isMe ? me?.id : undefined} expandedLessons />)}
+          {isMe && lang.id === 'coreen' && <KoreanSpecialProgress />}
+          <Link to={`${baseOf(lang)}/cours`} className="card center activity-meter">
             <p className="small muted">Progression globale</p>
             <div className="big-num">{g.pct} %</div>
             <ProgressBar value={g.pct} />
-          </div>
+            <span className="link small">Revenir à mon cursus →</span>
+          </Link>
         </div>
       )}
 
@@ -133,23 +125,7 @@ export default function Profile() {
             <p className="muted">Aucun résultat pour le moment.</p>
           ) : (
             <ul className="results-list">
-              {history.slice(0, 50).map((h) => {
-                const pct = Math.round((h.score / h.total) * 100)
-                return (
-                  <li key={h.id}>
-                    <span className={`score ${pct >= 70 ? 'ok' : 'ko'}`}>{pct} %</span>
-                    <div className="grow">
-                      <div>{h.title}</div>
-                      <div className="small muted">
-                        {h.kind === 'lesson' ? 'Leçon' : h.kind === 'test' ? 'Test de niveau' : 'Positionnement'} · {new Date(h.date).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}
-                      </div>
-                    </div>
-                    <span className="small muted">
-                      {h.score}/{h.total}
-                    </span>
-                  </li>
-                )
-              })}
+              {history.slice(0, 50).map((h) => <li key={h.id}><ResultHistoryLink entry={h} /></li>)}
             </ul>
           )}
         </div>
@@ -171,7 +147,7 @@ export default function Profile() {
 
       {placement && (
         <p className="small muted center mt">
-          Test de positionnement ({lang.name}) : {list[Math.min(placement.levelIndex, list.length - 1)].name} ({placement.score}/{placement.total})
+          <Link className="link" to={`${baseOf(lang)}/test-de-niveau`}>Revoir le test de positionnement ({lang.name}) →</Link> : {list[Math.min(placement.levelIndex, list.length - 1)].name} ({placement.score}/{placement.total})
         </p>
       )}
     </div>
