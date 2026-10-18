@@ -13,8 +13,8 @@ import type { Booking } from '../src/lib/model.js'
  * Si l'une manque, l'abonnement est désactivé et tous les cours restent gratuits.
  */
 const env = () => ({
-  key: process.env.STRIPE_SECRET_KEY ?? '',
-  webhook: process.env.STRIPE_WEBHOOK_SECRET ?? '',
+  key: (process.env.STRIPE_SECRET_KEY ?? '').trim(),
+  webhook: (process.env.STRIPE_WEBHOOK_SECRET ?? '').trim(),
   monthly: process.env.STRIPE_PRICE_MONTHLY ?? '',
   yearly: process.env.STRIPE_PRICE_YEARLY ?? '',
   launch: /^\d{4}-\d{2}-\d{2}$/.test(process.env.SUBSCRIPTION_LAUNCH ?? '') ? process.env.SUBSCRIPTION_LAUNCH! : '',
@@ -115,14 +115,30 @@ export async function portalUrl(account: Account, origin: string) {
 
 /** Vérifie la signature Stripe (en-tête Stripe-Signature, tolérance 5 minutes). */
 export function verifySignature(raw: string, header: string, secret = env().webhook, now = Date.now()) {
-  const parts = Object.fromEntries(header.split(',').map((p) => p.split('=') as [string, string]).filter((p) => p.length === 2)) as Record<string, string>
-  const t = Number(parts.t)
-  if (!secret || !t || Math.abs(now / 1000 - t) > 300) return false
-  const expected = createHmac('sha256', secret).update(`${t}.${raw}`).digest('hex')
-  return header.split(',').filter((p) => p.startsWith('v1=')).some((p) => {
-    const sig = Buffer.from(p.slice(3), 'hex'), exp = Buffer.from(expected, 'hex')
-    return sig.length === exp.length && timingSafeEqual(sig, exp)
+  return !signatureProblem(raw, header, secret, now)
+}
+
+/**
+ * Raison du refus d'une signature (sans jamais révéler le secret), ou '' si elle est valide.
+ * STRIPE_WEBHOOK_SECRET peut contenir plusieurs secrets séparés par des virgules
+ * (ex. endpoint test + endpoint live) ; les espaces collés par erreur sont ignorés.
+ */
+export function signatureProblem(raw: string, header: string, secret = env().webhook, now = Date.now()) {
+  const secrets = secret.split(/[\s,]+/).filter(Boolean)
+  if (!secrets.length) return 'STRIPE_WEBHOOK_SECRET absent'
+  if (!header) return 'en-tête Stripe-Signature absent'
+  if (!raw) return 'corps de requête vide'
+  const t = Number(header.split(',').find((p) => p.startsWith('t='))?.slice(2))
+  if (!t) return 'horodatage absent'
+  if (Math.abs(now / 1000 - t) > 300) return 'horodatage trop ancien (plus de 5 minutes)'
+  const sigs = header.split(',').filter((p) => p.startsWith('v1=')).map((p) => Buffer.from(p.slice(3), 'hex'))
+  const ok = secrets.some((s) => {
+    const exp = Buffer.from(createHmac('sha256', s).update(`${t}.${raw}`).digest('hex'), 'hex')
+    return sigs.some((sig) => sig.length === exp.length && timingSafeEqual(sig, exp))
   })
+  if (ok) return ''
+  const live = /"livemode":\s*true/.test(raw)
+  return `signature ne correspond à aucun secret configuré (événement ${live ? 'LIVE' : 'TEST'} ; vérifier que STRIPE_WEBHOOK_SECRET est le « Signing secret » de cet endpoint en mode ${live ? 'live' : 'test'})`
 }
 
 type StripeSub = { id: string; customer: string; status: Subscription['status']; cancel_at_period_end?: boolean; current_period_end?: number; metadata?: { userId?: string }; items?: { data: { current_period_end?: number; price?: { id: string; recurring?: { interval?: string } } }[] } }
@@ -152,18 +168,20 @@ export async function handleEvent(db: Database & { stripeEvents?: string[] }, ev
   if (event.type === 'checkout.session.completed' && o.mode === 'payment' && o.metadata?.kind === 'booking') {
     createPaidBooking(db, o)
   } else if (event.type === 'checkout.session.completed' && o.mode === 'subscription' && o.subscription) {
-    applySubscription(db, await fetchSub(o.subscription), o.client_reference_id ?? o.metadata?.userId)
+    // Si la lecture échoue, customer.subscription.created (qui porte metadata.userId) prend le relais.
+    const s = await fetchSub(o.subscription).catch((e) => { console.error('Stripe: lecture abonnement impossible :', e instanceof Error ? e.message : e); return null })
+    if (s) applySubscription(db, s, o.client_reference_id ?? o.metadata?.userId)
   } else if (event.type.startsWith('customer.subscription.')) {
     applySubscription(db, o)
   } else if (event.type === 'invoice.paid' && o.amount_paid > 0) {
-    const account = findAccount(db, { customer: o.customer, id: o.subscription })
+    const account = findAccount(db, { customer: o.customer, id: o.subscription ?? o.parent?.subscription_details?.subscription })
     if (account && !(db.payments ?? []).some((p) => p.reference === o.id)) {
       const now = new Date().toISOString()
       ;(db.payments ??= []).push({ id: `stripe-${o.id}`, userId: account.user.id, customer: account.user.displayName, bookingId: '', amount: o.amount_paid, currency: 'EUR', hours: 0, method: 'stripe', label: 'Abonnement Autonomie', status: 'paid', createdAt: now, paidAt: now, reference: o.id, fee: 0 })
       ;(db.ledger ??= []).push({ id: `stripe-${o.id}`, date: now, kind: 'income', amount: o.amount_paid, fee: 0, label: `Abonnement Autonomie · ${account.user.displayName}`, reference: o.id, paymentId: `stripe-${o.id}`, actor: 'stripe' })
     }
   } else if (event.type === 'invoice.payment_failed') {
-    const account = findAccount(db, { customer: o.customer, id: o.subscription })
+    const account = findAccount(db, { customer: o.customer, id: o.subscription ?? o.parent?.subscription_details?.subscription })
     if (account) pushNotification(account.progress, { kind: 'payment', title: '⚠️ Paiement de l’abonnement refusé', body: 'Mets à jour ton moyen de paiement pour garder l’accès.', link: '/abonnement' })
   }
   db.stripeEvents = [...(db.stripeEvents ?? []), event.id].slice(-500)

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createHmac } from 'node:crypto'
-import { handleEvent, verifySignature } from '../../server/stripe'
+import { handleEvent, signatureProblem, verifySignature } from '../../server/stripe'
 import type { Account, Database } from '../../server/database'
 import { emptyProgress } from '../lib/model'
 
@@ -15,6 +15,22 @@ describe('Stripe subscriptions', () => {
     expect(verifySignature(raw + ' ', `t=${t},v1=${sig}`, 'whsec_test')).toBe(false)
     expect(verifySignature(raw, `t=${t - 1000},v1=${sig}`, 'whsec_test')).toBe(false)
     expect(verifySignature(raw, `t=${t},v1=${sig}`, '')).toBe(false)
+  })
+  it('accepts several secrets (test + live), ignores pasted spaces and explains refusals', () => {
+    const raw = '{"id":"evt_1","livemode":true,"name":"Léa 한국어"}', t = Math.floor(Date.now() / 1000)
+    const sig = createHmac('sha256', 'whsec_live').update(`${t}.${raw}`).digest('hex')
+    expect(signatureProblem(raw, `t=${t},v1=${sig}`, ' whsec_test, whsec_live\n')).toBe('')
+    expect(signatureProblem(raw, `t=${t},v1=${sig}`, 'whsec_test')).toContain('LIVE')
+    expect(signatureProblem('', `t=${t},v1=${sig}`, 'whsec_live')).toBe('corps de requête vide')
+    expect(signatureProblem(raw, '', 'whsec_live')).toContain('absent')
+  })
+  it('does not fail the webhook when the subscription cannot be read, and finds new-style invoices', async () => {
+    const db: Database = { version: 1, accounts: { lea: account('lea') }, limits: {} }
+    await handleEvent(db, { id: 'evt_a', type: 'checkout.session.completed', data: { object: { mode: 'subscription', subscription: 'sub_1', client_reference_id: 'lea' } } }, async () => { throw new Error('No such subscription') })
+    expect(db.stripeEvents).toContain('evt_a')
+    await handleEvent(db, { id: 'evt_b', type: 'customer.subscription.created', data: { object: sub('active') } })
+    await handleEvent(db, { id: 'evt_c', type: 'invoice.paid', data: { object: { id: 'in_9', customer: 'cus_other', parent: { subscription_details: { subscription: 'sub_1' } }, amount_paid: 9900 } } })
+    expect(db.payments!.find((p) => p.reference === 'in_9')?.userId).toBe('lea')
   })
   it('activates on checkout, records paid invoices once, and ends on cancellation', async () => {
     const db: Database = { version: 1, accounts: { lea: account('lea') }, limits: {} }
