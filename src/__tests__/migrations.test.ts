@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { applyMigrations, pendingMigrations } from '../../server/migrations'
 import type { Account, Database } from '../../server/database'
 import { emptyProgress } from '../lib/model'
+import { hasFullAccess } from '../lib/access'
 
 const account = (id: string, admin = false): Account => ({ user: { id, email: id + '@example.com', username: id, displayName: id, role: admin ? 'admin' : 'student', createdAt: '2026-09-01', avatar: null, bio: '', goal: '', location: '', website: '' }, password: 'x', salt: 'x', sessions: {}, operations: [], progress: emptyProgress() })
 
@@ -22,12 +23,25 @@ describe('one-time data operation: Johny Rajalu', () => {
     expect(johny[0].progress.bookings[0]).toMatchObject({ date: '2026-10-04', time: '12:00', status: 'confirmée', usedCredit: false })
     expect(johny[0].progress.notifications![0].title).toContain('virement')
     expect(db.ledger!.filter((l) => l.paymentId === pay[0].id)).toHaveLength(1)
-    expect(Object.keys(db.accounts)).toHaveLength(3) // rien d'autre n'est touché
+    expect(Object.keys(db.accounts)).toHaveLength(4) // + le profil de Margareth Martin ; rien d'autre n'est touché
     expect(db.accounts.lea.progress).toEqual(emptyProgress())
   })
   it('does nothing without an administrator', async () => {
     const db: Database & { migrations?: string[] } = { version: 1, accounts: { lea: account('lea') }, limits: {} }
     expect(await applyMigrations(db)).toBe(false)
     expect(Object.keys(db.accounts)).toHaveLength(1)
+  })
+})
+
+describe('one-time data operation: Margareth Martin', () => {
+  it('creates an unlimited (non-admin) profile once, with a hashed password only', async () => {
+    const db: Database & { migrations?: string[] } = { version: 1, accounts: { sia: account('sia', true) }, limits: {} }
+    await applyMigrations(db)
+    await applyMigrations(db)
+    const m = Object.values(db.accounts).filter((a) => a.user.email === 'm.seperoumal@gmail.com')
+    expect(m).toHaveLength(1)
+    expect(m[0].user).toMatchObject({ displayName: 'Margareth Martin', username: 'margareth.martin', role: 'student', isDemo: true })
+    expect(m[0].password).toMatch(/^[0-9a-f]{128}$/)
+    expect(hasFullAccess(m[0].user, { enabled: true, launch: '2026-10-06', monthly: 9.9, yearly: 99 }, Date.parse('2027-06-01'))).toBe(true)
   })
 })

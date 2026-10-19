@@ -37,6 +37,29 @@ const MIGRATIONS: { id: string; run: (db: Database) => Promise<boolean> }[] = [
       return true
     },
   },
+  {
+    // Demande du 19 octobre 2026 : profil Margareth Martin, accès illimité (pas administratrice).
+    // Seule l'empreinte scrypt du mot de passe figure ici ; le mot de passe lui est envoyé par e-mail.
+    id: '2026-10-19-margareth-martin',
+    async run(db) {
+      const admin = Object.values(db.accounts).find((a) => a.user.role === 'admin' && a.user.username === 'sia') ?? Object.values(db.accounts).find((a) => a.user.role === 'admin')
+      if (!admin) return false
+      const email = 'm.seperoumal@gmail.com'
+      let m = Object.values(db.accounts).find((a) => a.user.email === email)
+      if (!m) {
+        const username = Object.values(db.accounts).some((a) => a.user.username === 'margareth.martin') ? 'margareth.m' : 'margareth.martin'
+        await adminAction(db, admin, { action: 'adminCreate', operationId: 'migration-margareth-create', displayName: 'Margareth Martin', username, email })
+        m = Object.values(db.accounts).find((a) => a.user.email === email)
+      }
+      if (!m || m.user.role === 'admin') return false
+      m.salt = '214eb74fbf989aa6e7bdf5b50235bdc2f1ffe00c0c1561f0335557c5850ec6f6'
+      m.password = 'ed6a95f7e71d41594fc3ba498f7c01266c1287e13c1106045c4d2ab75806da9975581dbbfee69400c4e467c123f442ed388e76747415726fc996c2a660154291'
+      m.sessions = {}
+      m.user.isDemo = true
+      m.user.suspended = false
+      return true
+    },
+  },
 ]
 
 export const pendingMigrations = (db: Database & { migrations?: string[] }) => MIGRATIONS.filter((m) => !(db.migrations ?? []).includes(m.id))
