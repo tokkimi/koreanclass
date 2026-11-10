@@ -249,6 +249,7 @@ export function Layout() {
           </div>
         </div>
         <div className="container muted small footer-bottom">© {new Date().getFullYear()} {SITE_NAME} · {t('un projet', 'a project by')} {OWNER} · {t('extension de', 'extension of')} <a href={TOKKIMI_URL} target="_blank" rel="noopener">tokkimi.com</a>. {t('Tous droits réservés.', 'All rights reserved.')}</div>
+        <div className="container" style={{ fontSize: '9px', opacity: 0.45, paddingBottom: '8px' }}>Made by Alexia Naudy</div>
       </footer>
     </div>
   )
